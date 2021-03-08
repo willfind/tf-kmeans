@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "js-math-tools": "gitlab:jrc03c/js-math-tools"
+  }
+}
