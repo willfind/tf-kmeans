@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "js-math-tools": "gitlab:jrc03c/js-math-tools"
+    "js-math-tools": "gitlab:jrc03c/js-math-tools",
+    "make-key": "gitlab:jrc03c/make-key"
   }
 }
