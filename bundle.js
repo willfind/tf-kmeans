@@ -10,6 +10,8 @@ function createCanvas(width, height){
   return canvas
 }
 
+seed(12345)
+
 let k = 7
 let centroids = normal([k, 2])
 let x = []
