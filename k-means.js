@@ -36,7 +36,7 @@ class KMeans {
         } catch(e){}
       })
 
-      // print score
+      // score
       let newScore = self.score(x, labels)
       scoreDelta = newScore - previousScore
       previousScore = newScore
