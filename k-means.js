@@ -49,6 +49,7 @@ class KMeans {
     assert(x instanceof DataFrame, "`x` must be a DataFrame!")
 
     let self = this
+    labels = labels || self.predict(x)
 
     return sum(x.values.map((row, i) => {
       let centroid = self.centroids[labels[i]]
@@ -79,6 +80,4 @@ class KMeans {
   }
 }
 
-try {
-  module.exports = KMeans
-} catch(e){}
+module.exports = KMeans
