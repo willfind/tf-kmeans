@@ -17,7 +17,7 @@ let x = []
 
 for (let i=0; i<100; i++){
   let c = centroids[parseInt(random() * centroids.length)]
-  x.push(add(c, scale(0.1, normal(2))))
+  x.push(add(c, scale(0.5, normal(2))))
 }
 
 let kmeans = new KMeans(k)
@@ -31,7 +31,7 @@ plot.setDotSize(2)
 plot.scatter(x.map(p => p[0]), x.map(p => p[1]))
 
 plot.setFillColor("red")
-plot.setDotSize(5)
+plot.setDotSize(10)
 plot.scatter(kmeans.centroids.map(c => c[0]), kmeans.centroids.map(c => c[1]))
 
 },{"./k-means-cv.js":2,"./k-means.js":3,"js-math-tools":8}],2:[function(require,module,exports){
