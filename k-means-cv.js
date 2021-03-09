@@ -1,7 +1,9 @@
 const KMeans = require("./k-means.js")
 
 class KMeansCV {
-  
+
 }
 
-module.exports = KMeansCV
+try {
+  module.exports = KMeansCV
+} catch(e){}

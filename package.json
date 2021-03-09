@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "build": "watchify -e index.js -o bundle.js"
+  },
+
   "dependencies": {
     "js-math-tools": "gitlab:jrc03c/js-math-tools",
     "make-key": "gitlab:jrc03c/make-key"

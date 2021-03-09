@@ -79,4 +79,6 @@ class KMeans {
   }
 }
 
-module.exports = KMeans
+try {
+  module.exports = KMeans
+} catch(e){}

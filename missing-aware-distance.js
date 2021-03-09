@@ -23,4 +23,6 @@ function missingAwareDistance(a, b){
   return sum(pow(subtract(aTemp, bTemp), 2))
 }
 
-module.exports = missingAwareDistance
+try {
+  module.exports = missingAwareDistance
+} catch(e){}
