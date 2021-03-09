@@ -1,19 +1,30 @@
 const missingAwareDistance = require("./missing-aware-distance.js")
 const makeKey = require("make-key")
 
+function isWholeNumber(x){
+  return isNumber(x) && parseInt(x) === x && x >= 0
+}
+
 class KMeans {
-  constructor(k, maxIterations){
+  constructor(k, maxIterations, maxRestarts){
+    assert(isWholeNumber(k), "`k` must be a whole number!")
+    assert(isWholeNumber(maxIterations) || isUndefined(maxIterations), "`maxIterations` must be a whole number or undefined!")
+    assert(isWholeNumber(maxRestarts) || isUndefined(maxRestarts), "`maxRestarts` must be a whole number or undefined!")
+
     let self = this
     self.k = k
     self.maxIterations = maxIterations || 100
     self.centroids = []
+    self.maxRestarts = maxRestarts || 25
   }
 
-  fit(x){
+  _fitWithSeed(x, seedValue){
     assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isWholeNumber(seedValue), "`seedValue` must be a whole number!")
+
+    seed(seedValue)
 
     let self = this
-    x = x.copy()
     self.centroids = normal([self.k, x.shape[1]])
     let previousScore = self.score(x, self.predict(x))
     let scoreDelta = -1e20
@@ -42,6 +53,30 @@ class KMeans {
       previousScore = newScore
     }
 
+    return self
+  }
+
+  fit(x){
+    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+
+    let self = this
+    x = x.copy()
+
+    let seedsToTest = round(add(scale(random(self.maxRestarts), 10000), 10000))
+    let seedWithBestScore = seedsToTest[0]
+    let bestSeedScore = 1e20
+
+    seedsToTest.forEach(seedToTest => {
+      self._fitWithSeed(x, seedToTest)
+      let currentScore = self.score(x)
+
+      if (currentScore < bestSeedScore){
+        bestSeedScore = currentScore
+        seedWithBestScore = seedToTest
+      }
+    })
+
+    self._fitWithSeed(x, seedWithBestScore)
     return self
   }
 

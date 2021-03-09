@@ -1,6 +1,5 @@
 require("js-math-tools").dump()
 const KMeans = require("./k-means.js")
-const KMeansCV = require("./k-means-cv.js")
 
 function createCanvas(width, height){
   let canvas = document.createElement("canvas")
@@ -16,19 +15,20 @@ let x = []
 
 for (let i=0; i<100; i++){
   let c = centroids[parseInt(random() * centroids.length)]
-  x.push(add(c, scale(0.5, normal(2))))
+  x.push(add(c, scale(0.2, normal(2))))
 }
 
+x = new DataFrame(x)
 let kmeans = new KMeans(k)
-kmeans.fit(new DataFrame(x))
+kmeans.fit(x)
 
-let width = 400
-let height = 400
-let plot = new Plot(createCanvas(width, height))
+let plot = new Plot(createCanvas(512, 512))
 plot.setRange(-5, 5, -5, 5)
 plot.setDotSize(2)
-plot.scatter(x.map(p => p[0]), x.map(p => p[1]))
+plot.setFillColor("black")
+plot.scatter(x.values.map(v => v[0]), x.values.map(v => v[1]))
 
-plot.setFillColor("red")
 plot.setDotSize(10)
+plot.setFillColor("red")
+plot.setLineThickness(0)
 plot.scatter(kmeans.centroids.map(c => c[0]), kmeans.centroids.map(c => c[1]))
