@@ -19,7 +19,7 @@ for (let i=0; i<100; i++){
 }
 
 x = new DataFrame(x)
-let kmeans = new KMeans(k)
+let kmeans = new KMeans({k, maxIterations: 10, maxRestarts: 25})
 kmeans.fit(x)
 
 let plot = new Plot(createCanvas(512, 512))

@@ -20,7 +20,7 @@ for (let i=0; i<100; i++){
 }
 
 x = new DataFrame(x)
-let kmeans = new KMeans(k)
+let kmeans = new KMeans({k, maxIterations: 10, maxRestarts: 25})
 kmeans.fit(x)
 
 let plot = new Plot(createCanvas(512, 512))
@@ -43,16 +43,18 @@ function isWholeNumber(x){
 }
 
 class KMeans {
-  constructor(k, maxIterations, maxRestarts){
-    assert(isWholeNumber(k), "`k` must be a whole number!")
-    assert(isWholeNumber(maxIterations) || isUndefined(maxIterations), "`maxIterations` must be a whole number or undefined!")
-    assert(isWholeNumber(maxRestarts) || isUndefined(maxRestarts), "`maxRestarts` must be a whole number or undefined!")
+  constructor(config){
+    assert(typeof(config) === "object", "`config` must be an object with properties `k`, `maxIterations` (optional), and `maxRestarts` (optional)!")
+
+    assert(isWholeNumber(config.k), "`k` must be a whole number!")
+    assert(isWholeNumber(config.maxIterations) || isUndefined(config.maxIterations), "`maxIterations` must be a whole number or undefined!")
+    assert(isWholeNumber(config.maxRestarts) || isUndefined(config.maxRestarts), "`maxRestarts` must be a whole number or undefined!")
 
     let self = this
-    self.k = k
-    self.maxIterations = maxIterations || 100
+    self.k = config.k
+    self.maxIterations = config.maxIterations || 100
     self.centroids = []
-    self.maxRestarts = maxRestarts || 25
+    self.maxRestarts = config.maxRestarts || 25
   }
 
   _fitWithSeed(x, seedValue){
