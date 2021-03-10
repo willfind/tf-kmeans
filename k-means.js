@@ -7,7 +7,7 @@ function isWholeNumber(x){
 
 class KMeans {
   constructor(config){
-    assert(typeof(config) === "object", "`config` must be an object with properties `k`, `maxIterations` (optional), and `maxRestarts` (optional)!")
+    assert(typeof(config) === "object", "`config` must be an object with properties `k`, `maxIterations` (optional), `maxRestarts` (optional), and `shouldShuffle` (optional)!")
 
     assert(isWholeNumber(config.k), "`k` must be a whole number!")
     assert(isWholeNumber(config.maxIterations) || isUndefined(config.maxIterations), "`maxIterations` must be a whole number or undefined!")
