@@ -12,12 +12,14 @@ class KMeans {
     assert(isWholeNumber(config.k), "`k` must be a whole number!")
     assert(isWholeNumber(config.maxIterations) || isUndefined(config.maxIterations), "`maxIterations` must be a whole number or undefined!")
     assert(isWholeNumber(config.maxRestarts) || isUndefined(config.maxRestarts), "`maxRestarts` must be a whole number or undefined!")
+    assert(isBoolean(config.shouldShuffle) || isUndefined(config.shouldShuffle), "`shouldShuffle` must be a boolean or undefined!")
 
     let self = this
     self.k = config.k
     self.maxIterations = config.maxIterations || 100
     self.centroids = []
     self.maxRestarts = config.maxRestarts || 25
+    self.shouldShuffle = !!config.shouldShuffle
   }
 
   _fitWithSeed(x, seedValue){
@@ -63,6 +65,10 @@ class KMeans {
 
     let self = this
     x = x.copy()
+
+    if (self.shouldShuffle){
+      x = x.shuffle()
+    }
 
     let seedsToTest = round(add(scale(random(self.maxRestarts), 10000), 10000))
     let seedWithBestScore = seedsToTest[0]
