@@ -38,7 +38,9 @@ class KMeans {
     seed(seedValue)
 
     let self = this
-    self.centroids = normal([self.k, x.shape[1]])
+    self.centroids = x.shuffle().get(range(0, self.k), null).values
+    if (!self.centroids) return false
+    if (shape(self.centroids).length === 1) self.centroids = [self.centroids]
     let previousScore = self.score(x, self.predict(x))
     let scoreDelta = -1e20
 
@@ -49,7 +51,9 @@ class KMeans {
       let xTemp = x.assign(labelsID, labels)
 
       // move each centroid to the average location of its assigned points
-      self.centroids.forEach((centroid, i) => {
+      for (let i=0; i<self.centroids.length; i++){
+        let centroid = self.centroids[i]
+
         try {
           self.centroids[i] = flatten(
             xTemp.filter(row => row[row.length - 2] === i)
@@ -57,8 +61,10 @@ class KMeans {
             .apply(col => [mean(col)])
             .values
           )
-        } catch(e){}
-      })
+        } catch(e){
+          return false
+        }
+      }
 
       // score
       let newScore = self.score(x, labels)
@@ -66,25 +72,30 @@ class KMeans {
       previousScore = newScore
     }
 
-    return self
+    return true
   }
 
-  fit(x){
+  fit(x, callback){
     assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
 
     let self = this
     let seedsToTest = round(add(scale(random(self.maxRestarts), 10000), 10000))
     let seedWithBestScore = seedsToTest[0]
     let bestSeedScore = 1e20
 
-    seedsToTest.forEach(seedToTest => {
-      self._fitWithSeed(x, seedToTest)
+    seedsToTest.forEach((seedToTest, i) => {
+      let succeeded = self._fitWithSeed(x, seedToTest)
+      if (!succeeded) return
+
       let currentScore = self.score(x)
 
       if (currentScore < bestSeedScore){
         bestSeedScore = currentScore
         seedWithBestScore = seedToTest
       }
+
+      if (callback) callback(i / self.maxRestarts)
     })
 
     self._fitWithSeed(x, seedWithBestScore)
@@ -100,7 +111,7 @@ class KMeans {
     return sum(x.values.map((row, i) => {
       let centroid = self.centroids[labels[i]]
       return missingAwareDistance(centroid, row)
-    }))
+    })) / x.shape[0]
   }
 
   predict(x){

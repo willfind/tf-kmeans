@@ -54,8 +54,9 @@ class KMeansCV {
     self.fittedModel = null
   }
 
-  fit(x){
+  fit(x, callback){
     assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
 
     let self = this
 
@@ -69,12 +70,15 @@ class KMeansCV {
     let previousMeanScore = 1e20
     let bestK = -1
 
-    self.kValues.forEach(k => {
+    self.kValues.forEach((k, kIndex) => {
       if (isDone) return
       let meanScore = 0
 
       for (let i=0; i<self.numberOfFolds; i++){
-        console.log(k, i)
+        if (callback){
+          let progress = kIndex / self.kValues.length + (i / self.numberOfFolds) * (1 / self.kValues.length)
+          callback(progress)
+        }
 
         let idx = range(
           xShape[0] * i / self.numberOfFolds,
@@ -85,10 +89,10 @@ class KMeansCV {
         let xTest = x.get(idx, null)
         let model = new KMeans({k, ...self})
         model.fit(xTrain)
-        meanScore += model.score(xTest) / xTest.shape[0]
+        meanScore += model.score(xTest)
       }
 
-      if (meanScore >= previousMeanScore){
+      if (meanScore > previousMeanScore){
         isDone = true
         bestK = previousK
       }

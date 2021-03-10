@@ -2,6 +2,9 @@
 require("js-math-tools").dump()
 const KMeansCV = require("./k-means-cv.js")
 
+const subtract = (a, b) => add(a, scale(b, -1))
+const divide = (a, b) => scale(a, pow(b, -1))
+
 function createCanvas(width, height){
   let canvas = document.createElement("canvas")
   canvas.width = width
@@ -10,17 +13,13 @@ function createCanvas(width, height){
   return canvas
 }
 
-let k = 7
+function normalize(x){
+  assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+  return x.apply(col => divide(subtract(col, mean(col)), std(col)))
+}
 
-let centroids = range(0, k).map(i => {
-  let radius = 3
-
-  return [
-    radius * cos(i * Math.PI * 2 / k),
-    radius * sin(i * Math.PI * 2 / k),
-  ]
-})
-
+let k = round(random() * 6) + 3
+let centroids = normal([k, 2])
 let x = []
 
 for (let i=0; i<100; i++){
@@ -32,14 +31,16 @@ x = new DataFrame(x)
 
 let kmeans = new KMeansCV({
   kValues: range(1, 16),
-  maxIterations: 25,
-  maxRestarts: 10,
-  numberOfFolds: 10,
+  maxIterations: 5,
+  maxRestarts: 5,
+  numberOfFolds: 4,
   shouldShuffle: false,
 })
 
-kmeans.fit(x)
-console.log(kmeans.centroids.length)
+kmeans.fit(x, progress => console.log(progress.toFixed(2)))
+
+console.log("learned k:", kmeans.centroids.length)
+console.log("actual k:", k)
 
 let plot = new Plot(createCanvas(512, 512))
 plot.setRange(-5, 5, -5, 5)
@@ -49,8 +50,8 @@ plot.setFillColor("red")
 plot.setLineThickness(0)
 plot.scatter(kmeans.centroids.map(c => c[0]), kmeans.centroids.map(c => c[1]))
 
-plot.setDotSize(4)
-plot.setFillColor("rgba(0, 0, 0, 0.1)")
+plot.setDotSize(2)
+plot.setFillColor("rgba(0, 0, 0, 1)")
 plot.scatter(x.values.map(v => v[0]), x.values.map(v => v[1]))
 
 },{"./k-means-cv.js":3,"js-math-tools":9}],2:[function(require,module,exports){
@@ -117,8 +118,9 @@ class KMeansCV {
     self.fittedModel = null
   }
 
-  fit(x){
+  fit(x, callback){
     assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
 
     let self = this
 
@@ -132,12 +134,15 @@ class KMeansCV {
     let previousMeanScore = 1e20
     let bestK = -1
 
-    self.kValues.forEach(k => {
+    self.kValues.forEach((k, kIndex) => {
       if (isDone) return
       let meanScore = 0
 
       for (let i=0; i<self.numberOfFolds; i++){
-        console.log(k, i)
+        if (callback){
+          let progress = kIndex / self.kValues.length + (i / self.numberOfFolds) * (1 / self.kValues.length)
+          callback(progress)
+        }
 
         let idx = range(
           xShape[0] * i / self.numberOfFolds,
@@ -148,10 +153,10 @@ class KMeansCV {
         let xTest = x.get(idx, null)
         let model = new KMeans({k, ...self})
         model.fit(xTrain)
-        meanScore += model.score(xTest) / xTest.shape[0]
+        meanScore += model.score(xTest)
       }
 
-      if (meanScore >= previousMeanScore){
+      if (meanScore > previousMeanScore){
         isDone = true
         bestK = previousK
       }
@@ -230,7 +235,9 @@ class KMeans {
     seed(seedValue)
 
     let self = this
-    self.centroids = normal([self.k, x.shape[1]])
+    self.centroids = x.shuffle().get(range(0, self.k), null).values
+    if (!self.centroids) return false
+    if (shape(self.centroids).length === 1) self.centroids = [self.centroids]
     let previousScore = self.score(x, self.predict(x))
     let scoreDelta = -1e20
 
@@ -241,7 +248,9 @@ class KMeans {
       let xTemp = x.assign(labelsID, labels)
 
       // move each centroid to the average location of its assigned points
-      self.centroids.forEach((centroid, i) => {
+      for (let i=0; i<self.centroids.length; i++){
+        let centroid = self.centroids[i]
+
         try {
           self.centroids[i] = flatten(
             xTemp.filter(row => row[row.length - 2] === i)
@@ -249,8 +258,10 @@ class KMeans {
             .apply(col => [mean(col)])
             .values
           )
-        } catch(e){}
-      })
+        } catch(e){
+          return false
+        }
+      }
 
       // score
       let newScore = self.score(x, labels)
@@ -258,25 +269,30 @@ class KMeans {
       previousScore = newScore
     }
 
-    return self
+    return true
   }
 
-  fit(x){
+  fit(x, callback){
     assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
 
     let self = this
     let seedsToTest = round(add(scale(random(self.maxRestarts), 10000), 10000))
     let seedWithBestScore = seedsToTest[0]
     let bestSeedScore = 1e20
 
-    seedsToTest.forEach(seedToTest => {
-      self._fitWithSeed(x, seedToTest)
+    seedsToTest.forEach((seedToTest, i) => {
+      let succeeded = self._fitWithSeed(x, seedToTest)
+      if (!succeeded) return
+
       let currentScore = self.score(x)
 
       if (currentScore < bestSeedScore){
         bestSeedScore = currentScore
         seedWithBestScore = seedToTest
       }
+
+      if (callback) callback(i / self.maxRestarts)
     })
 
     self._fitWithSeed(x, seedWithBestScore)
@@ -292,7 +308,7 @@ class KMeans {
     return sum(x.values.map((row, i) => {
       let centroid = self.centroids[labels[i]]
       return missingAwareDistance(centroid, row)
-    }))
+    })) / x.shape[0]
   }
 
   predict(x){
