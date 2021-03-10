@@ -6,7 +6,7 @@ class KMeans {
   constructor(config){
     assert(
       typeof(config) === "object",
-      "`config` must be an object with properties `k`, `maxIterations` (optional), `maxRestarts` (optional), and `shouldShuffle` (optional)!"
+      "`config` must be an object with properties `k`, `maxIterations` (optional), and `maxRestarts` (optional)!"
     )
 
     assert(
@@ -24,17 +24,11 @@ class KMeans {
       "`maxRestarts` must be a whole number or undefined!"
     )
 
-    assert(
-      isBoolean(config.shouldShuffle) || isUndefined(config.shouldShuffle),
-      "`shouldShuffle` must be a boolean or undefined!"
-    )
-
     let self = this
     self.k = config.k
     self.maxIterations = config.maxIterations || 100
     self.centroids = []
     self.maxRestarts = config.maxRestarts || 25
-    self.shouldShuffle = !!config.shouldShuffle
   }
 
   _fitWithSeed(x, seedValue){
@@ -79,12 +73,6 @@ class KMeans {
     assert(x instanceof DataFrame, "`x` must be a DataFrame!")
 
     let self = this
-    x = x.copy()
-
-    if (self.shouldShuffle){
-      x = x.shuffle()
-    }
-
     let seedsToTest = round(add(scale(random(self.maxRestarts), 10000), 10000))
     let seedWithBestScore = seedsToTest[0]
     let bestSeedScore = 1e20
