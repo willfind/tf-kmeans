@@ -1,18 +1,33 @@
 const missingAwareDistance = require("./missing-aware-distance.js")
 const makeKey = require("make-key")
-
-function isWholeNumber(x){
-  return isNumber(x) && parseInt(x) === x && x >= 0
-}
+const isWholeNumber = require("./is-whole-number.js")
 
 class KMeans {
   constructor(config){
-    assert(typeof(config) === "object", "`config` must be an object with properties `k`, `maxIterations` (optional), `maxRestarts` (optional), and `shouldShuffle` (optional)!")
+    assert(
+      typeof(config) === "object",
+      "`config` must be an object with properties `k`, `maxIterations` (optional), `maxRestarts` (optional), and `shouldShuffle` (optional)!"
+    )
 
-    assert(isWholeNumber(config.k), "`k` must be a whole number!")
-    assert(isWholeNumber(config.maxIterations) || isUndefined(config.maxIterations), "`maxIterations` must be a whole number or undefined!")
-    assert(isWholeNumber(config.maxRestarts) || isUndefined(config.maxRestarts), "`maxRestarts` must be a whole number or undefined!")
-    assert(isBoolean(config.shouldShuffle) || isUndefined(config.shouldShuffle), "`shouldShuffle` must be a boolean or undefined!")
+    assert(
+      isWholeNumber(config.k),
+      "`k` must be a whole number!"
+    )
+
+    assert(
+      isWholeNumber(config.maxIterations) || isUndefined(config.maxIterations),
+      "`maxIterations` must be a whole number or undefined!"
+    )
+
+    assert(
+      isWholeNumber(config.maxRestarts) || isUndefined(config.maxRestarts),
+      "`maxRestarts` must be a whole number or undefined!"
+    )
+
+    assert(
+      isBoolean(config.shouldShuffle) || isUndefined(config.shouldShuffle),
+      "`shouldShuffle` must be a boolean or undefined!"
+    )
 
     let self = this
     self.k = config.k
