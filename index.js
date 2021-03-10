@@ -17,6 +17,9 @@ function normalize(x){
   return x.apply(col => divide(subtract(col, mean(col)), std(col)))
 }
 
+let theSeed = round(random() * 10000) + 10000
+seed(theSeed)
+
 let k = round(random() * 6) + 3
 let centroids = normal([k, 2])
 let x = []
@@ -27,28 +30,63 @@ for (let i=0; i<100; i++){
 }
 
 x = new DataFrame(x)
+let kValues = range(1, 16)
 
 let kmeans = new KMeansCV({
-  kValues: range(1, 16),
+  kValues,
   maxIterations: 5,
   maxRestarts: 5,
   numberOfFolds: 4,
   shouldShuffle: false,
 })
 
-kmeans.fit(x, progress => console.log(progress.toFixed(2)))
+let scores = kmeans.fit(x, progress => console.log(progress.toFixed(2)))
 
 console.log("learned k:", kmeans.centroids.length)
 console.log("actual k:", k)
+console.log("seed:", theSeed)
 
-let plot = new Plot(createCanvas(512, 512))
-plot.setRange(-5, 5, -5, 5)
+// plot data & centroids
+const width = 512
+const height = 512
 
-plot.setDotSize(10)
-plot.setFillColor("red")
-plot.setLineThickness(0)
-plot.scatter(kmeans.centroids.map(c => c[0]), kmeans.centroids.map(c => c[1]))
+let plot1 = new Plot(createCanvas(width, height))
+plot1.setRange(-5, 5, -5, 5)
 
-plot.setDotSize(2)
-plot.setFillColor("rgba(0, 0, 0, 1)")
-plot.scatter(x.values.map(v => v[0]), x.values.map(v => v[1]))
+plot1.setDotSize(10)
+plot1.setFillColor("red")
+plot1.setLineThickness(0)
+plot1.scatter(kmeans.centroids.map(c => c[0]), kmeans.centroids.map(c => c[1]))
+
+plot1.setDotSize(2)
+plot1.setFillColor("rgba(0, 0, 0, 1)")
+plot1.scatter(x.values.map(v => v[0]), x.values.map(v => v[1]))
+
+// plot error curve
+let plot2 = new Plot(createCanvas(width, height))
+plot2.setRange(-1, max(kValues.slice(0, scores.columns.length)) + 1, -0.1, max(scores.values))
+plot2.setLineThickness(2)
+
+scores.values.forEach(fold => {
+  plot2.setLineColor("rgba(0, 0, 255, 0.25)")
+  plot2.line(kValues.slice(0, fold.length), fold)
+})
+
+let meanScores = flatten(scores.apply(col => [mean(col)]).values)
+plot2.setLineColor("black")
+plot2.setLineThickness(2)
+plot2.line(kValues.slice(0, meanScores.length), meanScores)
+
+plot2.setTextStyle({
+  family: "monospace",
+  size: 10,
+  alignment: "center",
+  baseline: "middle",
+  color: "black",
+})
+
+let tickSize = 0.05
+
+kValues.forEach(k => {
+  plot2.line([k, k], [-tickSize / 2, tickSize / 2])
+})

@@ -69,10 +69,12 @@ class KMeansCV {
     let previousK = -1
     let previousMeanScore = 1e20
     let bestK = -1
+    let allScores = []
 
     self.kValues.forEach((k, kIndex) => {
       if (isDone) return
       let meanScore = 0
+      let scores = []
 
       for (let i=0; i<self.numberOfFolds; i++){
         if (callback){
@@ -89,7 +91,10 @@ class KMeansCV {
         let xTest = x.get(idx, null)
         let model = new KMeans({k, ...self})
         model.fit(xTrain)
-        meanScore += model.score(xTest)
+
+        let score = model.score(xTest)
+        meanScore += score
+        scores.push(score)
       }
 
       if (meanScore > previousMeanScore){
@@ -99,6 +104,7 @@ class KMeansCV {
 
       previousMeanScore = meanScore
       previousK = k
+      allScores.push(scores)
     })
 
     self.fittedModel = new KMeans({
@@ -109,7 +115,11 @@ class KMeansCV {
     })
 
     self.fittedModel.fit(x)
-    return self
+
+    let out = (new DataFrame(allScores)).transpose()
+    out.columns = self.kValues.slice(0, self.kValues.indexOf(bestK) + 2).map(k => "k = " + k)
+    out.index = range(0, self.numberOfFolds).map(i => "fold" + i)
+    return out
   }
 
   get centroids(){
