@@ -12,20 +12,20 @@ function normalize(x){
 
 // weird cases: 11255 w/ completely random; 10145 with 7 centroids in a circle
 
-let theSeed = 10145 // round(random() * 10000) + 10000
+let theSeed = 11255 // round(random() * 10000) + 10000
 seed(theSeed)
 
-let k = 7
-// let centroids = normal([k, 2])
+let k = round(random() * 6) + 3
+let centroids = normal([k, 2])
 
-let centroids = range(0, k).map(i => {
-  let radius = 3
-
-  return [
-    radius * cos(i * 2 * Math.PI / k),
-    radius * sin(i * 2 * Math.PI / k)
-  ]
-})
+// let centroids = range(0, k).map(i => {
+//   let radius = 3
+//
+//   return [
+//     radius * cos(i * 2 * Math.PI / k),
+//     radius * sin(i * 2 * Math.PI / k)
+//   ]
+// })
 
 let x = []
 
@@ -37,20 +37,20 @@ for (let i=0; i<100; i++){
 x = new DataFrame(x)
 let kValues = range(1, 16)
 
-// let kmeans = new KMeansCV({
-//   kValues,
-//   maxIterations: 5,
-//   maxRestarts: 5,
-//   numberOfFolds: 4,
-//   shouldShuffle: false,
-// })
-//
-// let scores = kmeans.fit(x, progress => console.log(progress.toFixed(2)))
-//
-// console.log("learned k:", kmeans.centroids.length)
-// console.log("actual k:", k)
-// console.log("seed:", theSeed)
-//
+let kmeans = new KMeansCV({
+  kValues,
+  maxIterations: 5,
+  maxRestarts: 5,
+  numberOfFolds: 4,
+  shouldShuffle: false,
+})
+
+let scores = kmeans.fit(x, progress => console.log(progress.toFixed(2)))
+
+console.log("learned k:", kmeans.centroids.length)
+console.log("actual k:", k)
+console.log("seed:", theSeed)
+
 // if (kmeans.centroids.length >= k){
 //   window.location.reload()
 // }
@@ -66,13 +66,29 @@ function createContainer(width, height){
 
 const width = 512
 const height = 512
-const container1 = createContainer(width, height)
 
-plotly.newPlot(container1, [
+plotly.newPlot(createContainer(width, height), [
   {
+    name: "centroids",
+    x: kmeans.centroids.map(c => c[0]),
+    y: kmeans.centroids.map(c => c[1]),
+    type: "scatter",
+    mode: "markers",
+    marker: {
+      color: "red",
+      size: 15,
+    },
+  },
+
+  {
+    name: "centroids",
     x: x.get(null, 0).values,
     y: x.get(null, 1).values,
     type: "scatter",
     mode: "markers",
+    marker: {
+      color: "black",
+      size: 4,
+    },
   },
 ])
