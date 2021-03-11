@@ -12,20 +12,23 @@ function normalize(x){
 
 // weird cases: 11255 w/ completely random; 10145 with 7 centroids in a circle
 
-let theSeed = 11255 // round(random() * 10000) + 10000
+// let theSeed = 11255
+// seed(theSeed)
+// let k = round(random() * 6) + 3
+// let centroids = normal([k, 2])
+
+let theSeed = 10145
 seed(theSeed)
+let k = 7
 
-let k = round(random() * 6) + 3
-let centroids = normal([k, 2])
+let centroids = range(0, k).map(i => {
+  let radius = 3
 
-// let centroids = range(0, k).map(i => {
-//   let radius = 3
-//
-//   return [
-//     radius * cos(i * 2 * Math.PI / k),
-//     radius * sin(i * 2 * Math.PI / k)
-//   ]
-// })
+  return [
+    radius * cos(i * 2 * Math.PI / k),
+    radius * sin(i * 2 * Math.PI / k)
+  ]
+})
 
 let x = []
 
@@ -92,3 +95,25 @@ plotly.newPlot(createContainer(width, height), [
     },
   },
 ])
+
+// plot inertia
+plotly.newPlot(createContainer(width * 2, height), scores.values.map((row, i) => {
+  return {
+    name: "fold" + i,
+    x: kValues.slice(0, row.length),
+    y: row,
+    line: {
+      color: "rgba(0, 0, 255, 0.25)",
+    },
+  }
+}).concat({
+  name: "mean across all folds",
+  x: kValues.slice(0, scores.columns.length),
+  y: flatten(scores.apply(col => [mean(col)]).values),
+  type: "scatter",
+  mode: "markers",
+  marker: {
+    size: 10,
+    color: "black",
+  },
+}))
