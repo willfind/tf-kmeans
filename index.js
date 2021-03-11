@@ -12,23 +12,23 @@ function normalize(x){
 
 // weird cases: 11255 w/ completely random; 10145 with 7 centroids in a circle
 
-// let theSeed = 11255
-// seed(theSeed)
-// let k = round(random() * 6) + 3
-// let centroids = normal([k, 2])
-
-let theSeed = 10145
+let theSeed = 11255
 seed(theSeed)
-let k = 7
+let k = round(random() * 6) + 3
+let centroids = normal([k, 2])
 
-let centroids = range(0, k).map(i => {
-  let radius = 3
-
-  return [
-    radius * cos(i * 2 * Math.PI / k),
-    radius * sin(i * 2 * Math.PI / k)
-  ]
-})
+// let theSeed = 10145
+// seed(theSeed)
+// let k = 7
+//
+// let centroids = range(0, k).map(i => {
+//   let radius = 3
+//
+//   return [
+//     radius * cos(i * 2 * Math.PI / k),
+//     radius * sin(i * 2 * Math.PI / k)
+//   ]
+// })
 
 let x = []
 
@@ -42,8 +42,8 @@ let kValues = range(1, 16)
 
 let kmeans = new KMeansCV({
   kValues,
-  maxIterations: 5,
-  maxRestarts: 5,
+  maxIterations: 15,
+  maxRestarts: 15,
   numberOfFolds: 4,
   shouldShuffle: false,
 })
