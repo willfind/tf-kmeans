@@ -97,7 +97,7 @@ class KMeansCV {
         scores.push(score)
       }
 
-      if (meanScore > previousMeanScore){
+      if (meanScore >= previousMeanScore){
         isDone = true
         bestK = previousK
       }
