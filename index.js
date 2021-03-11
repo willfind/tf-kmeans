@@ -81,7 +81,7 @@ plotly.newPlot(createContainer(width, height), [
   },
 
   {
-    name: "centroids",
+    name: "data",
     x: x.get(null, 0).values,
     y: x.get(null, 1).values,
     type: "scatter",
