@@ -1,6 +1,6 @@
 require("js-math-tools").dump()
 const KMeansCV = require("./k-means-cv.js")
-const plotly = require("plotly.js-dist")
+// const plotly = require("plotly.js-dist")
 
 const subtract = (a, b) => add(a, scale(b, -1))
 const divide = (a, b) => scale(a, pow(b, -1))
@@ -12,108 +12,49 @@ function normalize(x){
 
 // weird cases: 11255 w/ completely random; 10145 with 7 centroids in a circle
 
-let theSeed = 11255
-seed(theSeed)
-let k = round(random() * 6) + 3
-let centroids = normal([k, 2])
+let rScores = []
+let actualKs = []
+let learnedKs = []
+let seeds = []
 
-// let theSeed = 10145
-// seed(theSeed)
-// let k = 7
-//
-// let centroids = range(0, k).map(i => {
-//   let radius = 3
-//
-//   return [
-//     radius * cos(i * 2 * Math.PI / k),
-//     radius * sin(i * 2 * Math.PI / k)
-//   ]
-// })
+for (let iteration=0; iteration<100; iteration++){
+  let theSeed = round(random() * 10000) + 10000
+  seed(theSeed)
+  let k = round(random() * 6) + 3
+  let centroids = normal([k, 2])
 
-let x = []
+  let x = []
 
-for (let i=0; i<100; i++){
-  let c = centroids[parseInt(random() * centroids.length)]
-  x.push(add(c, scale(0.1, normal(2))))
-}
-
-x = new DataFrame(x)
-let kValues = range(1, 16)
-
-let kmeans = new KMeansCV({
-  kValues,
-  maxIterations: 15,
-  maxRestarts: 15,
-  numberOfFolds: 4,
-  shouldShuffle: false,
-})
-
-let scores = kmeans.fit(x, progress => console.log(progress.toFixed(2)))
-
-console.log("learned k:", kmeans.centroids.length)
-console.log("actual k:", k)
-console.log("seed:", theSeed)
-
-// if (kmeans.centroids.length >= k){
-//   window.location.reload()
-// }
-
-// plot data & centroids
-function createContainer(width, height){
-  let container = document.createElement("div")
-  container.style.width = `${width}px`
-  container.style.height = `${height}px`
-  document.body.appendChild(container)
-  return container
-}
-
-const width = 512
-const height = 512
-
-plotly.newPlot(createContainer(width, height), [
-  {
-    name: "centroids",
-    x: kmeans.centroids.map(c => c[0]),
-    y: kmeans.centroids.map(c => c[1]),
-    type: "scatter",
-    mode: "markers",
-    marker: {
-      color: "red",
-      size: 15,
-    },
-  },
-
-  {
-    name: "data",
-    x: x.get(null, 0).values,
-    y: x.get(null, 1).values,
-    type: "scatter",
-    mode: "markers",
-    marker: {
-      color: "black",
-      size: 4,
-    },
-  },
-])
-
-// plot inertia
-plotly.newPlot(createContainer(width * 2, height), scores.values.map((row, i) => {
-  return {
-    name: "fold" + i,
-    x: kValues.slice(0, row.length),
-    y: row,
-    line: {
-      color: "rgba(0, 0, 255, 0.25)",
-    },
+  for (let i=0; i<100; i++){
+    let c = centroids[parseInt(random() * centroids.length)]
+    x.push(add(c, scale(0.1, normal(2))))
   }
-}).concat({
-  name: "mean across all folds",
-  x: kValues.slice(0, scores.columns.length),
-  y: flatten(scores.apply(col => [mean(col)]).values),
-  type: "scatter",
-  mode: "markers",
-  marker: {
-    size: 10,
-    color: "black",
-  },
-}))
+
+  x = new DataFrame(x)
+  normalize(x)
+
+  let kValues = range(1, 16)
+
+  let kmeans = new KMeansCV({
+    kValues,
+    maxIterations: 15,
+    maxRestarts: 25,
+    numberOfFolds: 4,
+    shouldShuffle: false,
+  })
+
+  let scores = kmeans.fit(x)
+
+  console.log("===============================")
+  console.log("learned k:", kmeans.centroids.length)
+  console.log("actual k:", k)
+  console.log("seed:", theSeed)
+  console.log("iteration:", iteration)
+
+  seeds.push(theSeed)
+  learnedKs.push(kmeans.centroids.length)
+  actualKs.push(k)
+}
+
+let out = new DataFrame({seeds, learnedKs, actualKs})
+out.toCSV("results.csv")
