@@ -27,7 +27,7 @@ x = new DataFrame(x)
 normalize(x)
 
 let kmeans = new KMeans({k})
-kmeans.fit(x, progress => console.log(progress.toFixed(2)))
+kmeans.fit(x, console.log)
 
 // plot
 function createContainer(width, height){

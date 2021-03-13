@@ -31,75 +31,87 @@ class KMeans {
     self.maxRestarts = config.maxRestarts || 25
   }
 
-  _fitWithSeed(x, seedValue){
+  fit(x){
     assert(x instanceof DataFrame, "`x` must be a DataFrame!")
-    assert(isWholeNumber(seedValue), "`seedValue` must be a whole number!")
-
-    seed(seedValue)
 
     let self = this
-    self.centroids = x.shuffle().get(range(0, self.k), null).values
-    if (!self.centroids) return false
-    if (shape(self.centroids).length === 1) self.centroids = [self.centroids]
-    let previousScore = self.score(x, self.predict(x))
-    let scoreDelta = -1e20
 
-    for (let i=0; i<self.maxIterations && scoreDelta < 0; i++){
-      // assign each point to a centroid
-      let labels = self.predict(x)
-      let labelsID = makeKey(32)
-      let xTemp = x.assign(labelsID, labels)
+    // use kmeans++ to pick starting centroids:
+    // 1a) pick a starting centroid from the data set
+    let xValues = copy(x.values)
+    let index = parseInt(random() * x.index.length)
+    self.centroids = [xValues[index]]
+    xValues.splice(index, 1)
 
-      // move each centroid to the average location of its assigned points
-      for (let i=0; i<self.centroids.length; i++){
-        let centroid = self.centroids[i]
+    // 1b) create a distance cache
+    let cache = ndarray([self.k, x.index.length])
 
-        try {
-          self.centroids[i] = flatten(
-            xTemp.filter(row => row[row.length - 2] === i)
-            .drop(null, labelsID)
-            .apply(col => [mean(col)])
-            .values
-          )
-        } catch(e){
-          return false
-        }
+    // 2) until we've selected k centroids:
+    while (self.centroids.length < self.k){
+      // 2a) get the distances from each remaining point to the closest centroid
+      let distances = xValues.map((point, j) => {
+        let closestCentroidIndex = -1
+        let smallestDistance = 1e20
+
+        self.centroids.forEach((centroid, i) => {
+          let cachedDistance = cache[i][j]
+
+          if (cachedDistance){
+            if (cachedDistance < smallestDistance){
+              smallestDistance = cachedDistance
+              closestCentroidIndex = i
+            }
+          } else {
+            let d = missingAwareDistance(centroid, point)
+            cache[i][j] = d
+
+            if (d < smallestDistance){
+              smallestDistance = d
+              closestCentroidIndex = i
+            }
+          }
+        })
+
+        return smallestDistance
+      })
+
+      // 2b) convert the distances to probabilities
+      let totalDistance = sum(distances)
+      let probabilities = distances.map(d => d / totalDistance)
+
+      // 2c) select a random point to be the next centroid based on the probabilities
+      let r1 = 1
+      let r2 = 2
+      let index = -1
+
+      while (r2 > r1){
+        index = parseInt(random() * probabilities.length)
+        r1 = probabilities[index]
+        r2 = random()
       }
 
-      // score
-      let newScore = self.score(x, labels)
-      scoreDelta = newScore - previousScore
-      previousScore = newScore
+      self.centroids.push(xValues[index])
+      xValues.splice(index, 1)
     }
 
-    return true
-  }
+    // fit centroids to data
+    let previousScore = 1e20
 
-  fit(x, callback){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
-    assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
+    for (let iteration=0; iteration<self.maxIterations; iteration++){
+      let labels = self.predict(x)
 
-    let self = this
-    let seedsToTest = round(add(scale(random(self.maxRestarts), 10000), 10000))
-    let seedWithBestScore = seedsToTest[0]
-    let bestSeedScore = 1e20
+      self.centroids.forEach((centroid, i) => {
+        let points = x.values.filter((row, j) => labels[j] === i)
+        self.centroids[i] = transpose(points).map(row => mean(row))
+      })
 
-    seedsToTest.forEach((seedToTest, i) => {
-      let succeeded = self._fitWithSeed(x, seedToTest)
-      if (!succeeded) return
+      let score = self.score(x, labels)
 
-      let currentScore = self.score(x)
+      if (score >= previousScore) break
+      previousScore = score
+    }
 
-      if (currentScore < bestSeedScore){
-        bestSeedScore = currentScore
-        seedWithBestScore = seedToTest
-      }
-
-      if (callback) callback(i / self.maxRestarts)
-    })
-
-    self._fitWithSeed(x, seedWithBestScore)
-    return self
+    return previousScore
   }
 
   score(x, labels){
