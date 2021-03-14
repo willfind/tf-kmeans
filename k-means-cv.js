@@ -109,8 +109,8 @@ class KMeansCV {
 
     self.fittedModel = new KMeans({
       k: bestK,
-      maxIterations: 100,
-      maxRestarts: 25,
+      maxIterations: 5,
+      maxRestarts: 5,
       shouldShuffle: true,
     })
 

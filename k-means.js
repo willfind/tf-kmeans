@@ -31,87 +31,124 @@ class KMeans {
     self.maxRestarts = config.maxRestarts || 25
   }
 
-  fit(x){
+  fit(x, seedValue){
     assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isUndefined(seedValue) || isWholeNumber(seedValue), "`seedValue` must be undefined or a whole number!")
 
     let self = this
 
-    // use kmeans++ to pick starting centroids:
-    // 1a) pick a starting centroid from the data set
-    let xValues = copy(x.values)
-    let index = parseInt(random() * x.index.length)
-    self.centroids = [xValues[index]]
-    xValues.splice(index, 1)
+    // if a seed value has been provided, only use it
+    if (seedValue){
+      seed(seedValue)
 
-    // 1b) create a distance cache
-    let cache = ndarray([self.k, x.index.length])
+      // use kmeans++ to pick starting centroids:
+      // 1a) pick a starting centroid from the data set
+      let xValues = copy(x.values)
+      let index = parseInt(random() * x.index.length)
+      self.centroids = [xValues[index]]
+      xValues.splice(index, 1)
 
-    // 2) until we've selected k centroids:
-    while (self.centroids.length < self.k){
-      // 2a) get the distances from each remaining point to the closest centroid
-      let distances = xValues.map((point, j) => {
-        let closestCentroidIndex = -1
-        let smallestDistance = 1e20
+      // 1b) create a distance cache
+      let cache = ndarray([self.k, x.index.length])
 
-        self.centroids.forEach((centroid, i) => {
-          let cachedDistance = cache[i][j]
+      // 2) until we've selected k centroids:
+      while (self.centroids.length < self.k){
+        // 2a) get the distances from each remaining point to the closest centroid
+        let distances = xValues.map((point, j) => {
+          let closestCentroidIndex = -1
+          let smallestDistance = 1e20
 
-          if (cachedDistance){
-            if (cachedDistance < smallestDistance){
-              smallestDistance = cachedDistance
-              closestCentroidIndex = i
+          self.centroids.forEach((centroid, i) => {
+            let cachedDistance = cache[i][j]
+
+            if (cachedDistance){
+              if (cachedDistance < smallestDistance){
+                smallestDistance = cachedDistance
+                closestCentroidIndex = i
+              }
+            } else {
+              let d
+
+              try {
+                d = missingAwareDistance(centroid, point)
+              } catch(e){
+                d = 1e20
+              }
+
+              cache[i][j] = d
+
+              if (d < smallestDistance){
+                smallestDistance = d
+                closestCentroidIndex = i
+              }
             }
-          } else {
-            let d = missingAwareDistance(centroid, point)
-            cache[i][j] = d
+          })
 
-            if (d < smallestDistance){
-              smallestDistance = d
-              closestCentroidIndex = i
-            }
-          }
+          return smallestDistance
         })
 
-        return smallestDistance
-      })
+        // 2b) convert the distances to probabilities
+        let totalDistance = sum(distances)
+        let probabilities = distances.map(d => d / totalDistance)
 
-      // 2b) convert the distances to probabilities
-      let totalDistance = sum(distances)
-      let probabilities = distances.map(d => d / totalDistance)
+        // 2c) select a random point to be the next centroid based on the probabilities
+        let r1 = 1
+        let r2 = 2
+        let index = -1
+        let innerCounter = 0
 
-      // 2c) select a random point to be the next centroid based on the probabilities
-      let r1 = 1
-      let r2 = 2
-      let index = -1
+        while (r2 > r1 && innerCounter < 10000){
+          index = parseInt(random() * probabilities.length)
+          r1 = probabilities[index]
+          r2 = random()
+          innerCounter++
+        }
 
-      while (r2 > r1){
-        index = parseInt(random() * probabilities.length)
-        r1 = probabilities[index]
-        r2 = random()
+        if (innerCounter >= 10000) index = 0
+        self.centroids.push(xValues[index])
+        xValues.splice(index, 1)
       }
 
-      self.centroids.push(xValues[index])
-      xValues.splice(index, 1)
+      // fit centroids to data
+      let previousScore = 1e20
+
+      for (let iteration=0; iteration<self.maxIterations; iteration++){
+        let labels = self.predict(x)
+
+        self.centroids.forEach((centroid, i) => {
+          let points = x.values.filter((row, j) => labels[j] === i)
+          if (points.length === 0) throw new Error()
+          self.centroids[i] = transpose(points).map(row => mean(row))
+        })
+
+        let score = self.score(x, labels)
+
+        if (score >= previousScore) break
+        previousScore = score
+      }
+
+      return previousScore
     }
 
-    // fit centroids to data
-    let previousScore = 1e20
+    // otherwise, try out multiple seed values
+    else {
+      let seedValuesToTest = random(self.maxRestarts).map(v => round(v * 10000) + 10000)
+      let bestSeedValueScore = 1e20
+      let bestSeedValue = seedValuesToTest[0]
 
-    for (let iteration=0; iteration<self.maxIterations; iteration++){
-      let labels = self.predict(x)
+      seedValuesToTest.forEach(seedValue => {
+        try {
+          let score = self.fit(x, seedValue)
 
-      self.centroids.forEach((centroid, i) => {
-        let points = x.values.filter((row, j) => labels[j] === i)
-        self.centroids[i] = transpose(points).map(row => mean(row))
+          if (score < bestSeedValueScore){
+            bestSeedValueScore = score
+            bestSeedValue = seedValue
+          }
+        } catch(e){}
       })
 
-      let score = self.score(x, labels)
-
-      if (score >= previousScore) break
-      previousScore = score
+      return self.fit(x, bestSeedValue)
     }
-
-    return previousScore
   }
 
   score(x, labels){

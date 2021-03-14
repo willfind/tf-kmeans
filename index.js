@@ -1,5 +1,5 @@
 require("js-math-tools").dump()
-const KMeans = require("./k-means.js")
+const KMeansCV = require("./k-means-cv.js")
 const plotly = require("plotly.js-dist")
 
 const subtract = (a, b) => add(a, scale(b, -1))
@@ -11,6 +11,7 @@ function normalize(x){
 }
 
 // weird cases: 11255 w/ completely random; 10145 with 7 centroids in a circle
+// new weird cases: 14413
 let theSeed = round(random() * 10000) + 10000
 seed(theSeed)
 let k = round(random() * 6) + 3
@@ -24,10 +25,24 @@ for (let i=0; i<100; i++){
 }
 
 x = new DataFrame(x)
-normalize(x)
+x = normalize(x)
 
-let kmeans = new KMeans({k})
-kmeans.fit(x, console.log)
+let kValues = range(1, 16)
+
+let kmeans = new KMeansCV({
+  kValues,
+  maxRestarts: 5,
+  maxIterations: 5,
+  shouldShuffle: false,
+  numberOfFolds: 4,
+})
+
+let scores = kmeans.fit(x, console.log)
+console.log(scores)
+
+console.log("seed:", theSeed)
+console.log("actual k:", k)
+console.log("learned k:", kmeans.centroids.length)
 
 // plot
 function createContainer(width, height){
