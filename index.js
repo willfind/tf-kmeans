@@ -1,5 +1,5 @@
 require("js-math-tools").dump()
-const KMeans = require("./k-means.js")
+const KMeansPlusPlus = require("./k-means++.js")
 const plotly = require("plotly.js-dist")
 
 const subtract = (a, b) => add(a, scale(b, -1))
@@ -26,8 +26,8 @@ for (let i=0; i<100; i++){
 x = new DataFrame(x)
 normalize(x)
 
-let kmeans = new KMeans({k})
-kmeans.fit(x, progress => console.log(progress.toFixed(2)))
+let kmeans = new KMeansPlusPlus({k})
+kmeans.fit(x)
 
 // plot
 function createContainer(width, height){
