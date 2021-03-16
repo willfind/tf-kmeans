@@ -26,9 +26,10 @@ class KMeans {
 
     let self = this
     self.k = config.k
-    self.maxIterations = config.maxIterations || 100
+    self.maxIterations = config.maxIterations || 300
     self.centroids = []
-    self.maxRestarts = config.maxRestarts || 25
+    self.maxRestarts = config.maxRestarts || 10
+    self.tolerance = 1e-4
   }
 
   initializeCentroids(x){
@@ -53,7 +54,7 @@ class KMeans {
       self.initializeCentroids(x)
 
       // for some iterations:
-      let previousScore = Infinity
+      let previousCentroids = copy(self.centroids)
 
       for (let iteration=0; iteration<self.maxIterations; iteration++){
         // assign each point to a centroid
@@ -62,18 +63,22 @@ class KMeans {
         // move the centroids to the mean of their assigned points
         self.centroids.forEach((centroid, i) => {
           let points = x.values.filter((point, j) => labels[j] === i)
-          self.centroids[i] = transpose(points).map(row => mean(row))
+
+          if (points.length > 0){
+            self.centroids[i] = transpose(points).map(row => mean(row))
+          }
         })
 
-        // check the score
-        let score = self.score(x, labels)
+        // if the centroids haven't moved, then break
+        if (distance(self.centroids, previousCentroids) < self.tolerance){
+          break
+        }
 
-        // if the score is the same or worse, then stop iterating
-        if (score >= previousScore) break
-        previousScore = score
+        // otherwise, record the centroids
+        previousCentroids = copy(self.centroids)
       }
 
-      return previousScore
+      return self.score(x)
     }
 
     // otherwise, try out a bunch of seed values

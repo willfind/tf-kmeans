@@ -17,7 +17,7 @@ let actualKs = []
 let learnedKsNaive = []
 let learnedKsPlusPlus = []
 
-for (let iteration=0; iteration<250; iteration++){
+for (let iteration=0; iteration<100; iteration++){
   let k = round(random() * 6) + 3
   let centroids = normal([k, 2])
 
@@ -34,20 +34,20 @@ for (let iteration=0; iteration<250; iteration++){
   let kValues = range(1, 16)
   let config = {
     kValues,
-    maxRestarts: 5,
-    maxIterations: 5,
+    maxRestarts: 10,
+    maxIterations: 300,
     numberOfFolds: 4,
     shouldShuffle: false,
   }
 
   let kMeansNaive = new KMeansCV({
     ...config,
-    model: KMeans,
+    class: KMeans,
   })
 
   let kMeansPlusPlus = new KMeansCV({
     ...config,
-    model: KMeansPlusPlus,
+    class: KMeansPlusPlus,
   })
 
   let naiveScores = kMeansNaive.fit(x)

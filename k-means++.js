@@ -31,7 +31,7 @@ class KMeansPlusPlus extends KMeans {
           if (cachedDistance){
             d = cachedDistance
           } else {
-            d = pow(missingAwareDistance(centroid, point), 2)
+            d = missingAwareDistance(centroid, point)
             cache[i][j] = d
           }
 
