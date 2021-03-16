@@ -38,7 +38,7 @@ class KMeansPlusPlus extends KMeans {
             if (cachedDistance){
               d = cachedDistance
             } else {
-              d = missingAwareDistance(centroid, point)
+              d = pow(missingAwareDistance(centroid, point), 2)
               cache[i][j] = d
             }
 
@@ -56,13 +56,18 @@ class KMeansPlusPlus extends KMeans {
         let probabilities = distances.map(d => d / totalDistance)
 
         // 2c) use the probabilities to randomly select a point to be the next centroid
-        let indices = []
+        let r1 = 1
+        let r2 = 2
+        let counter = 0
+        index = 0
 
-        probabilities.forEach((p, i) => {
-          range(0, p * 100).forEach(() => indices.push(i))
-        })
+        while (r2 > r1 && counter < 10000){
+          index = parseInt(random() * probabilities.length)
+          r1 = probabilities[index]
+          r2 = random()
+          counter++
+        }
 
-        index = indices[parseInt(random() * indices.length)]
         centroids.push(xValues[index])
       }
 

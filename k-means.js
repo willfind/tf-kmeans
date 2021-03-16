@@ -124,12 +124,14 @@ class KMeans {
       let smallestDistance = 1e20
 
       self.centroids.forEach((centroid, i) => {
-        let d = missingAwareDistance(centroid, row)
+        try {
+          let d = missingAwareDistance(centroid, row)
 
-        if (d < smallestDistance){
-          smallestDistance = d
-          closestCentroidIndex = i
-        }
+          if (d < smallestDistance){
+            smallestDistance = d
+            closestCentroidIndex = i
+          }
+        } catch(e){}
       })
 
       return closestCentroidIndex
