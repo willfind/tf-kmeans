@@ -51,9 +51,9 @@ class KMeansCV {
 
     let self = this
     self.kValues = config.kValues || range(1, 16)
-    self.maxIterations = config.maxIterations || 100
-    self.maxRestarts = config.maxRestarts || 25
-    self.numberOfFolds = config.numberOfFolds || 10
+    self.maxIterations = config.maxIterations || 300
+    self.maxRestarts = config.maxRestarts || 10
+    self.numberOfFolds = config.numberOfFolds || 4
     self.shouldShuffle = !!config.shouldShuffle
     self.class = config.class || KMeansPlusPlus
     self.fittedModel = null
@@ -116,7 +116,6 @@ class KMeansCV {
       k: bestK,
       maxIterations: 300,
       maxRestarts: 50,
-      shouldShuffle: true,
     })
 
     self.fittedModel.fit(x)

@@ -17,7 +17,7 @@ let actualKs = []
 let learnedKsNaive = []
 let learnedKsPlusPlus = []
 
-for (let iteration=0; iteration<100; iteration++){
+for (let iteration=0; iteration<250; iteration++){
   let k = round(random() * 6) + 3
   let centroids = normal([k, 2])
 
@@ -35,7 +35,7 @@ for (let iteration=0; iteration<100; iteration++){
   let config = {
     kValues,
     maxRestarts: 10,
-    maxIterations: 300,
+    maxIterations: 100,
     numberOfFolds: 4,
     shouldShuffle: false,
   }
