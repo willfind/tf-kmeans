@@ -17,7 +17,7 @@ let actualKs = []
 let learnedKsNaive = []
 let learnedKsPlusPlus = []
 
-for (let iteration=0; iteration<250; iteration++){
+for (let iteration=0; iteration<100; iteration++){
   let k = round(random() * 6) + 3
   let centroids = normal([k, 2])
 
