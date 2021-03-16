@@ -55,7 +55,7 @@ class KMeansCV {
     self.maxRestarts = config.maxRestarts || 25
     self.numberOfFolds = config.numberOfFolds || 10
     self.shouldShuffle = !!config.shouldShuffle
-    self.class = config.class || null
+    self.class = config.class || KMeansPlusPlus
     self.fittedModel = null
   }
 
