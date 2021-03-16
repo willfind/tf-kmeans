@@ -1,4 +1,4 @@
-const KMeans = require("./k-means.js")
+const KMeansPlusPlus = require("./k-means++.js")
 const isWholeNumber = require("./is-whole-number.js")
 
 class KMeansCV {
@@ -45,12 +45,17 @@ class KMeansCV {
       "`shouldShuffle` must be a boolean or undefined!"
     )
 
+    assert(
+      isFunction(config.class) || isUndefined(config.class), "`class` should be a class, a function, or undefined!"
+    )
+
     let self = this
     self.kValues = config.kValues || range(1, 16)
     self.maxIterations = config.maxIterations || 100
     self.maxRestarts = config.maxRestarts || 25
     self.numberOfFolds = config.numberOfFolds || 10
     self.shouldShuffle = !!config.shouldShuffle
+    self.class = config.class || KMeansPlusPlus
     self.fittedModel = null
   }
 
@@ -89,7 +94,7 @@ class KMeansCV {
 
         let xTrain = x.drop(idx, null)
         let xTest = x.get(idx, null)
-        let model = new KMeans({k, ...self})
+        let model = new self.class({k, ...self})
         model.fit(xTrain)
 
         let score = model.score(xTest)
@@ -107,10 +112,10 @@ class KMeansCV {
       allScores.push(scores)
     })
 
-    self.fittedModel = new KMeans({
+    self.fittedModel = new self.class({
       k: bestK,
-      maxIterations: 100,
-      maxRestarts: 25,
+      maxIterations: 200,
+      maxRestarts: 50,
       shouldShuffle: true,
     })
 
