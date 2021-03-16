@@ -20,7 +20,7 @@ function missingAwareDistance(a, b){
     }
   }
 
-  return sum(pow(subtract(aTemp, bTemp), 2))
+  return sum(pow(subtract(aTemp, bTemp), 2)) / aTemp.length
 }
 
 module.exports = missingAwareDistance
