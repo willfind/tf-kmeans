@@ -1,6 +1,7 @@
 const missingAwareDistance = require("./missing-aware-distance.js")
 const makeKey = require("make-key")
 const isWholeNumber = require("./is-whole-number.js")
+const isMatrix = require("./is-matrix.js")
 
 class KMeans {
   constructor(config){
@@ -33,15 +34,15 @@ class KMeans {
   }
 
   initializeCentroids(x){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
-    self.centroids = normal([self.k, x.columns.length])
+    self.centroids = normal([self.k, x[0].length])
     return self
   }
 
   fit(x, seedValue){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
 
@@ -62,7 +63,7 @@ class KMeans {
 
         // move the centroids to the mean of their assigned points
         self.centroids.forEach((centroid, i) => {
-          let points = x.values.filter((point, j) => labels[j] === i)
+          let points = x.filter((point, j) => labels[j] === i)
 
           if (points.length > 0){
             self.centroids[i] = transpose(points).map(row => mean(row))
@@ -103,27 +104,27 @@ class KMeans {
   }
 
   score(x, labels){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isMatrix(x), "`x` must be a matrix!")
     assert(isUndefined(labels) || isArray(labels), "`labels` must be undefined or an array of whole numbers!")
 
     let self = this
     labels = labels || self.predict(x)
 
-    return sum(x.values.map((row, i) => {
+    return sum(x.map((row, i) => {
       let label = labels[i]
       assert(isWholeNumber(label), "`labels` must be undefined or an array of whole numbers!")
 
       let centroid = self.centroids[labels[i]]
       return missingAwareDistance(centroid, row)
-    })) / x.shape[0]
+    })) / x.length
   }
 
   predict(x){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
 
-    return x.values.map(row => {
+    return x.map(row => {
       let closestCentroidIndex = 0
       let smallestDistance = Infinity
 

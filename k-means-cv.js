@@ -1,5 +1,6 @@
 const KMeansPlusPlus = require("./k-means++.js")
 const isWholeNumber = require("./is-whole-number.js")
+const isMatrix = require("./is-matrix.js")
 
 class KMeansCV {
   constructor(config){
@@ -60,13 +61,13 @@ class KMeansCV {
   }
 
   fit(x, callback){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isMatrix(x), "`x` must be a matrix!")
     assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
 
     let self = this
 
     if (self.shouldShuffle){
-      x = x.shuffle()
+      x = shuffle(x)
     }
 
     let xShape = x.shape
@@ -88,12 +89,12 @@ class KMeansCV {
         }
 
         let idx = range(
-          xShape[0] * i / self.numberOfFolds,
-          xShape[0] * (i + 1) / self.numberOfFolds
+          x.length * i / self.numberOfFolds,
+          x.length * (i + 1) / self.numberOfFolds
         )
 
-        let xTrain = x.drop(idx, null)
-        let xTest = x.get(idx, null)
+        let xTrain = x.filter((row, i) => idx.indexOf(i) < 0)
+        let xTest = x.filter((row, i) => idx.indexOf(i) > -1)
         let model = new self.class({k, ...self})
         model.fit(xTrain)
 
@@ -120,10 +121,7 @@ class KMeansCV {
 
     self.fittedModel.fit(x)
 
-    let out = (new DataFrame(allScores)).transpose()
-    out.columns = self.kValues.slice(0, self.kValues.indexOf(bestK) + 2).map(k => "k = " + k)
-    out.index = range(0, self.numberOfFolds).map(i => "fold" + i)
-    return out
+    return allScores
   }
 
   get centroids(){

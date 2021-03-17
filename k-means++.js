@@ -1,26 +1,26 @@
 const KMeans = require("./k-means.js")
 const isWholeNumber = require("./is-whole-number.js")
 const missingAwareDistance = require("./missing-aware-distance.js")
+const isMatrix = require("./is-matrix.js")
 
 class KMeansPlusPlus extends KMeans {
   initializeCentroids(x){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
 
     // initialize centroids using the kmeans++ algorithm
     // 1a) select a random point from the data to be the first centroid
-    let xValues = copy(x.values)
-    let index = parseInt(random() * xValues.length)
-    let centroids = [xValues[index]]
+    let index = parseInt(random() * x.length)
+    let centroids = [x[index]]
 
     // 1b) create a distance cache
-    let cache = ndarray([self.k, xValues.length])
+    let cache = ndarray([self.k, x.length])
 
     // until we have k centroids:
     while (centroids.length < self.k){
       // 2a) get all of the distances from each point to the closest centroid
-      let distances = xValues.map((point, j) => {
+      let distances = x.map((point, j) => {
         let closestCentroidIndex = 0
         let closestCentroidDistance = Infinity
 
@@ -61,7 +61,7 @@ class KMeansPlusPlus extends KMeans {
         counter++
       }
 
-      centroids.push(xValues[index])
+      centroids.push(x[index])
     }
 
     self.centroids = centroids
