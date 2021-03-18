@@ -19,14 +19,16 @@ function normalize(x){
 
 seed(12345)
 
+let rows = 250
+let cols = 15
 let k = round(random() * 6) + 3
-let centroids = normal([k, 2])
+let centroids = normal([k, cols])
 
 let x = []
 
-for (let i=0; i<100; i++){
+for (let i=0; i<rows; i++){
   let c = centroids[parseInt(random() * centroids.length)]
-  x.push(add(c, scale(0.1, normal(2))))
+  x.push(add(c, scale(0.1, normal(cols))))
 }
 
 x = normalize(x)

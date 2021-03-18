@@ -66,7 +66,7 @@ class KMeans {
           let points = x.filter((point, j) => labels[j] === i)
 
           if (points.length > 0){
-            self.centroids[i] = transpose(points).map(row => mean(row))
+            self.centroids[i] = transpose(points).map(point => mean(point))
           }
         })
 
@@ -110,12 +110,12 @@ class KMeans {
     let self = this
     labels = labels || self.predict(x)
 
-    return sum(x.map((row, i) => {
+    return sum(x.map((point, i) => {
       let label = labels[i]
       assert(isWholeNumber(label), "`labels` must be undefined or an array of whole numbers!")
 
       let centroid = self.centroids[labels[i]]
-      return missingAwareDistance(centroid, row)
+      return missingAwareDistance(centroid, point)
     })) / x.length
   }
 
@@ -123,24 +123,27 @@ class KMeans {
     assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
+    let out = []
 
-    return x.map(row => {
+    for (let i=0; i<x.length; i++){
+      let point = x[i]
       let closestCentroidIndex = 0
       let smallestDistance = Infinity
 
-      self.centroids.forEach((centroid, i) => {
-        try {
-          let d = missingAwareDistance(centroid, row)
+      for (let j=0; j<self.centroids.length; j++){
+        let centroid = self.centroids[j]
+        let d = missingAwareDistance(centroid, point)
 
-          if (d < smallestDistance){
-            smallestDistance = d
-            closestCentroidIndex = i
-          }
-        } catch(e){}
-      })
+        if (d < smallestDistance){
+          smallestDistance = d
+          closestCentroidIndex = j
+        }
+      }
 
-      return closestCentroidIndex
-    })
+      out.push(closestCentroidIndex)
+    }
+
+    return out
   }
 }
 
