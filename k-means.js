@@ -33,75 +33,74 @@ class KMeans {
     self.tolerance = 1e-4
   }
 
-  _fitWithSeed(x, seedValue){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
-    assert(isWholeNumber(seedValue), "`seedValue` must be a whole number!")
-
-    seed(seedValue)
+  initializeCentroids(x){
+    assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
-    self.centroids = x.shuffle().get(range(0, self.k), null).values
-    if (!self.centroids) return false
-    if (shape(self.centroids).length === 1) self.centroids = [self.centroids]
-    let previousScore = self.score(x, self.predict(x))
-    let scoreDelta = -1e20
-
-    for (let i=0; i<self.maxIterations && scoreDelta < 0; i++){
-      // assign each point to a centroid
-      let labels = self.predict(x)
-      let labelsID = makeKey(32)
-      let xTemp = x.assign(labelsID, labels)
-
-      // move each centroid to the average location of its assigned points
-      for (let i=0; i<self.centroids.length; i++){
-        let centroid = self.centroids[i]
-
-        try {
-          self.centroids[i] = flatten(
-            xTemp.filter(row => row[row.length - 2] === i)
-            .drop(null, labelsID)
-            .apply(col => [mean(col)])
-            .values
-          )
-        } catch(e){
-          return false
-        }
-      }
-
-      // score
-      let newScore = self.score(x, labels)
-      scoreDelta = newScore - previousScore
-      previousScore = newScore
-    }
-
-    return true
+    self.centroids = normal([self.k, x[0].length])
+    return self
   }
 
-  fit(x, callback){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
-    assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
+  fit(x, seedValue){
+    assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
-    let seedsToTest = round(add(scale(random(self.maxRestarts), 10000), 10000))
-    let seedWithBestScore = seedsToTest[0]
-    let bestSeedScore = 1e20
 
-    seedsToTest.forEach((seedToTest, i) => {
-      let succeeded = self._fitWithSeed(x, seedToTest)
-      if (!succeeded) return
+    // if there's a seed value, then use it
+    if (seedValue){
+      // seed with seed value
+      seed(seedValue)
 
-      let currentScore = self.score(x)
+      // set centroid starting positions
+      self.initializeCentroids(x)
 
-      if (currentScore < bestSeedScore){
-        bestSeedScore = currentScore
-        seedWithBestScore = seedToTest
+      // for some iterations:
+      let previousCentroids = copy(self.centroids)
+
+      for (let iteration=0; iteration<self.maxIterations; iteration++){
+        // assign each point to a centroid
+        let labels = self.predict(x)
+
+        // move the centroids to the mean of their assigned points
+        self.centroids.forEach((centroid, i) => {
+          let points = x.filter((point, j) => labels[j] === i)
+
+          if (points.length > 0){
+            self.centroids[i] = transpose(points).map(point => mean(point))
+          }
+        })
+
+        // if the centroids haven't moved, then break
+        if (distance(self.centroids, previousCentroids) < self.tolerance){
+          break
+        }
+
+        // otherwise, record the centroids
+        previousCentroids = copy(self.centroids)
       }
 
-      if (callback) callback(i / self.maxRestarts)
-    })
+      return self.score(x)
+    }
 
-    self._fitWithSeed(x, seedWithBestScore)
-    return self
+    // otherwise, try out a bunch of seed values
+    else {
+      let seedValues = random(self.maxRestarts).map(v => round(v * 10000) + 10000)
+      let bestSeedValue = seedValues[0]
+      let bestSeedValueScore = Infinity
+
+      seedValues.forEach(seedValue => {
+        try {
+          let score = self.fit(x, seedValue)
+
+          if (score < bestSeedValueScore){
+            bestSeedValueScore = score
+            bestSeedValue = seedValue
+          }
+        } catch(e){}
+      })
+
+      return self.fit(x, bestSeedValue)
+    }
   }
 
   score(x, labels){

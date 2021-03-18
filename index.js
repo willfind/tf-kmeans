@@ -1,7 +1,6 @@
 require("js-math-tools").dump()
-const KMeans = require("./k-means.js")
-const plotly = require("plotly.js-dist")
-
+const KMeansCV = require("./k-means-cv.js")
+const isMatrix = require("./is-matrix.js")
 const subtract = (a, b) => add(a, scale(b, -1))
 const divide = (a, b) => scale(a, pow(b, -1))
 
@@ -18,9 +17,10 @@ function normalize(x){
   )
 }
 
-// weird cases: 11255 w/ completely random; 10145 with 7 centroids in a circle
-let theSeed = round(random() * 10000) + 10000
-seed(theSeed)
+seed(12345)
+
+let rows = 250
+let cols = 15
 let k = round(random() * 6) + 3
 let centroids = normal([k, cols])
 
@@ -31,11 +31,9 @@ for (let i=0; i<rows; i++){
   x.push(add(c, scale(0.1, normal(cols))))
 }
 
-x = new DataFrame(x)
-normalize(x)
+x = normalize(x)
 
-let kmeans = new KMeans({k})
-kmeans.fit(x, progress => console.log(progress.toFixed(2)))
+let kValues = range(1, 16)
 
 let kmeans = new KMeansCV({
   kValues,
