@@ -89,8 +89,8 @@ class KMeansCV {
         }
 
         let idx = range(
-          x.length * i / self.numberOfFolds,
-          x.length * (i + 1) / self.numberOfFolds
+          parseInt(x.length * i / self.numberOfFolds),
+          parseInt(x.length * (i + 1) / self.numberOfFolds)
         )
 
         let xTrain = x.filter((row, i) => idx.indexOf(i) < 0)
