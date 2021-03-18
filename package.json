@@ -3,6 +3,7 @@
     "build": "watchify -e index.js -o bundle.js"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^3.3.0",
     "js-math-tools": "gitlab:jrc03c/js-math-tools",
     "make-key": "gitlab:jrc03c/make-key",
     "plotly.js-dist": "^1.58.4"
