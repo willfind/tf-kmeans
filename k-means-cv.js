@@ -1,5 +1,6 @@
-const KMeans = require("./k-means.js")
+const KMeansPlusPlus = require("./k-means++.js")
 const isWholeNumber = require("./is-whole-number.js")
+const isMatrix = require("./is-matrix.js")
 
 class KMeansCV {
   constructor(config){
@@ -45,23 +46,28 @@ class KMeansCV {
       "`shouldShuffle` must be a boolean or undefined!"
     )
 
+    assert(
+      isFunction(config.class) || isUndefined(config.class), "`class` should be a class, a function, or undefined!"
+    )
+
     let self = this
     self.kValues = config.kValues || range(1, 16)
-    self.maxIterations = config.maxIterations || 100
-    self.maxRestarts = config.maxRestarts || 25
-    self.numberOfFolds = config.numberOfFolds || 10
+    self.maxIterations = config.maxIterations || 300
+    self.maxRestarts = config.maxRestarts || 10
+    self.numberOfFolds = config.numberOfFolds || 4
     self.shouldShuffle = !!config.shouldShuffle
+    self.class = config.class || KMeansPlusPlus
     self.fittedModel = null
   }
 
   fit(x, callback){
-    assert(x instanceof DataFrame, "`x` must be a DataFrame!")
+    assert(isMatrix(x), "`x` must be a matrix!")
     assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
 
     let self = this
 
     if (self.shouldShuffle){
-      x = x.shuffle()
+      x = shuffle(x)
     }
 
     let xShape = x.shape
@@ -83,13 +89,13 @@ class KMeansCV {
         }
 
         let idx = range(
-          xShape[0] * i / self.numberOfFolds,
-          xShape[0] * (i + 1) / self.numberOfFolds
+          parseInt(x.length * i / self.numberOfFolds),
+          parseInt(x.length * (i + 1) / self.numberOfFolds)
         )
 
-        let xTrain = x.drop(idx, null)
-        let xTest = x.get(idx, null)
-        let model = new KMeans({k, ...self})
+        let xTrain = x.filter((row, i) => idx.indexOf(i) < 0)
+        let xTest = x.filter((row, i) => idx.indexOf(i) > -1)
+        let model = new self.class({k, ...self})
         model.fit(xTrain)
 
         let score = model.score(xTest)
@@ -107,19 +113,15 @@ class KMeansCV {
       allScores.push(scores)
     })
 
-    self.fittedModel = new KMeans({
+    self.fittedModel = new self.class({
       k: bestK,
-      maxIterations: 100,
-      maxRestarts: 25,
-      shouldShuffle: true,
+      maxIterations: 300,
+      maxRestarts: 50,
     })
 
     self.fittedModel.fit(x)
 
-    let out = (new DataFrame(allScores)).transpose()
-    out.columns = self.kValues.slice(0, self.kValues.indexOf(bestK) + 2).map(k => "k = " + k)
-    out.index = range(0, self.numberOfFolds).map(i => "fold" + i)
-    return out
+    return allScores
   }
 
   get centroids(){
