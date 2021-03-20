@@ -1,8 +1,8 @@
 require("js-math-tools").dump()
-const KMeansCV = require("./k-means-cv.js")
 const isMatrix = require("./is-matrix.js")
 const subtract = (a, b) => add(a, scale(b, -1))
 const divide = (a, b) => scale(a, pow(b, -1))
+const KMeans = require("./k-means.js")
 
 function normalize(x){
   assert(isMatrix(x), "`x` should be a matrix!")
@@ -33,18 +33,10 @@ for (let i=0; i<rows; i++){
 
 x = normalize(x)
 
-let kValues = range(1, 16)
-
-let kmeans = new KMeansCV({
-  kValues,
-  maxRestarts: 10,
+let kmeans = new KMeans({
+  k,
   maxIterations: 100,
-  numberOfFolds: 4,
-  shouldShuffle: false,
+  maxRestarts: 25,
 })
 
-kmeans.fit(x, console.log)
-
-console.log("======================")
-console.log("actual k:", k)
-console.log("learned k", kmeans.centroids.length)
+kmeans.fit(x).then(() => console.log("Done!"))
