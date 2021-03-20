@@ -13,8 +13,13 @@ function isWholeNumber(x){
   return isNumber(x) && parseInt(x) === x && x >= 0
 }
 
-async function missingAwareDistance(a, b){
-  // ...
+function missingAwareSquaredDistance(a, b){
+  // this isn't currently missing-aware!!!
+  return tf.tidy(() => {
+    if (!isTFTensor(a)) a = tf.tensor(a)
+    if (!isTFTensor(b)) b = tf.tensor(b)
+    return a.sub(b).pow(2).sum()
+  })
 }
 
 function outerSquaredDistances(x, c){
