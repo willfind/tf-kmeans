@@ -1,6 +1,9 @@
 const tf = require("@tensorflow/tfjs")
 require("js-math-tools").dump()
 
+const subtract = (a, b) => add(a, scale(b, -1))
+const divide = (a, b) => scale(a, pow(b, -1))
+
 function isMatrix(x){
   return isArray(x) && shape(x).length === 2
 }
@@ -24,8 +27,11 @@ function missingAwareSquaredDistance(a, b){
 
 function outerSquaredDistances(x, c){
   return tf.tidy(() => {
-    x = tf.tensor(x).expandDims(1)
-    c = tf.tensor(c).expandDims(0)
+    if (!isTFTensor(x)) x = tf.tensor(x)
+    if (!isTFTensor(c)) c = tf.tensor(c)
+    
+    x = x.expandDims(1)
+    c = c.expandDims(0)
     return x.sub(c).pow(2).sum(2)
   })
 }
@@ -49,6 +55,8 @@ function rScore(xtrue, xpred){
 }
 
 module.exports = {
+  subtract,
+  divide,
   isMatrix,
   isTFTensor,
   isWholeNumber,

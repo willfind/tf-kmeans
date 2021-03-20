@@ -51,19 +51,41 @@ class KMeans {
   async fit(x, seedValue){
     assert(isMatrix(x), "`x` must be a matrix!")
 
+    let self = this
+    let xTensor = tf.tensor(x)
+
     if (seedValue){
       self.initializeCentroids(x, seedValue)
-      ...
+      // let previousCentroids = self.centroids.clone()
+
+      for (let iteration=0; iteration<self.maxIterations; iteration++){
+        let labels = await self.predict(x)
+
+        self.centroids = tf.stack(range(0, self.k).map(i => {
+          let indices = []
+
+          labels.forEach((label, j) => {
+            if (label === i) indices.push(j)
+          })
+
+          let points = xTensor.gather(indices)
+          return points.mean(0)
+        }))
+
+        // exit early if converges...
+      }
+
+      return await self.score(x)
     }
 
     else {
       let seedValues = random(self.maxRestarts).map(v => round(v * 10000) + 10000)
 
-      let scores = tf.data.array(seedValues).mapAsync(async (s) => {
+      let scores = await tf.data.array(seedValues).mapAsync(async (s) => {
         return await self.fit(x, s)
-      })
+      }).toArray()
 
-      let bestSeed = seedValues[(await scores.argMin().data())[0]]
+      let bestSeed = seedValues[(await tf.argMin(scores).data())[0]]
       return self.fit(x, bestSeed)
     }
   }
@@ -75,12 +97,17 @@ class KMeans {
     // question: is there a more efficient way of doing this than using labels.dataSync()?
     let self = this
 
-    return await tf.tidy(() => {
-      if (!isTFTensor(x)) x = tf.tensor(x)
-      if (isUndefined(labels)) labels = self.predict(x)
-      if (isTFTensor(labels)) labels = labels.dataSync()
-      return x.sub(self.centroids.gather(labels)).pow(2).sum()
-    }).data()[0]
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (isUndefined(labels)) labels = await self.predict(x)
+        if (isTFTensor(labels)) labels = labels.dataSync()
+        let temp = tf.tensor(x)
+        resolve(temp.sub(self.centroids.gather(labels)).pow(2).sum().dataSync()[0])
+        temp.dispose()
+      } catch(e) {
+        return reject(e)
+      }
+    })
   }
 
   async predict(x){

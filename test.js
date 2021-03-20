@@ -1,14 +1,5 @@
-const tf = require("@tensorflow/tfjs")
-require("js-math-tools").dump()
+require("./all.js")
 
-let x = tf.tensor([
-  [0, 1],
-  [2, 3],
-  [4, 5]
-])
-
-let labels = tf.tensor([0, 0, 2, 2])
-
-labels.data().then(labels => {
-  x.gather(labels).array().then(console.log)
-})
+let x = tf.tensor(range(0, 10))
+let mask = tf.tensor(round(random(10)), "bool")
+tf.booleanMaskAsync(x, mask).then(result => result.print())

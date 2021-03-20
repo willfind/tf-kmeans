@@ -1,7 +1,5 @@
 require("js-math-tools").dump()
-const isMatrix = require("./is-matrix.js")
-const subtract = (a, b) => add(a, scale(b, -1))
-const divide = (a, b) => scale(a, pow(b, -1))
+const { subtract, divide, isMatrix } = require("./helpers.js")
 const KMeans = require("./k-means.js")
 
 function normalize(x){
