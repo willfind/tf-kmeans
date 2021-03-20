@@ -52,7 +52,7 @@ module.exports = {
   isMatrix,
   isTFTensor,
   isWholeNumber,
-  missingAwareDistance,
+  missingAwareSquaredDistance,
   outerSquaredDistances,
   sign,
   rScore,
