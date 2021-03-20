@@ -39,22 +39,33 @@ class KMeans {
     self.tolerance = 1e-4
   }
 
-  initializeCentroids(x){
+  initializeCentroids(x, seedValue){
     assert(isMatrix(x), "`x` must be a matrix!")
+    assert(isUndefined(seedValue) || isWholeNumber(seedValue), "`seedValue` must be undefined or a whole number!")
 
     let self = this
+    if (seedValue) seed(seedValue)
     self.centroids = tf.tensor(normal([self.k, x[0].length]))
-    return self
   }
 
-  async fit(x){
+  async fit(x, seedValue){
     assert(isMatrix(x), "`x` must be a matrix!")
 
-    let self = this
+    if (seedValue){
+      self.initializeCentroids(x, seedValue)
+      ...
+    }
 
-    
+    else {
+      let seedValues = random(self.maxRestarts).map(v => round(v * 10000) + 10000)
 
-    return self
+      let scores = tf.data.array(seedValues).mapAsync(async (s) => {
+        return await self.fit(x, s)
+      })
+
+      let bestSeed = seedValues[(await scores.argMin().data())[0]]
+      return self.fit(x, bestSeed)
+    }
   }
 
   async score(x, labels){
