@@ -54,5 +54,6 @@ module.exports = {
   isWholeNumber,
   missingAwareDistance,
   outerSquaredDistances,
+  sign,
   rScore,
 }
