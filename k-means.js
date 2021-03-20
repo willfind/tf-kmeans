@@ -47,11 +47,13 @@ class KMeans {
     return self
   }
 
-  async fit(x, seedValue){
+  async fit(x){
     assert(isMatrix(x), "`x` must be a matrix!")
-    assert(isUndefined(seedValue) || isWholeNumber(seedValue), "`seedValue` must be undefined or a whole number!")
 
     let self = this
+
+    
+
     return self
   }
 
