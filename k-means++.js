@@ -1,7 +1,6 @@
 const KMeans = require("./k-means.js")
-const isWholeNumber = require("./is-whole-number.js")
-const missingAwareDistance = require("./missing-aware-distance.js")
-const isMatrix = require("./is-matrix.js")
+const tf = require("@tensorflow/tfjs")
+const { isWholeNumber, missingAwareSquaredDistance, isMatrix } = require("./helpers.js")
 
 class KMeansPlusPlus extends KMeans {
   initializeCentroids(x){
@@ -31,7 +30,7 @@ class KMeansPlusPlus extends KMeans {
           if (cachedDistance){
             d = cachedDistance
           } else {
-            d = missingAwareDistance(centroid, point)
+            d = missingAwareSquaredDistance(centroid, point).dataSync()[0]
             cache[i][j] = d
           }
 
@@ -64,7 +63,7 @@ class KMeansPlusPlus extends KMeans {
       centroids.push(x[index])
     }
 
-    self.centroids = centroids
+    self.centroids = tf.tensor(centroids)
     return self
   }
 }
