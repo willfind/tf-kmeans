@@ -80,7 +80,7 @@ class KMeans {
         }))
 
         if (failed) return Infinity
-        let d = previousCentroids.sub(self.centroids).pow(2).sum().dataSync()[0]
+        let d = missingAwareSquaredDistance(previousCentroids, self.centroids).dataSync()[0]
 
         if (d < self.tolerance){
           break
