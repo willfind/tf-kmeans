@@ -56,7 +56,8 @@ class KMeans {
 
     if (seedValue){
       self.initializeCentroids(x, seedValue)
-      // let previousCentroids = self.centroids.clone()
+      let previousCentroids = self.centroids.clone()
+      let failed = false
 
       for (let iteration=0; iteration<self.maxIterations; iteration++){
         let labels = await self.predict(x)
@@ -70,6 +71,7 @@ class KMeans {
 
           if (indices.length === 0){
             // fail
+            failed = true
             return tf.tensor(range(0, x[0].length).map(() => Infinity))
           }
 
@@ -77,7 +79,14 @@ class KMeans {
           return points.mean(0)
         }))
 
-        // exit early if converges...
+        if (failed) return Infinity
+        let d = previousCentroids.sub(self.centroids).pow(2).sum().dataSync()[0]
+
+        if (d < self.tolerance){
+          break
+        }
+
+        previousCentroids = self.centroids.clone()
       }
 
       return await self.score(x)
