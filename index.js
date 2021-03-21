@@ -1,83 +1,75 @@
 require("./all.js")
 const KMeans = require("./k-means.js")
-// const plotly = require("plotly.js-dist")
+const plotly = require("plotly.js-dist")
 
-function createContainer(width, height){
-  let out = document.createElement("div")
-  out.style.width = `${width}px`
-  out.style.height = `${height}px`
-  document.body.appendChild(out)
-  return out
-}
+tf.setBackend("webgl")
 
-function normalize(x){
-  assert(isMatrix(x), "`x` should be a matrix!")
+tf.ready().then(() => {
+  function createContainer(width, height){
+    let out = document.createElement("div")
+    out.style.width = `${width}px`
+    out.style.height = `${height}px`
+    document.body.appendChild(out)
+    return out
+  }
 
-  return transpose(
-    transpose(x).map(row => {
-      return divide(
-        subtract(row, mean(row)),
-        std(row)
-      )
-    })
-  )
-}
+  seed(12345)
 
-seed(12345)
+  let rows = 100
+  let cols = 2
+  let k = round(random() * 6) + 3
+  let centroids = normal([k, cols])
 
-let rows = 100
-let cols = 2
-let k = round(random() * 6) + 3
-let centroids = normal([k, cols])
+  let x = []
 
-let x = []
+  for (let i=0; i<rows; i++){
+    let c = centroids[parseInt(random() * centroids.length)]
+    x.push(add(c, scale(0.1, normal(cols))))
+  }
 
-for (let i=0; i<rows; i++){
-  let c = centroids[parseInt(random() * centroids.length)]
-  x.push(add(c, scale(0.1, normal(cols))))
-}
+  let kmeans = new KMeans({
+    k,
+    maxIterations: 100,
+    maxRestarts: 25,
+  })
 
-x = normalize(x)
+  kmeans.fit(x).then(async () => {
+    console.log("Done!")
 
-let kmeans = new KMeans({
-  k,
-  maxIterations: 100,
-  maxRestarts: 25,
-})
+    // plot
+    let centroids = await kmeans.centroids.array()
 
-kmeans.fit(x).then(async () => {
-  console.log("Done!")
+    plotly.newPlot(createContainer(512, 512), [
+      {
+        name: "centroids",
+        x: centroids.map(c => c[0]),
+        y: centroids.map(c => c[1]),
+        mode: "markers",
+        type: "scatter",
+        marker: {
+          size: 15,
+          color: "red",
+        },
+      },
 
-  // // plot
-  // let centroids = await kmeans.centroids.array()
-  //
-  // plotly.newPlot(createContainer(512, 512), [
-  //   {
-  //     name: "centroids",
-  //     x: centroids.map(c => c[0]),
-  //     y: centroids.map(c => c[1]),
-  //     mode: "markers",
-  //     type: "scatter",
-  //     marker: {
-  //       size: 15,
-  //       color: "red",
-  //     },
-  //   },
-  //
-  //   {
-  //     name: "data",
-  //     x: x.map(v => v[0]),
-  //     y: x.map(v => v[1]),
-  //     mode: "markers",
-  //     type: "scatter",
-  //     marker: {
-  //       size: 4,
-  //       color: "black",
-  //     },
-  //   },
-  // ])
-}).catch(e => {
-  console.error(e)
-  kmeans.destroy()
-  console.log("Destroyed!")
+      {
+        name: "data",
+        x: x.map(v => v[0]),
+        y: x.map(v => v[1]),
+        mode: "markers",
+        type: "scatter",
+        marker: {
+          size: 4,
+          color: "black",
+        },
+      },
+    ])
+
+    kmeans.destroy()
+    console.log("Destroyed!")
+  }).catch(e => {
+    console.error(e)
+    kmeans.destroy()
+    console.log("Destroyed!")
+  })
 })

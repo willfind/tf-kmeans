@@ -68,6 +68,11 @@ class KMeans {
             if (label === i) indices.push(j)
           })
 
+          if (indices.length === 0){
+            // fail
+            return tf.tensor(range(0, x[0].length).map(() => Infinity))
+          }
+
           let points = xTensor.gather(indices)
           return points.mean(0)
         }))
