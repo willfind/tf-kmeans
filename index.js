@@ -10,6 +10,12 @@ function createContainer(width, height){
   return out
 }
 
+function normalize(x){
+  return transpose(transpose(x).map(row => {
+    return divide(subtract(row, mean(row)), std(row))
+  }))
+}
+
 // seed(12345)
 
 let rows = 100
@@ -23,6 +29,8 @@ for (let i=0; i<rows; i++){
   let c = centroids[parseInt(random() * centroids.length)]
   x.push(add(c, scale(0.1, normal(cols))))
 }
+
+x = normalize(x)
 
 let kmeans = new KMeans({
   k,
