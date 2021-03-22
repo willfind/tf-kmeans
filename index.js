@@ -42,7 +42,7 @@ let startTime = new Date()
 
 kmeans.fit(x).then(async () => {
   console.log("Done!")
-  console.log((new Date() - startTime) / 1000, "ms")
+  console.log((new Date() - startTime) / 1000, "seconds")
 
   // plot
   let centroids = await kmeans.centroids.array()
