@@ -63,8 +63,7 @@ class KMeansPlusPlus extends KMeans {
       centroids.push(x[index])
     }
 
-    self.centroids = tf.tensor(centroids)
-    return self
+    return tf.tensor(centroids)
   }
 }
 

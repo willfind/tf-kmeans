@@ -1,5 +1,5 @@
 require("./all.js")
-const KMeans = require("./k-means.js")
+const KMeansPlusPlus = require("./k-means++.js")
 const plotly = require("plotly.js-dist")
 
 function createContainer(width, height){
@@ -34,7 +34,7 @@ tf.ready().then(() => {
 
   x = normalize(x)
 
-  let kmeans = new KMeans({
+  let kmeans = new KMeansPlusPlus({
     k,
     maxIterations: 100,
     maxRestarts: 25,
