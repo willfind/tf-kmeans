@@ -39,99 +39,93 @@ class KMeans {
     self.tolerance = 1e-4
   }
 
-  initializeCentroids(x, seedValue){
+  initializeCentroids(x){
     assert(isMatrix(x), "`x` must be a matrix!")
-    assert(isUndefined(seedValue) || isWholeNumber(seedValue), "`seedValue` must be undefined or a whole number!")
 
     let self = this
-    if (seedValue) seed(seedValue)
-    self.centroids = tf.tensor(normal([self.k, x[0].length]))
+    return tf.tensor(normal([self.k, x[0].length]))
   }
 
-  async fit(x, seedValue){
+  fit(x){
     assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
-    let xTensor = tf.tensor(x)
 
-    if (seedValue){
-      self.initializeCentroids(x, seedValue)
-      let previousCentroids = self.centroids.clone()
-      let failed = false
+    return tf.tidy(() => {
+      let xtf = tf.tensor(x)
 
-      for (let iteration=0; iteration<self.maxIterations; iteration++){
-        let labels = await self.predict(x)
+      // find best seed value
+      let bestScore = Infinity
+      let bestCentroids = null
 
-        self.centroids = tf.stack(range(0, self.k).map(i => {
-          let indices = []
+      range(0, self.maxRestarts).forEach(() => {
+        // initialize centroids
+        let centroids = self.initializeCentroids(x)
+        let previousCentroids = centroids.clone()
 
-          labels.forEach((label, j) => {
-            if (label === i) indices.push(j)
-          })
+        // fit centroids
+        for (let iteration=0; iteration<self.maxIterations; iteration++){
+          // label data points
+          let labels = outerSquaredDistances(xtf, centroids).argMin(1).dataSync()
 
-          if (indices.length === 0){
-            // fail
-            failed = true
-            return tf.tensor(range(0, x[0].length).map(() => Infinity))
+          // adjust centroids
+          let temp = []
+
+          for (let i=0; i<self.k; i++){
+            let indices = []
+
+            labels.forEach((label, j) => {
+              if (label === i) indices.push(j)
+            })
+
+            if (indices.length === 0) return
+            temp.push(xtf.gather(indices).mean(0))
           }
 
-          let points = xTensor.gather(indices)
-          return points.mean(0)
-        }))
+          centroids = tf.stack(temp)
 
-        if (failed) return Infinity
-        let d = missingAwareSquaredDistance(previousCentroids, self.centroids).dataSync()[0]
-
-        if (d < self.tolerance){
-          break
+          // exit early if converges...
+          let d = previousCentroids.sub(centroids).pow(2).sum().dataSync()[0]
+          if (d < self.tolerance) break
+          previousCentroids = centroids.clone()
         }
 
-        previousCentroids = self.centroids.clone()
-      }
+        // score
+        let labels = outerSquaredDistances(xtf, centroids).argMin(1).dataSync()
+        let score = centroids.gather(labels).sub(xtf).pow(2).sum().dataSync()[0]
 
-      return await self.score(x)
-    }
+        if (score < bestScore){
+          bestScore = score
+          bestCentroids = centroids
+        }
+      })
 
-    else {
-      let seedValues = random(self.maxRestarts).map(v => round(v * 10000) + 10000)
-
-      let scores = await tf.data.array(seedValues).mapAsync(async (s) => {
-        return await self.fit(x, s)
-      }).toArray()
-
-      let bestSeed = seedValues[(await tf.argMin(scores).data())[0]]
-      return self.fit(x, bestSeed)
-    }
-  }
-
-  async score(x, labels){
-    assert(isMatrix(x), "`x` must be a matrix!")
-    assert(isUndefined(labels) || isArray(labels), "`labels` must be undefined or an array of whole numbers!")
-
-    // question: is there a more efficient way of doing this than using labels.dataSync()?
-    let self = this
-
-    return new Promise(async (resolve, reject) => {
-      try {
-        if (isUndefined(labels)) labels = await self.predict(x)
-        if (isTFTensor(labels)) labels = labels.dataSync()
-        let temp = tf.tensor(x)
-        resolve(temp.sub(self.centroids.gather(labels)).pow(2).sum().dataSync()[0])
-        temp.dispose()
-      } catch(e) {
-        return reject(e)
-      }
+      // return centroids
+      self.centroids = bestCentroids
+      return bestCentroids
     })
   }
 
-  async predict(x){
+  score(x){
     assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
 
-    return await tf.tidy(() => {
-      return outerSquaredDistances(x, self.centroids).argMin(1)
-    }).array()
+    return tf.tidy(() => {
+      let labels = self.predict(x)
+      let xtf = tf.tensor(x)
+      return self.centroids.gather(labels).sub(xtf).pow(2).sum().dataSync()[0]
+    })
+  }
+
+  predict(x){
+    assert(isMatrix(x), "`x` must be a matrix!")
+
+    let self = this
+
+    return tf.tidy(() => {
+      return outerSquaredDistances(x, self.centroids).argMin(1).dataSync()
+    })
   }
 
   destroy(){
