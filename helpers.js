@@ -25,14 +25,14 @@ function missingAwareSquaredDistance(a, b){
   })
 }
 
-function outerSquaredDistances(x, c){
+function outerSquaredDistances(a, b){
   return tf.tidy(() => {
-    if (!isTFTensor(x)) x = tf.tensor(x)
-    if (!isTFTensor(c)) c = tf.tensor(c)
-    
-    x = x.expandDims(1)
-    c = c.expandDims(0)
-    return x.sub(c).pow(2).sum(2)
+    if (!isTFTensor(a)) a = tf.tensor(a)
+    if (!isTFTensor(b)) b = tf.tensor(b)
+
+    a = a.expandDims(1)
+    b = b.expandDims(0)
+    return a.sub(b).pow(2).sum(2)
   })
 }
 

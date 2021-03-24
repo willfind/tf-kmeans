@@ -1,19 +1,30 @@
 require("./all.js")
 
-function kmeans(x, k, maxIterations, maxRestarts){
-  
+function innerDistances1(x){
+  let out = []
+
+  x.forEach(p1 => {
+    let distances = []
+
+    x.forEach(p2 => {
+      distances.push(pow(distance(p1, p2), 2))
+    })
+
+    out.push(distances)
+  })
+
+  return out
 }
 
-let k = 5
-let rows = 100
-let cols = 2
-let centroids = normal([k, cols])
-let x = []
-
-for (let i=0; i<rows; i++){
-  let point = normal(cols)
-  x.push(add(point, scale(0.1, normal(cols))))
+function innerDistances2(x){
+  return tf.tidy(() => {
+    let xtf = tf.tensor(x)
+    let xtf1 = xtf.expandDims(0)
+    let xtf2 = xtf.expandDims(1)
+    return xtf1.sub(xtf2).pow(2).sum(2).arraySync()
+  })
 }
 
-let results = kmeans(x, k, 100, 25)
-console.log(results)
+let x = normal([5, 5])
+print(innerDistances1(x))
+print(innerDistances2(x))

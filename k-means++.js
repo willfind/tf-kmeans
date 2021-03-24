@@ -1,69 +1,84 @@
 const KMeans = require("./k-means.js")
 const tf = require("@tensorflow/tfjs")
-const { isWholeNumber, missingAwareSquaredDistance, isMatrix } = require("./helpers.js")
+const { isWholeNumber, missingAwareSquaredDistance, outerSquaredDistances, isMatrix } = require("./helpers.js")
+let previousX, distanceCache
+
+function argmin(x){
+  let lowestValue = Infinity
+  let lowestIndex = null
+
+  x.forEach((value, i) => {
+    if (value < lowestValue){
+      lowestValue = value
+      lowestIndex = i
+    }
+  })
+
+  return lowestIndex
+}
 
 class KMeansPlusPlus extends KMeans {
   initializeCentroids(x){
     assert(isMatrix(x), "`x` must be a matrix!")
 
-    let self = this
-
     // initialize centroids using the kmeans++ algorithm
-    // 1a) select a random point from the data to be the first centroid
-    let index = parseInt(random() * x.length)
-    let centroids = [x[index]]
-
-    // 1b) create a distance cache
-    let cache = ndarray([self.k, x.length])
-
+    // 1) select a random point from the data to be the first centroid
     // until we have k centroids:
-    while (centroids.length < self.k){
       // 2a) get all of the distances from each point to the closest centroid
-      let distances = x.map((point, j) => {
-        let closestCentroidIndex = 0
-        let closestCentroidDistance = Infinity
+      // 2b) convert the distances to probabilities
+      // 2c) use the probabilities to randomly select a point to be the next centroid
 
-        centroids.forEach((centroid, i) => {
-          let d
-          let cachedDistance = cache[i][j]
+    let self = this
+    distanceCache = previousX === x ? distanceCache : outerSquaredDistances(x, x).arraySync()
+    previousX = x
 
-          if (cachedDistance){
-            d = cachedDistance
-          } else {
-            d = missingAwareSquaredDistance(centroid, point).dataSync()[0]
-            cache[i][j] = d
+    return tf.tidy(() => {
+      let xtf = tf.tensor(x)
+
+      // for now, the "centroids" array will just be a list of indices into x;
+      // later, we'll map those to actual points
+      let centroids = [parseInt(Math.random() * x.length)]
+
+      while (centroids.length < self.k){
+        let maxDistance = -Infinity
+
+        let distances = x.map((point, i) => {
+          let smallestDistance = Infinity
+
+          centroids.forEach(j => {
+            if (i === j) return Infinity
+            let d = distanceCache[i][j]
+
+            if (d < smallestDistance){
+              smallestDistance = d
+            }
+          })
+
+          if (smallestDistance > maxDistance){
+            maxDistance = smallestDistance
           }
 
-          if (d < closestCentroidDistance){
-            closestCentroidDistance = d
-            closestCentroidIndex = i
-          }
+          return smallestDistance
         })
 
-        return closestCentroidDistance
-      })
+        let probabilities = distances.map(d => d / maxDistance)
+        let index = 0
 
-      // 2b) convert the distances to probabilities
-      let totalDistance = sum(distances)
-      let probabilities = distances.map(d => d / totalDistance)
+        for (let i=0; i<10000; i++){
+          index = parseInt(Math.random() * probabilities.length)
+          let r1 = probabilities[index]
+          let r2 = Math.random()
 
-      // 2c) use the probabilities to randomly select a point to be the next centroid
-      let r1 = 1
-      let r2 = 2
-      let counter = 0
-      index = 0
+          if (r2 < r1){
+            break
+          }
+        }
 
-      while (r2 > r1 && counter < 10000){
-        index = parseInt(random() * probabilities.length)
-        r1 = probabilities[index]
-        r2 = random()
-        counter++
+        centroids.push(index)
       }
 
-      centroids.push(x[index])
-    }
-
-    return tf.tensor(centroids)
+      return tf.tensor(centroids.map(i => x[i]))
+    })
   }
 }
 
