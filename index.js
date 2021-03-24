@@ -16,60 +16,64 @@ function normalize(x){
   }))
 }
 
-// seed(12345)
+tf.setBackend("webgl")
 
-let k = 5
-let rows = 100
-let cols = 2
-let centroids = normal([k, cols])
-let x = []
+tf.ready().then(() => {
+  // seed(12345)
 
-for (let i=0; i<rows; i++){
-  let point = centroids[parseInt(random() * centroids.length)]
-  x.push(add(point, scale(0.1, normal(cols))))
-}
+  let k = 5
+  let rows = 100
+  let cols = 2
+  let centroids = normal([k, cols])
+  let x = []
 
-x = normalize(x)
+  for (let i=0; i<rows; i++){
+    let point = centroids[parseInt(random() * centroids.length)]
+    x.push(add(point, scale(0.1, normal(cols))))
+  }
 
-let kmeans = new KMeans({
-  k,
-  maxIterations: 100,
-  maxRestarts: 25,
-})
+  x = normalize(x)
 
-let startTime = new Date()
-kmeans.fit(x)
+  let kmeans = new KMeans({
+    k,
+    maxIterations: 100,
+    maxRestarts: 25,
+  })
 
-kmeans.centroids.array().then(async (centroids) => {
-  console.log("Done!")
-  console.log((new Date() - startTime) / 1000, "seconds")
+  let startTime = new Date()
+  kmeans.fit(x)
 
-  // plot
-  plotly.newPlot(createContainer(512, 512), [
-    {
-      name: "centroids",
-      x: centroids.map(c => c[0]),
-      y: centroids.map(c => c[1]),
-      mode: "markers",
-      type: "scatter",
-      marker: {
-        size: 15,
-        color: "red",
+  kmeans.centroids.array().then(async (centroids) => {
+    console.log("Done!")
+    console.log((new Date() - startTime) / 1000, "seconds")
+
+    // plot
+    plotly.newPlot(createContainer(512, 512), [
+      {
+        name: "centroids",
+        x: centroids.map(c => c[0]),
+        y: centroids.map(c => c[1]),
+        mode: "markers",
+        type: "scatter",
+        marker: {
+          size: 15,
+          color: "red",
+        },
       },
-    },
 
-    {
-      name: "data",
-      x: x.map(v => v[0]),
-      y: x.map(v => v[1]),
-      mode: "markers",
-      type: "scatter",
-      marker: {
-        size: 4,
-        color: "black",
+      {
+        name: "data",
+        x: x.map(v => v[0]),
+        y: x.map(v => v[1]),
+        mode: "markers",
+        type: "scatter",
+        marker: {
+          size: 4,
+          color: "black",
+        },
       },
-    },
-  ])
-}).catch(e => {
-  console.error(e)
+    ])
+  }).catch(e => {
+    console.error(e)
+  })
 })
