@@ -1,4 +1,5 @@
 {
+  "main": "k-means-cv.js",
   "scripts": {
     "build": "watchify -e index.js -o bundle.js"
   },
