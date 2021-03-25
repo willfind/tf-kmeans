@@ -1,7 +1,6 @@
 const KMeans = require("./k-means.js")
 const tf = require("@tensorflow/tfjs")
 const { isWholeNumber, missingAwareSquaredDistance, outerSquaredDistances, isMatrix } = require("./helpers.js")
-let previousX, distanceCache
 
 function argmin(x){
   let lowestValue = Infinity
@@ -29,8 +28,6 @@ class KMeansPlusPlus extends KMeans {
       // 2c) use the probabilities to randomly select a point to be the next centroid
 
     let self = this
-    distanceCache = previousX === x ? distanceCache : outerSquaredDistances(x, x).arraySync()
-    previousX = x
 
     return tf.tidy(() => {
       let xtf = tf.tensor(x)
@@ -40,28 +37,14 @@ class KMeansPlusPlus extends KMeans {
       let centroids = [parseInt(Math.random() * x.length)]
 
       while (centroids.length < self.k){
-        let maxDistance = -Infinity
+        let centroidsTemp = centroids.map(i => x[i])
+        let labels = outerSquaredDistances(x, centroidsTemp).argMin(1).dataSync()
 
-        let distances = x.map((point, i) => {
-          let smallestDistance = Infinity
-
-          centroids.forEach(j => {
-            if (i === j) return Infinity
-            let d = distanceCache[i][j]
-
-            if (d < smallestDistance){
-              smallestDistance = d
-            }
-          })
-
-          if (smallestDistance > maxDistance){
-            maxDistance = smallestDistance
-          }
-
-          return smallestDistance
+        let distances = tf.tidy(() => {
+          return tf.tensor(centroidsTemp).gather(labels).sub(xtf).pow(2).sum(1)
         })
 
-        let probabilities = distances.map(d => d / maxDistance)
+        let probabilities = distances.div(distances.max()).dataSync()
         let index = 0
 
         for (let i=0; i<10000; i++){

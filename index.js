@@ -1,4 +1,5 @@
 require("./all.js")
+const KMeans = require("./k-means.js")
 const KMeansPlusPlus = require("./k-means++.js")
 const KMeansCV = require("./k-means-cv.js")
 const plotly = require("plotly.js-dist")
@@ -37,7 +38,7 @@ tf.ready().then(() => {
 
   let kmeans = new KMeansCV({
     kValues: range(1, 16),
-    maxIterations: 10,
+    maxIterations: 15,
     maxRestarts: 5,
     numberOfFolds: 4,
     shouldShuffle: false,
