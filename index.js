@@ -24,8 +24,8 @@ tf.ready().then(() => {
   // seed(12345)
 
   let k = 5
-  let rows = 1000
-  let cols = 200
+  let rows = 100
+  let cols = 2
   let centroids = normal([k, cols])
   let x = []
 
