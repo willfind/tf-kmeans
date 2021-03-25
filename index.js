@@ -1,5 +1,6 @@
 require("./all.js")
 const KMeansPlusPlus = require("./k-means++.js")
+const KMeansCV = require("./k-means-cv.js")
 const plotly = require("plotly.js-dist")
 
 function createContainer(width, height){
@@ -34,14 +35,17 @@ tf.ready().then(() => {
 
   x = normalize(x)
 
-  let kmeans = new KMeansPlusPlus({
-    k,
-    maxIterations: 100,
-    maxRestarts: 25,
+  let kmeans = new KMeansCV({
+    kValues: range(1, 16),
+    maxIterations: 10,
+    maxRestarts: 5,
+    numberOfFolds: 4,
+    shouldShuffle: false,
+    class: KMeansPlusPlus,
   })
 
   let startTime = new Date()
-  kmeans.fit(x)
+  kmeans.fit(x, console.log)
 
   kmeans.centroids.array().then(async (centroids) => {
     console.log("Done!")

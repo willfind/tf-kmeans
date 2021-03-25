@@ -1,6 +1,5 @@
 const KMeansPlusPlus = require("./k-means++.js")
-const isWholeNumber = require("./is-whole-number.js")
-const isMatrix = require("./is-matrix.js")
+const { isWholeNumber, isMatrix } = require("./helpers.js")
 
 class KMeansCV {
   constructor(config){
@@ -65,16 +64,12 @@ class KMeansCV {
     assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
 
     let self = this
-
-    if (self.shouldShuffle){
-      x = shuffle(x)
-    }
-
-    let xShape = x.shape
+    if (self.shouldShuffle) x = shuffle(x)
+    let xShape = shape(x)
     let isDone = false
-    let previousK = -1
-    let previousMeanScore = 1e20
-    let bestK = -1
+    let previousK = self.kValues[0]
+    let previousMeanScore = Infinity
+    let bestK = self.kValues[0]
     let allScores = []
 
     self.kValues.forEach((k, kIndex) => {
@@ -96,11 +91,16 @@ class KMeansCV {
         let xTrain = x.filter((row, i) => idx.indexOf(i) < 0)
         let xTest = x.filter((row, i) => idx.indexOf(i) > -1)
         let model = new self.class({k, ...self})
-        model.fit(xTrain)
+        tf.tidy(() => model.fit(xTrain))
 
-        let score = model.score(xTest)
-        meanScore += score
-        scores.push(score)
+        try {
+          let score = model.score(xTest)
+          meanScore += score
+          scores.push(score)
+        } catch(e) {
+          meanScore += 1e20
+          scores.push(1e20)
+        }
       }
 
       if (meanScore >= 0.9 * previousMeanScore){
@@ -120,7 +120,6 @@ class KMeansCV {
     })
 
     self.fittedModel.fit(x)
-
     return allScores
   }
 
