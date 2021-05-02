@@ -7,7 +7,7 @@ const {
   missingAwareSquaredDistance,
   isTFTensor,
 } = require("./helpers.js")
-const { assert, isUndefined, normal } = require("js-math-tools")
+const { assert, isUndefined, normal, range } = require("js-math-tools")
 
 
 class KMeans {
