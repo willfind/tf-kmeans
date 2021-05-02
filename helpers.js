@@ -1,5 +1,5 @@
 const tf = require("@tensorflow/tfjs")
-const { add, scale, pow, isArray, shape, isNumber } require("js-math-tools")
+const { add, scale, pow, isArray, shape, isNumber } = require("js-math-tools")
 
 const subtract = (a, b) => add(a, scale(b, -1))
 const divide = (a, b) => scale(a, pow(b, -1))
