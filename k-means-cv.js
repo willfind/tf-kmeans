@@ -1,6 +1,7 @@
 const KMeansPlusPlus = require("./k-means++.js")
 const tf = require("@tensorflow/tfjs")
 const { isWholeNumber, isMatrix } = require("./helpers.js")
+const { assert, isArray, isUndefined, shape, isBoolean, isFunction, range, shuffle } = require("js-math-tools")
 
 class KMeansCV {
   constructor(config){

@@ -5,14 +5,13 @@
   },
   "dependencies": {
     "@tensorflow/tfjs": "^3.3.0",
-    "js-math-tools": "gitlab:jrc03c/js-math-tools",
+    "js-math-tools": "github:jrc03c/js-math-tools",
     "make-key": "gitlab:jrc03c/make-key",
     "plotly.js-dist": "^1.58.4"
   },
   "name": "tf-kmeans",
   "version": "0.0.1",
   "description": "my silly attempt to implement k-means in tensorflow.js",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jrc03c/tf-kmeans.git"

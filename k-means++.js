@@ -1,20 +1,7 @@
 const KMeans = require("./k-means.js")
 const tf = require("@tensorflow/tfjs")
 const { isWholeNumber, missingAwareSquaredDistance, outerSquaredDistances, isMatrix } = require("./helpers.js")
-
-function argmin(x){
-  let lowestValue = Infinity
-  let lowestIndex = null
-
-  x.forEach((value, i) => {
-    if (value < lowestValue){
-      lowestValue = value
-      lowestIndex = i
-    }
-  })
-
-  return lowestIndex
-}
+const { argmin, assert, int, random } = require("js-math-tools")
 
 class KMeansPlusPlus extends KMeans {
   initializeCentroids(x){
@@ -34,7 +21,7 @@ class KMeansPlusPlus extends KMeans {
 
       // for now, the "centroids" array will just be a list of indices into x;
       // later, we'll map those to actual points
-      let centroids = [parseInt(Math.random() * x.length)]
+      let centroids = [int(random() * x.length)]
 
       while (centroids.length < self.k){
         let centroidsTemp = centroids.map(i => x[i])
@@ -48,9 +35,9 @@ class KMeansPlusPlus extends KMeans {
         let index = 0
 
         for (let i=0; i<10000; i++){
-          index = parseInt(Math.random() * probabilities.length)
+          index = int(random() * probabilities.length)
           let r1 = probabilities[index]
-          let r2 = Math.random()
+          let r2 = random()
 
           if (r2 < r1){
             break
