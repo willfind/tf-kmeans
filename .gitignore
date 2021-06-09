@@ -2,3 +2,4 @@ node_modules
 .~lock*
 *.csv
 *0x*
+data
