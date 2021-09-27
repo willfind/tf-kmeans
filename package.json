@@ -10,7 +10,7 @@
     "make-key": "gitlab:jrc03c/make-key",
     "plotly.js-dist": "^1.58.4"
   },
-  "name": "tf-kmeans",
+  "name": "@jrc03c/tf-kmeans",
   "version": "0.0.1",
   "description": "my silly attempt to implement k-means in tensorflow.js",
   "repository": {
