@@ -1,4 +1,3 @@
-const makeKey = require("make-key")
 const tf = require("@tensorflow/tfjs")
 const {
   outerSquaredDistances,
@@ -8,7 +7,6 @@ const {
   isTFTensor,
 } = require("./helpers.js")
 const { assert, isUndefined, normal, range } = require("js-math-tools")
-
 
 class KMeans {
   constructor(config){
