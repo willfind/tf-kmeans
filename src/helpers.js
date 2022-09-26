@@ -1,22 +1,30 @@
+const {
+  add,
+  isArray,
+  isNumber,
+  pow,
+  scale,
+  shape,
+} = require("@jrc03c/js-math-tools")
+
 const tf = require("@tensorflow/tfjs")
-const { add, scale, pow, isArray, shape, isNumber } = require("js-math-tools")
 
 const subtract = (a, b) => add(a, scale(b, -1))
 const divide = (a, b) => scale(a, pow(b, -1))
 
-function isMatrix(x){
+function isMatrix(x) {
   return isArray(x) && shape(x).length === 2
 }
 
-function isTFTensor(x){
+function isTFTensor(x) {
   return x instanceof tf.Tensor
 }
 
-function isWholeNumber(x){
+function isWholeNumber(x) {
   return isNumber(x) && parseInt(x) === x && x >= 0
 }
 
-function missingAwareSquaredDistance(a, b){
+function missingAwareSquaredDistance(a, b) {
   // this isn't currently missing-aware!!!
   return tf.tidy(() => {
     if (!isTFTensor(a)) a = tf.tensor(a)
@@ -25,7 +33,7 @@ function missingAwareSquaredDistance(a, b){
   })
 }
 
-function outerSquaredDistances(a, b){
+function outerSquaredDistances(a, b) {
   return tf.tidy(() => {
     if (!isTFTensor(a)) a = tf.tensor(a)
     if (!isTFTensor(b)) b = tf.tensor(b)
@@ -36,14 +44,14 @@ function outerSquaredDistances(a, b){
   })
 }
 
-function sign(x){
+function sign(x) {
   return tf.tidy(() => {
     if (!isTFTensor(x)) x = tf.tensor(x)
     return x.div(x.abs())
   })
 }
 
-function rScore(xtrue, xpred){
+function rScore(xtrue, xpred) {
   return tf.tidy(() => {
     if (!isTFTensor(xtrue)) xtrue = tf.tensor(xtrue)
     if (!isTFTensor(xpred)) xpred = tf.tensor(xpred)

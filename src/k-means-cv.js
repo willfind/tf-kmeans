@@ -1,12 +1,22 @@
+const {
+  assert,
+  isArray,
+  isBoolean,
+  isFunction,
+  isUndefined,
+  range,
+  shape,
+  shuffle,
+} = require("@jrc03c/js-math-tools")
+
+const { isMatrix, isWholeNumber } = require("./helpers.js")
 const KMeansPlusPlus = require("./k-means++.js")
 const tf = require("@tensorflow/tfjs")
-const { isWholeNumber, isMatrix } = require("./helpers.js")
-const { assert, isArray, isUndefined, shape, isBoolean, isFunction, range, shuffle } = require("js-math-tools")
 
 class KMeansCV {
-  constructor(config){
+  constructor(config) {
     assert(
-      typeof(config) === "object",
+      typeof config === "object",
       "`config` should be an object with properties `kValues`, `maxIterations` (optional), `numberOfFolds` (optional), and `shouldShuffle` (optional)!"
     )
 
@@ -22,7 +32,7 @@ class KMeansCV {
 
     config.kValues.forEach(k => {
       assert(
-        typeof(k) === "number",
+        typeof k === "number",
         "`kValues` must be a 1-dimensional list of k-values (numbers) to test!"
       )
     })
@@ -48,7 +58,8 @@ class KMeansCV {
     )
 
     assert(
-      isFunction(config.class) || isUndefined(config.class), "`class` should be a class, a function, or undefined!"
+      isFunction(config.class) || isUndefined(config.class),
+      "`class` should be a class, a function, or undefined!"
     )
 
     let self = this
@@ -61,13 +72,16 @@ class KMeansCV {
     self.fittedModel = null
   }
 
-  fit(x, callback){
+  fit(x, callback) {
     assert(isMatrix(x), "`x` must be a matrix!")
-    assert(isUndefined(callback) || typeof(callback) === "function", "`callback` must be undefined or a function!")
+
+    assert(
+      isUndefined(callback) || typeof callback === "function",
+      "`callback` must be undefined or a function!"
+    )
 
     let self = this
     if (self.shouldShuffle) x = shuffle(x)
-    let xShape = shape(x)
     let isDone = false
     let previousK = self.kValues[0]
     let previousMeanScore = Infinity
@@ -79,33 +93,35 @@ class KMeansCV {
       let meanScore = 0
       let scores = []
 
-      for (let i=0; i<self.numberOfFolds; i++){
-        if (callback){
-          let progress = kIndex / self.kValues.length + (i / self.numberOfFolds) * (1 / self.kValues.length)
+      for (let i = 0; i < self.numberOfFolds; i++) {
+        if (callback) {
+          let progress =
+            kIndex / self.kValues.length +
+            (i / self.numberOfFolds) * (1 / self.kValues.length)
           callback(progress)
         }
 
         let idx = range(
-          parseInt(x.length * i / self.numberOfFolds),
-          parseInt(x.length * (i + 1) / self.numberOfFolds)
+          parseInt((x.length * i) / self.numberOfFolds),
+          parseInt((x.length * (i + 1)) / self.numberOfFolds)
         )
 
         let xTrain = x.filter((row, i) => idx.indexOf(i) < 0)
         let xTest = x.filter((row, i) => idx.indexOf(i) > -1)
-        let model = new self.class({k, ...self})
+        let model = new self.class({ k, ...self })
         tf.tidy(() => model.fit(xTrain))
 
         try {
           let score = model.score(xTest)
           meanScore += score
           scores.push(score)
-        } catch(e) {
+        } catch (e) {
           meanScore += 1e20
           scores.push(1e20)
         }
       }
 
-      if (meanScore >= 0.9 * previousMeanScore){
+      if (meanScore >= 0.9 * previousMeanScore) {
         isDone = true
         bestK = previousK
       }
@@ -125,17 +141,17 @@ class KMeansCV {
     return allScores
   }
 
-  get centroids(){
+  get centroids() {
     let self = this
     return self.fittedModel.centroids
   }
 
-  score(x, labels){
+  score(x, labels) {
     let self = this
     return self.fittedModel.score(x, labels)
   }
 
-  predict(x){
+  predict(x) {
     let self = this
     return self.fittedModel.predict(x)
   }

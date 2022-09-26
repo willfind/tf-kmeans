@@ -1,24 +1,21 @@
-const tf = require("@tensorflow/tfjs")
+const { assert, isUndefined, normal, range } = require("@jrc03c/js-math-tools")
+
 const {
-  outerSquaredDistances,
   isMatrix,
   isWholeNumber,
-  missingAwareSquaredDistance,
-  isTFTensor,
+  outerSquaredDistances,
 } = require("./helpers.js")
-const { assert, isUndefined, normal, range } = require("js-math-tools")
+
+const tf = require("@tensorflow/tfjs")
 
 class KMeans {
-  constructor(config){
+  constructor(config) {
     assert(
-      typeof(config) === "object",
+      typeof config === "object",
       "`config` must be an object with properties `k`, `maxIterations` (optional), and `maxRestarts` (optional)!"
     )
 
-    assert(
-      isWholeNumber(config.k),
-      "`k` must be a whole number!"
-    )
+    assert(isWholeNumber(config.k), "`k` must be a whole number!")
 
     assert(
       isWholeNumber(config.maxIterations) || isUndefined(config.maxIterations),
@@ -38,14 +35,14 @@ class KMeans {
     self.tolerance = 1e-4
   }
 
-  initializeCentroids(x){
+  initializeCentroids(x) {
     assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
     return tf.tensor(normal([self.k, x[0].length]))
   }
 
-  fit(x){
+  fit(x) {
     assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
@@ -63,14 +60,16 @@ class KMeans {
         let previousCentroids = centroids.clone()
 
         // fit centroids
-        for (let iteration=0; iteration<self.maxIterations; iteration++){
+        for (let iteration = 0; iteration < self.maxIterations; iteration++) {
           // label data points
-          let labels = outerSquaredDistances(xtf, centroids).argMin(1).dataSync()
+          let labels = outerSquaredDistances(xtf, centroids)
+            .argMin(1)
+            .dataSync()
 
           // adjust centroids
           let temp = []
 
-          for (let i=0; i<self.k; i++){
+          for (let i = 0; i < self.k; i++) {
             let indices = []
 
             labels.forEach((label, j) => {
@@ -93,7 +92,7 @@ class KMeans {
         let labels = outerSquaredDistances(xtf, centroids).argMin(1).dataSync()
         let score = centroids.gather(labels).sub(xtf).pow(2).sum().dataSync()[0]
 
-        if (score < bestScore){
+        if (score < bestScore) {
           bestScore = score
           bestCentroids = centroids
         }
@@ -105,7 +104,7 @@ class KMeans {
     })
   }
 
-  score(x){
+  score(x) {
     assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
@@ -117,7 +116,7 @@ class KMeans {
     })
   }
 
-  predict(x){
+  predict(x) {
     assert(isMatrix(x), "`x` must be a matrix!")
 
     let self = this
@@ -127,7 +126,7 @@ class KMeans {
     })
   }
 
-  destroy(){
+  destroy() {
     let self = this
     self.centroids.dispose()
     return null
