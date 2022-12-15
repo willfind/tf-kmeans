@@ -1,4 +1,5 @@
 {
+  "name": "tf-kmeans",
   "main": "k-means-cv.js",
   "scripts": {
     "build": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js --minify",
@@ -6,10 +7,8 @@
   },
   "dependencies": {
     "@jrc03c/js-math-tools": "github:jrc03c/js-math-tools",
-    "@tensorflow/tfjs": "^3.3.0",
-    "plotly.js-dist": "^1.58.4"
+    "@tensorflow/tfjs": "^3.21.0"
   },
-  "name": "@jrc03c/tf-kmeans",
   "version": "0.0.1",
   "description": "my silly attempt to implement k-means in tensorflow.js",
   "repository": {
