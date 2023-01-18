@@ -1,18 +1,28 @@
 const {
-  add,
+  argmin,
+  distance,
   isArray,
+  isDataFrame,
   isNumber,
-  pow,
-  scale,
+  isSeries,
   shape,
 } = require("@jrc03c/js-math-tools")
 
 const tf = require("@tensorflow/tfjs")
 
-const subtract = (a, b) => add(a, scale(b, -1))
-const divide = (a, b) => scale(a, pow(b, -1))
+const isBrowser = new Function(
+  "try { return this === window } catch(e) { return false }"
+)
 
 function isMatrix(x) {
+  if (isTFTensor(x)) {
+    return isMatrix(x.arraySync())
+  }
+
+  if (isDataFrame(x)) {
+    return true
+  }
+
   return isArray(x) && shape(x).length === 2
 }
 
@@ -24,52 +34,36 @@ function isWholeNumber(x) {
   return isNumber(x) && parseInt(x) === x && x >= 0
 }
 
-function missingAwareSquaredDistance(a, b) {
-  // this isn't currently missing-aware!!!
-  return tf.tidy(() => {
-    if (!isTFTensor(a)) a = tf.tensor(a)
-    if (!isTFTensor(b)) b = tf.tensor(b)
-    return a.sub(b).pow(2).sum()
-  })
-}
+function orderCentroids(cTrue, cPred) {
+  const out = []
+  const temp = cPred.slice()
 
-function outerSquaredDistances(a, b) {
-  return tf.tidy(() => {
-    if (!isTFTensor(a)) a = tf.tensor(a)
-    if (!isTFTensor(b)) b = tf.tensor(b)
-
-    a = a.expandDims(1)
-    b = b.expandDims(0)
-    return a.sub(b).pow(2).sum(2)
+  cTrue.forEach(c1 => {
+    const closestCentroidIndex = argmin(temp.map(c2 => distance(c1, c2)))
+    out.push(temp[closestCentroidIndex])
+    temp.splice(closestCentroidIndex, 1)
   })
+
+  return out.concat(temp)
 }
 
 function sign(x) {
   return tf.tidy(() => {
+    if (isDataFrame(x) || isSeries(x)) {
+      x = x.values
+    }
+
     if (!isTFTensor(x)) x = tf.tensor(x)
     return x.div(x.abs())
   })
 }
 
-function rScore(xtrue, xpred) {
-  return tf.tidy(() => {
-    if (!isTFTensor(xtrue)) xtrue = tf.tensor(xtrue)
-    if (!isTFTensor(xpred)) xpred = tf.tensor(xpred)
-    let a = xtrue.sub(xpred).pow(2).sum()
-    let b = xtrue.sub(xtrue.mean()).pow(2).sum()
-    let r2 = tf.scalar(1).sub(a.div(b))
-    return sign(r2).mul(r2.abs().sqrt())
-  })
-}
-
 module.exports = {
-  subtract,
-  divide,
+  isBrowser,
   isMatrix,
   isTFTensor,
   isWholeNumber,
-  missingAwareSquaredDistance,
-  outerSquaredDistances,
+  orderCentroids,
   sign,
-  rScore,
+  tf,
 }

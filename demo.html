@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <script src="node_modules/@jrc03c/js-convex-hull/js-convex-hull.js"></script>
+    <script src="node_modules/@jrc03c/js-data-science-helpers/dist/js-data-science-helpers.js"></script>
+    <script src="node_modules/@jrc03c/js-math-tools/dist/js-math-tools.js"></script>
+    <script src="dist/tf-kmeans.js"></script>
+    <script>
+      const { add, max, min, normal, random, range, remap, scale, shape } =
+        JSMathTools
+
+      const { accuracy, sse } = TFKMeans.metrics
+      const { KMeansNaive } = TFKMeans.models
+      const { orderCentroids } = TFKMeans.helpers
+      const { rScore } = JSDataScienceHelpers
+
+      const colors = [
+        "red",
+        "orange",
+        "yellow",
+        "green",
+        "blue",
+        "purple",
+        "pink",
+        "gray",
+        "black",
+        "brown",
+      ]
+
+      const padding = 64
+      const width = 600
+      const height = 600
+      const canvas = document.createElement("canvas")
+      const context = canvas.getContext("2d")
+      canvas.width = width
+      canvas.height = height
+      document.body.appendChild(canvas)
+
+      const centroidsTrue = scale(normal([5, 2]), 100)
+      const labelsTrue = []
+
+      const x = range(0, 500).map(() => {
+        const index = parseInt(random() * centroidsTrue.length)
+        labelsTrue.push(index)
+        return add(
+          centroidsTrue[index],
+          scale(50, normal(centroidsTrue[0].length))
+        )
+      })
+
+      let percent = 0
+      let isThinking = false
+      const model = new KMeansNaive({ k: centroidsTrue.length })
+      const fitStep = model.getFitStepFunction(x, p => (percent = p))
+
+      let interval = setInterval(() => {
+        try {
+          if (isThinking) return
+          isThinking = true
+
+          const status = fitStep.next()
+
+          if (status.done) {
+            model.centroids = orderCentroids(centroidsTrue, model.centroids)
+
+            console.log(
+              "r-score for centroids:",
+              rScore(centroidsTrue, model.centroids)
+            )
+
+            console.log(
+              "accuracy for labels:",
+              accuracy(labelsTrue, model.predict(x))
+            )
+
+            clearInterval(interval)
+            return
+          }
+
+          const centroids = status.value
+          if (!centroids) return
+          const labels = model.predict(x, centroids)
+
+          context.fillStyle = "black"
+          context.fillRect(0, 0, width, height)
+
+          context.fillStyle = "red"
+          context.fillRect(0, height - 4, width * percent, 4)
+          context.lineWidth = 2
+
+          const xvalues = x.map(p => p[0])
+          const yvalues = x.map(p => p[1])
+
+          const xmin = min(xvalues)
+          const xmax = max(xvalues)
+          const ymin = min(yvalues)
+          const ymax = max(yvalues)
+
+          centroids.forEach((centroid, k) => {
+            context.fillStyle = colors[k]
+            context.strokeStyle = colors[k]
+
+            const points = x.filter((p, i) => labels[i] === k)
+
+            points.forEach(p => {
+              const px = remap(p[0], xmin, xmax, padding, width - padding)
+              const py = remap(p[1], ymin, ymax, padding, height - padding)
+              context.beginPath()
+              context.arc(px, py, 2, 0, Math.PI * 2)
+              context.fill()
+            })
+
+            const cx = remap(centroid[0], xmin, xmax, padding, width - padding)
+            const cy = remap(centroid[1], ymin, ymax, padding, height - padding)
+            context.beginPath()
+            context.arc(cx, cy, 8, 0, Math.PI * 2)
+            context.fill()
+            context.stroke()
+
+            const hull = getConvexHull(points)
+
+            hull.slice(0, -1).forEach((h1, i) => {
+              const h2 = hull[(i + 1) % hull.length]
+
+              const h1x = remap(h1[0], xmin, xmax, padding, width - padding)
+              const h1y = remap(h1[1], ymin, ymax, padding, height - padding)
+              const h2x = remap(h2[0], xmin, xmax, padding, width - padding)
+              const h2y = remap(h2[1], ymin, ymax, padding, height - padding)
+
+              context.beginPath()
+              context.moveTo(h1x, h1y)
+              context.lineTo(h2x, h2y)
+              context.stroke()
+            })
+          })
+
+          isThinking = false
+        } catch (e) {
+          console.error(e)
+          clearInterval(interval)
+        }
+      }, 10)
+    </script>
+  </body>
+</html>

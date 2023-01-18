@@ -1,5 +1,13 @@
-module.exports = {
-  TFKMeans: require("./k-means.js"),
-  TFKMeansCV: require("./k-means-cv.js"),
-  TFKmeansPlusPlus: require("./k-means++.js"),
+const TFKMeans = {
+  helpers: require("./helpers"),
+  metrics: require("./metrics"),
+  models: require("./models"),
+}
+
+if (typeof module !== "undefined") {
+  module.exports = TFKMeans
+}
+
+if (typeof window !== "undefined") {
+  window.TFKMeans = TFKMeans
 }

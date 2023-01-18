@@ -1,28 +1,32 @@
 {
-  "name": "tf-kmeans",
-  "main": "src/index.js",
-  "scripts": {
-    "build": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js --minify",
-    "watch": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js --minify --watch"
-  },
-  "dependencies": {
-    "@jrc03c/js-math-tools": "github:jrc03c/js-math-tools",
-    "@tensorflow/tfjs": "^3.21.0"
-  },
-  "version": "0.0.1",
+  "homepage": "https://github.com/jrc03c/tf-kmeans#readme",
+  "name": "@willfind/tf-kmeans",
   "description": "my silly attempt to implement k-means in tensorflow.js",
+  "author": "jrc03c",
+  "version": "0.0.1",
+  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jrc03c/tf-kmeans.git"
   },
-  "author": "jrc03c",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/jrc03c/tf-kmeans/issues"
+  "main": "src/index.js",
+  "scripts": {
+    "build": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js",
+    "watch": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js --watch",
+    "test": "jest --testTimeout=300"
   },
-  "homepage": "https://github.com/jrc03c/tf-kmeans#readme",
+  "dependencies": {
+    "@jrc03c/js-math-tools": "github:jrc03c/js-math-tools",
+    "@tensorflow/tfjs": "^4.1.0",
+    "@tensorflow/tfjs-node": "^4.2.0"
+  },
   "devDependencies": {
+    "@jrc03c/js-convex-hull": "github:jrc03c/js-convex-hull",
+    "@jrc03c/js-data-science-helpers": "github:jrc03c/js-data-science-helpers",
+    "@jrc03c/progress": "github:jrc03c/progress",
     "esbuild": "^0.15.9",
-    "eslint": "^8.24.0"
+    "eslint": "^8.24.0",
+    "jest": "^29.3.1",
+    "prettier": "^2.8.1"
   }
 }
