@@ -121,8 +121,6 @@ Returns the negative of the _K_-means objective. The _K_-means objective is the 
 
 The array of learned centroids. It's only available after the `fit` method has been run.
 
----
-
 # To do
 
 - Come up with a more principled `errorRatio` parameter for the `TFKMeansMeta` model and/or consider [the "silhouette" analysis method](https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html) for determining the best _K_-value.
