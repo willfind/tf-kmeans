@@ -1,6 +1,6 @@
 const { assert, int, random } = require("@jrc03c/js-math-tools")
 const { isMatrix, tf } = require("../helpers")
-const TFKMeansNaive = require("./tf-k-means-naive")
+const TFKMeansNaive = require("./tf-kmeans-naive")
 
 class TFKMeansPlusPlus extends TFKMeansNaive {
   initializeCentroids(x) {

@@ -21,6 +21,7 @@
     "@tensorflow/tfjs-node": "^4.2.0"
   },
   "devDependencies": {
+    "@jrc03c/bee": "^0.0.18",
     "@jrc03c/js-convex-hull": "github:jrc03c/js-convex-hull",
     "@jrc03c/js-data-science-helpers": "github:jrc03c/js-data-science-helpers",
     "@jrc03c/progress": "github:jrc03c/progress",

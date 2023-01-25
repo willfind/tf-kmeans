@@ -1,6 +1,6 @@
 const { assert, isFunction, isUndefined } = require("@jrc03c/js-math-tools")
 const { KMeansMeta } = require("@jrc03c/js-data-science-helpers").KMeans
-const TFKMeansPlusPlus = require("./tf-k-means-plus-plus")
+const TFKMeansPlusPlus = require("./tf-kmeans-plus-plus")
 
 class TFKMeansMeta extends KMeansMeta {
   constructor(config) {
