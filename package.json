@@ -13,6 +13,10 @@
   "scripts": {
     "build": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js",
     "watch": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js --watch",
+    "build-browser-tests": "esbuild tests/browser/src/tests.js --bundle --outfile=tests/browser/tests-bundle.js",
+    "watch-browser-tests": "esbuild tests/browser/src/tests.js --bundle --outfile=tests/browser/tests-bundle.js --watch",
+    "build-browser-tests-worker": "esbuild tests/browser/src/tests-worker.js --bundle --outfile=tests/browser/tests-worker-bundle.js",
+    "watch-browser-tests-worker": "esbuild tests/browser/src/tests-worker.js --bundle --outfile=tests/browser/tests-worker-bundle.js --watch",
     "test": "jest --testTimeout=300"
   },
   "dependencies": {
@@ -24,6 +28,7 @@
     "@jrc03c/bee": "^0.0.18",
     "@jrc03c/js-convex-hull": "github:jrc03c/js-convex-hull",
     "@jrc03c/js-data-science-helpers": "github:jrc03c/js-data-science-helpers",
+    "@jrc03c/pause": "^0.0.3",
     "@jrc03c/progress": "github:jrc03c/progress",
     "esbuild": "^0.15.9",
     "eslint": "^8.24.0",
