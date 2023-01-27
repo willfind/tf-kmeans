@@ -8,10 +8,10 @@ const {
   shape,
 } = require("@jrc03c/js-math-tools")
 
-const { accuracy } = require("..").metrics
-const { orderCentroids } = require("../src/helpers")
-const { rScore, trainTestSplit } = require("@jrc03c/js-data-science-helpers")
-const { TFKMeansMeta } = require("..").models
+const { accuracy } = require("../../..").metrics
+const { orderCentroids } = require("../../../src/helpers")
+const { TFKMeansPlusPlus } = require("../../..").models
+const { trainTestSplit } = require("@jrc03c/js-data-science-helpers")
 
 const Bee = require("@jrc03c/bee")
 const pause = require("@jrc03c/pause")
@@ -42,20 +42,24 @@ function expect(value) {
   }
 }
 
-function createGenericTest(progress, shouldReturnCallableGenerator) {
-  test("tests that the`TFKMeansMeta` model works correctly", async () => {
-    const centroidsTrue = normal([5, 100])
+function createGenericTest(Model, progress) {
+  test(`tests that the \`${Model.name}\` model works correctly`, async () => {
+    const centroidsTrue = normal([5, 10]).map(row =>
+      row.map(v => v * 100 + normal() * 100)
+    )
+
     const labels = []
 
-    const x = range(0, 5000).map(() => {
+    const x = range(0, 500).map(() => {
       const index = int(random() * centroidsTrue.length)
       const c = centroidsTrue[index]
       labels.push(index)
-      return add(c, scale(0.1, normal(shape(c))))
+      return add(c, scale(5, normal(shape(c))))
     })
 
     const [xTrain, xTest, labelsTrain, labelsTest] = trainTestSplit(x, labels)
-    const model = new TFKMeansMeta()
+    const model = new Model({ k: centroidsTrue.length })
+    const shouldReturnCallableGenerator = true
     const gen = model.fit(xTrain, progress, shouldReturnCallableGenerator)
     let status = { done: false }
 
@@ -69,10 +73,10 @@ function createGenericTest(progress, shouldReturnCallableGenerator) {
     const labelsTrainPred = model.predict(xTrain)
     const labelsTestPred = model.predict(xTest)
 
-    expect(model.k).toBe(5)
-    expect(rScore(centroidsTrue, model.centroids)).toBeGreaterThan(0.95)
     expect(accuracy(labelsTrain, labelsTrainPred)).toBeGreaterThan(0.95)
     expect(accuracy(labelsTest, labelsTestPred)).toBeGreaterThan(0.95)
+
+    model.dispose()
   })
 }
 
@@ -82,10 +86,10 @@ let startTime
 
 drone.on("start-tests", (request, response) => {
   console.log("drone is starting tests...")
+  console.log("note: watch for memory leaks in this test!")
   response.send(true)
   startTime = new Date()
-  const shouldReturnCallableGenerator = true
-  createGenericTest(p => (progress = p), shouldReturnCallableGenerator)
+  createGenericTest(TFKMeansPlusPlus, p => (progress = p))
 })
 
 drone.on("get-progress", (request, response) => {
