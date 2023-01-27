@@ -8,12 +8,11 @@ const {
   shape,
 } = require("@jrc03c/js-math-tools")
 
-const { TFKMeansMeta, TFKMeansNaive, TFKMeansPlusPlus } =
-  require("../../../src").models
+const { accuracy } = require("..").metrics
+const { orderCentroids } = require("../src/helpers")
+const { rScore, trainTestSplit } = require("@jrc03c/js-data-science-helpers")
+const { TFKMeansMeta } = require("..").models
 
-const { accuracy } = require("../../../src").metrics
-const { orderCentroids } = require("../../../src/helpers")
-const { trainTestSplit } = require("@jrc03c/js-data-science-helpers")
 const Bee = require("@jrc03c/bee")
 const pause = require("@jrc03c/pause")
 
@@ -43,23 +42,20 @@ function expect(value) {
   }
 }
 
-function createGenericTest(Model, progress, shouldReturnCallableGenerator) {
-  test(`tests that the \`${Model.name}\` model works correctly`, async () => {
-    const centroidsTrue = normal([5, 10]).map(row =>
-      row.map(v => v * 100 + normal() * 100)
-    )
-
+function createGenericTest(progress, shouldReturnCallableGenerator) {
+  test("tests that the`TFKMeansMeta` model works correctly", async () => {
+    const centroidsTrue = normal([5, 100])
     const labels = []
 
-    const x = range(0, 500).map(() => {
+    const x = range(0, 5000).map(() => {
       const index = int(random() * centroidsTrue.length)
       const c = centroidsTrue[index]
       labels.push(index)
-      return add(c, scale(5, normal(shape(c))))
+      return add(c, scale(0.1, normal(shape(c))))
     })
 
     const [xTrain, xTest, labelsTrain, labelsTest] = trainTestSplit(x, labels)
-    const model = new Model({ k: centroidsTrue.length })
+    const model = new TFKMeansMeta()
     const gen = model.fit(xTrain, progress, shouldReturnCallableGenerator)
     let status = { done: false }
 
@@ -73,6 +69,8 @@ function createGenericTest(Model, progress, shouldReturnCallableGenerator) {
     const labelsTrainPred = model.predict(xTrain)
     const labelsTestPred = model.predict(xTest)
 
+    expect(model.k).toBe(5)
+    expect(rScore(centroidsTrue, model.centroids)).toBeGreaterThan(0.95)
     expect(accuracy(labelsTrain, labelsTrainPred)).toBeGreaterThan(0.95)
     expect(accuracy(labelsTest, labelsTestPred)).toBeGreaterThan(0.95)
   })
@@ -87,12 +85,7 @@ drone.on("start-tests", (request, response) => {
   response.send(true)
   startTime = new Date()
   const shouldReturnCallableGenerator = true
-
-  createGenericTest(
-    TFKMeansPlusPlus,
-    p => (progress = p),
-    shouldReturnCallableGenerator
-  )
+  createGenericTest(p => (progress = p), shouldReturnCallableGenerator)
 })
 
 drone.on("get-progress", (request, response) => {

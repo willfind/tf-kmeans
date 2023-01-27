@@ -8,10 +8,10 @@ const {
   shape,
 } = require("@jrc03c/js-math-tools")
 
-const { accuracy } = require("..").metrics
+const { accuracy } = require("../src").metrics
 const { orderCentroids } = require("../src/helpers")
 const { rScore, trainTestSplit } = require("@jrc03c/js-data-science-helpers")
-const { TFKMeansMeta } = require("..").models
+const { TFKMeansMeta } = require("../src").models
 
 test("tests that the`TFKMeansMeta` model works correctly", () => {
   const centroidsTrue = normal([5, 10])
