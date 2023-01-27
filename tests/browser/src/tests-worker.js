@@ -15,6 +15,7 @@ const { accuracy } = require("../../../src").metrics
 const { orderCentroids } = require("../../../src/helpers")
 const { trainTestSplit } = require("@jrc03c/js-data-science-helpers")
 const Bee = require("@jrc03c/bee")
+const pause = require("@jrc03c/pause")
 
 const test = (desc, fn) => fn()
 
@@ -42,8 +43,8 @@ function expect(value) {
   }
 }
 
-function createGenericTest(Model, progress) {
-  test(`tests that the \`${Model.name}\` model works correctly`, () => {
+function createGenericTest(Model, progress, shouldReturnCallableGenerator) {
+  test(`tests that the \`${Model.name}\` model works correctly`, async () => {
     const centroidsTrue = normal([5, 10]).map(row =>
       row.map(v => v * 100 + normal() * 100)
     )
@@ -59,7 +60,14 @@ function createGenericTest(Model, progress) {
 
     const [xTrain, xTest, labelsTrain, labelsTest] = trainTestSplit(x, labels)
     const model = new Model({ k: centroidsTrue.length })
-    model.fit(xTrain, progress)
+    const gen = model.fit(xTrain, progress, shouldReturnCallableGenerator)
+    let status = { done: false }
+
+    while (!status.done) {
+      status = gen.next()
+      await pause(10)
+    }
+
     model.centroids = orderCentroids(centroidsTrue, model.centroids)
 
     const labelsTrainPred = model.predict(xTrain)
@@ -78,7 +86,13 @@ drone.on("start-tests", (request, response) => {
   console.log("drone is starting tests...")
   response.send(true)
   startTime = new Date()
-  createGenericTest(TFKMeansPlusPlus, p => (progress = p))
+  const shouldReturnCallableGenerator = true
+
+  createGenericTest(
+    TFKMeansPlusPlus,
+    p => (progress = p),
+    shouldReturnCallableGenerator
+  )
 })
 
 drone.on("get-progress", (request, response) => {

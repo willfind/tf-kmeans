@@ -20,30 +20,28 @@ class TFKMeansNaive extends KMeansNaive {
     })
   }
 
-  fit(x, progress) {
-    // Question: Can the restarts be run in parallel? I don't think the
-    // iterations can because each next iteration relies on the results of the
-    // previous iteration. But restarts are completely independent from each
-    // other, so they can perhaps be run in parallel...
+  fit(x, progress, shouldReturnCallableGenerator) {
+    function* generator(x, progress, shouldReturnCallableGenerator) {
+      // Question: Can the restarts be run in parallel? I don't think the
+      // iterations can because each next iteration relies on the results of the
+      // previous iteration. But restarts are completely independent from each
+      // other, so they can perhaps be run in parallel...
 
-    const self = this
+      assert(isMatrix(x), "`x` must be a matrix!")
 
-    assert(isMatrix(x), "`x` must be a matrix!")
+      if (isDataFrame(x)) {
+        x = x.values
+      }
 
-    if (isDataFrame(x)) {
-      x = x.values
-    }
+      if (isTFTensor(x)) {
+        x = x.arraySync()
+      }
 
-    if (isTFTensor(x)) {
-      x = x.arraySync()
-    }
+      assert(
+        typeof progress === "function" || isUndefined(progress),
+        "`progress` must be undefined or a function!"
+      )
 
-    assert(
-      typeof progress === "function" || isUndefined(progress),
-      "`progress` must be undefined or a function!"
-    )
-
-    return tf.tidy(() => {
       const xtf = tf.tensor(x)
       let bestScore = -Infinity
       let bestCentroids
@@ -54,12 +52,6 @@ class TFKMeansNaive extends KMeansNaive {
 
         // fit centroids
         for (let iteration = 0; iteration < self.maxIterations; iteration++) {
-          if (progress) {
-            progress(
-              (restart + iteration / self.maxIterations) / self.maxRestarts
-            )
-          }
-
           // label data points
           const labels = self.predict(xtf, centroids)
 
@@ -93,6 +85,16 @@ class TFKMeansNaive extends KMeansNaive {
           const d = sse(centroids, temp)
           if (d < self.tolerance) break
           centroids = temp.clone()
+
+          if (progress) {
+            progress(
+              (restart + iteration / self.maxIterations) / self.maxRestarts
+            )
+          }
+
+          if (shouldReturnCallableGenerator) {
+            yield
+          }
         }
 
         // score
@@ -101,6 +103,10 @@ class TFKMeansNaive extends KMeansNaive {
         if (score > bestScore) {
           bestScore = score
           bestCentroids = centroids
+        }
+
+        if (shouldReturnCallableGenerator) {
+          yield
         }
       }
 
@@ -111,7 +117,22 @@ class TFKMeansNaive extends KMeansNaive {
 
       self.centroids = bestCentroids.arraySync()
       return self
-    })
+    }
+
+    const self = this
+    const gen = generator(x, progress, shouldReturnCallableGenerator)
+
+    if (shouldReturnCallableGenerator) {
+      return gen
+    } else {
+      let status = { done: false }
+
+      while (!status.done) {
+        status = gen.next()
+      }
+
+      return self
+    }
   }
 
   predict(x, centroids) {
