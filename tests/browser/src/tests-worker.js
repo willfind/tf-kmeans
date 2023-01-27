@@ -78,7 +78,7 @@ drone.on("start-tests", (request, response) => {
   console.log("drone is starting tests...")
   response.send(true)
   startTime = new Date()
-  createGenericTest(TFKMeansNaive, p => (progress = p))
+  createGenericTest(TFKMeansPlusPlus, p => (progress = p))
 })
 
 drone.on("get-progress", (request, response) => {

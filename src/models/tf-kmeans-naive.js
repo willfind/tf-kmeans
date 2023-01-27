@@ -105,6 +105,10 @@ class TFKMeansNaive extends KMeansNaive {
       }
 
       // save best centroids
+      if (progress) {
+        progress(1)
+      }
+
       self.centroids = bestCentroids.arraySync()
       return self
     })
