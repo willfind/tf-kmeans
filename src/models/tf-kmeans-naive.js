@@ -21,6 +21,23 @@ class TFKMeansNaive extends KMeansNaive {
   }
 
   fit(x, progress, shouldReturnCallableGenerator) {
+    // NOTE: Because this function is potentially callable as a generator, we
+    // can no longer use `tf.tidy()` and must manage memory manually. It'll be
+    // very important to test this carefully and keep a close eye on it any
+    // time changes are made to this function! I think, though, that this is
+    // the only function that suffers from this problem. No other functions are
+    // callable as generators, so they can all be used with `tf.tidy()`.
+
+    // As of today, 2023-01-27, the tensor that need to be cleaned up manually
+    // are the following. Note that I've already tried to implement their
+    // disposals.
+    // - xtf
+    // - centroids
+    // - cluster
+    // - temp
+    // - bestCentroids
+    // - self.centroids
+
     function* generator(x, progress, shouldReturnCallableGenerator) {
       // Question: Can the restarts be run in parallel? I don't think the
       // iterations can because each next iteration relies on the results of the
@@ -75,7 +92,9 @@ class TFKMeansNaive extends KMeansNaive {
                 )
               )
             } else {
-              temp.push(xtf.gather(indices).mean(0))
+              const cluster = xtf.gather(indices)
+              temp.push(cluster.mean(0))
+              cluster.dispose()
             }
           }
 
@@ -83,8 +102,15 @@ class TFKMeansNaive extends KMeansNaive {
 
           // exit early if converges...
           const d = sse(centroids, temp)
-          if (d < self.tolerance) break
+
+          if (d < self.tolerance) {
+            temp.dispose()
+            break
+          }
+
+          centroids.dispose()
           centroids = temp.clone()
+          temp.dispose()
 
           if (progress) {
             progress(
@@ -101,9 +127,15 @@ class TFKMeansNaive extends KMeansNaive {
         const score = self.score(xtf, centroids)
 
         if (score > bestScore) {
+          if (bestCentroids) {
+            bestCentroids.dispose()
+          }
+
           bestScore = score
-          bestCentroids = centroids
+          bestCentroids = centroids.clone()
         }
+
+        centroids.dispose()
 
         if (shouldReturnCallableGenerator) {
           yield
@@ -116,6 +148,8 @@ class TFKMeansNaive extends KMeansNaive {
       }
 
       self.centroids = bestCentroids.arraySync()
+      bestCentroids.dispose()
+      xtf.dispose()
       return self
     }
 
@@ -279,6 +313,12 @@ class TFKMeansNaive extends KMeansNaive {
 
       return -sse(xtf, assignments)
     })
+  }
+
+  dispose() {
+    const self = this
+    self.centroids.dispose()
+    return self
   }
 }
 
