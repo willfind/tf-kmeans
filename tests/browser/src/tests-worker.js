@@ -42,30 +42,24 @@ function expect(value) {
   }
 }
 
-function createGenericTest(Model, progress) {
+function createGenericTest(Model, progFn) {
   test(`tests that the \`${Model.name}\` model works correctly`, async () => {
-    const centroidsTrue = normal([5, 10]).map(row =>
-      row.map(v => v * 100 + normal() * 100)
-    )
-
+    const centroidsTrue = normal([5, 10])
     const labels = []
 
     const x = range(0, 500).map(() => {
       const index = int(random() * centroidsTrue.length)
       const c = centroidsTrue[index]
       labels.push(index)
-      return add(c, scale(5, normal(shape(c))))
+      return add(c, scale(1, normal(shape(c))))
     })
 
     const [xTrain, xTest, labelsTrain, labelsTest] = trainTestSplit(x, labels)
     const model = new Model({ k: centroidsTrue.length })
-    const shouldReturnCallableGenerator = true
-    const gen = model.fit(xTrain, progress, shouldReturnCallableGenerator)
-    let status = { done: false }
 
-    while (!status.done) {
-      status = gen.next()
-      await pause(10)
+    while (!model._fitState || !model._fitState.isFinished) {
+      model.fitStep(xTrain, progFn)
+      await pause(0)
     }
 
     model.centroids = orderCentroids(centroidsTrue, model.centroids)
@@ -75,8 +69,6 @@ function createGenericTest(Model, progress) {
 
     expect(accuracy(labelsTrain, labelsTrainPred)).toBeGreaterThan(0.95)
     expect(accuracy(labelsTest, labelsTestPred)).toBeGreaterThan(0.95)
-
-    model.dispose()
   })
 }
 
@@ -86,10 +78,13 @@ let startTime
 
 drone.on("start-tests", (request, response) => {
   console.log("drone is starting tests...")
-  console.log("note: watch for memory leaks in this test!")
   response.send(true)
   startTime = new Date()
-  createGenericTest(TFKMeansPlusPlus, p => (progress = p))
+  progress = 0
+
+  createGenericTest(TFKMeansPlusPlus, p => {
+    progress = p
+  })
 })
 
 drone.on("get-progress", (request, response) => {
