@@ -32,7 +32,7 @@ class TFKMeansMeta extends KMeansMeta {
     const newShape = shape(centroids)
 
     if (self.centroids) {
-      const oldCentroids = self.centroids.arraySync()
+      const oldCentroids = self.centroids
       const oldShape = shape(oldCentroids)
 
       assert(

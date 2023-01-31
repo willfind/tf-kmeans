@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://unpkg.com/@jrc03c/js-math-tools@latest/dist/js-data-science-helpers.js"></script>
+    <script src="https://unpkg.com/@jrc03c/js-math-tools@latest/dist/js-math-tools.js"></script>
+    <script src="https://unpkg.com/@jrc03c/js-convex-hull@latest/dist/js-convex-hull.js"></script>
+    <script src="dist/tf-kmeans.js"></script>
+    <script>
+      const { add, int, max, min, normal, random, range, remap, scale, shape } =
+        JSMathTools
+
+      const { TFKMeansPlusPlus } = TFKMeans.models
+      const { orderCentroids } = TFKMeans.helpers
+
+      let width = window.innerWidth
+      let height = window.innerHeight
+      let padding = width / 10
+      const canvas = document.createElement("canvas")
+      const context = canvas.getContext("2d")
+      canvas.width = width
+      canvas.height = height
+      document.body.appendChild(canvas)
+
+      window.addEventListener("resize", () => {
+        width = window.innerWidth
+        height = window.innerHeight
+        padding = width / 10
+        canvas.width = width
+        canvas.height = height
+      })
+
+      const centroidsTrue = normal([int(random() * 7) + 1, 2])
+      const hues = centroidsTrue.map((c, i) => (i * 360) / centroidsTrue.length)
+
+      const x = range(0, 250).map(() => {
+        const c = centroidsTrue[int(random() * centroidsTrue.length)]
+        return add(c, scale(1, normal(shape(c))))
+      })
+
+      const xvalues = x.map(p => p[0])
+      const yvalues = x.map(p => p[1])
+
+      const xmin = min(xvalues)
+      const xmax = max(xvalues)
+      const ymin = min(yvalues)
+      const ymax = max(yvalues)
+
+      const model = new TFKMeansPlusPlus({ k: centroidsTrue.length })
+      let progress = 0
+
+      function loop() {
+        try {
+          context.fillStyle = "black"
+          context.fillRect(0, 0, width, height)
+
+          if (!model._fitState || !model._fitState.isFinished) {
+            model.fitStep(x, p => (progress = p))
+          }
+
+          const centroids = orderCentroids(
+            centroidsTrue,
+            model.centroids || model._fitState.bestCentroids.arraySync()
+          )
+
+          const labels = model.predict(x, centroids)
+
+          centroids.map((c, i) => {
+            const points = x.filter((p, j) => labels[j] === i)
+            context.fillStyle = `hsl(${hues[i]}deg, 100%, 50%)`
+
+            points.forEach(p => {
+              const px = remap(p[0], xmin, xmax, padding, width - padding)
+              const py = remap(p[1], ymin, ymax, padding, height - padding)
+              context.beginPath()
+              context.arc(px, py, 2, 0, Math.PI * 2)
+              context.fill()
+            })
+
+            const hull = getConvexHull(points)
+
+            context.strokeStyle = `hsla(${hues[i]}deg, 100%, 50%, 0.25)`
+            context.fillStyle = `hsla(${hues[i]}deg, 100%, 50%, 0.05)`
+            context.lineWidth = 4
+            context.beginPath()
+
+            hull.forEach((h1, i) => {
+              const h2 = hull[(i + 1) % hull.length]
+              const h1x = remap(h1[0], xmin, xmax, padding, width - padding)
+              const h1y = remap(h1[1], ymin, ymax, padding, height - padding)
+              const h2x = remap(h2[0], xmin, xmax, padding, width - padding)
+              const h2y = remap(h2[1], ymin, ymax, padding, height - padding)
+
+              if (i === 0) {
+                context.moveTo(h1x, h1y)
+              }
+
+              context.lineTo(h2x, h2y)
+            })
+
+            context.fill()
+            context.stroke()
+
+            context.fillStyle = `hsl(${hues[i]}deg, 100%, 50%)`
+
+            const cx = remap(c[0], xmin, xmax, padding, width - padding)
+            const cy = remap(c[1], ymin, ymax, padding, height - padding)
+            context.beginPath()
+            context.arc(cx, cy, 16, 0, Math.PI * 2)
+            context.fill()
+          })
+
+          context.fillStyle = !model._fitState.isFinished
+            ? "red"
+            : "rgb(50, 50, 50)"
+
+          context.fillRect(0, height - 16, width * progress, 16)
+
+          window.requestAnimationFrame(loop)
+        } catch (e) {
+          throw e
+        }
+      }
+
+      loop()
+    </script>
+  </body>
+</html>

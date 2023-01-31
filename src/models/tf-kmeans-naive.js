@@ -117,19 +117,21 @@ class TFKMeansNaive extends KMeansNaive {
       }
 
       if (self._fitState.isFinished) {
-        self.centroids = self._fitState.bestCentroids.clone()
+        self.centroids = self._fitState.bestCentroids.arraySync()
         self._fitState = { isFinished: true }
 
         if (progress) {
           progress(1, self)
         }
       } else {
-        progress(
-          (self._fitState.currentRestart +
-            self._fitState.currentIteration / self.maxIterations) /
-            self.maxRestarts,
-          self
-        )
+        if (progress) {
+          progress(
+            (self._fitState.currentRestart +
+              self._fitState.currentIteration / self.maxIterations) /
+              self.maxRestarts,
+            self
+          )
+        }
       }
 
       return self
