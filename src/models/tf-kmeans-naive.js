@@ -2,6 +2,7 @@ const {
   add,
   assert,
   isDataFrame,
+  isFunction,
   isUndefined,
   normal,
   random,
@@ -20,153 +21,124 @@ class TFKMeansNaive extends KMeansNaive {
     })
   }
 
-  fit(x, progress, shouldReturnCallableGenerator) {
-    // NOTE: Because this function is potentially callable as a generator, we
-    // can no longer use `tf.tidy()` and must manage memory manually. It'll be
-    // very important to test this carefully and keep a close eye on it any
-    // time changes are made to this function! I think, though, that this is
-    // the only function that suffers from this problem. No other functions are
-    // callable as generators, so they can all be used with `tf.tidy()`.
-
-    // As of today, 2023-01-27, the tensor that need to be cleaned up manually
-    // are the following. Note that I've already tried to implement their
-    // disposals.
-    // - xtf
-    // - centroids
-    // - cluster
-    // - temp
-    // - bestCentroids
-    // - self.centroids
-
-    function* generator(x, progress, shouldReturnCallableGenerator) {
-      // Question: Can the restarts be run in parallel? I don't think the
-      // iterations can because each next iteration relies on the results of the
-      // previous iteration. But restarts are completely independent from each
-      // other, so they can perhaps be run in parallel...
-
-      assert(isMatrix(x), "`x` must be a matrix!")
-
-      if (isDataFrame(x)) {
-        x = x.values
-      }
-
-      if (isTFTensor(x)) {
-        x = x.arraySync()
-      }
-
-      assert(
-        typeof progress === "function" || isUndefined(progress),
-        "`progress` must be undefined or a function!"
-      )
-
-      const xtf = tf.tensor(x)
-      let bestScore = -Infinity
-      let bestCentroids
-
-      for (let restart = 0; restart < self.maxRestarts; restart++) {
-        // initialize centroids
-        let centroids = self.initializeCentroids(x)
-
-        // fit centroids
-        for (let iteration = 0; iteration < self.maxIterations; iteration++) {
-          // label data points
-          const labels = self.predict(xtf, centroids)
-
-          // adjust centroids
-          let temp = []
-
-          for (let i = 0; i < self.k; i++) {
-            const indices = []
-
-            labels.forEach((label, j) => {
-              if (label === i) indices.push(j)
-            })
-
-            if (indices.length === 0) {
-              const getRandom = x => x[parseInt(random() * x.length)]
-
-              temp.push(
-                add(
-                  getRandom(centroids.arraySync()),
-                  scale(0.01, normal(x[0].length))
-                )
-              )
-            } else {
-              const cluster = xtf.gather(indices)
-              temp.push(cluster.mean(0))
-              cluster.dispose()
-            }
-          }
-
-          temp = tf.stack(temp)
-
-          // exit early if converges...
-          const d = sse(centroids, temp)
-
-          if (d < self.tolerance) {
-            temp.dispose()
-            break
-          }
-
-          centroids.dispose()
-          centroids = temp.clone()
-          temp.dispose()
-
-          if (progress) {
-            progress(
-              (restart + iteration / self.maxIterations) / self.maxRestarts
-            )
-          }
-
-          if (shouldReturnCallableGenerator) {
-            yield
-          }
-        }
-
-        // score
-        const score = self.score(xtf, centroids)
-
-        if (score > bestScore) {
-          if (bestCentroids) {
-            bestCentroids.dispose()
-          }
-
-          bestScore = score
-          bestCentroids = centroids.clone()
-        }
-
-        centroids.dispose()
-
-        if (shouldReturnCallableGenerator) {
-          yield
-        }
-      }
-
-      // save best centroids
-      if (progress) {
-        progress(1)
-      }
-
-      self.centroids = bestCentroids.arraySync()
-      bestCentroids.dispose()
-      xtf.dispose()
-      return self
-    }
-
+  fitStep(x, progress) {
     const self = this
-    const gen = generator(x, progress, shouldReturnCallableGenerator)
 
-    if (shouldReturnCallableGenerator) {
-      return gen
-    } else {
-      let status = { done: false }
+    assert(isMatrix(x), "`x` must be a matrix!")
 
-      while (!status.done) {
-        status = gen.next()
+    if (isDataFrame(x)) {
+      x = x.values
+    }
+
+    if (!isUndefined(progress)) {
+      assert(isFunction(progress), "If defined, `progress` must be a function!")
+    }
+
+    if (isTFTensor(x)) {
+      x = x.arraySync()
+    }
+
+    assert(
+      typeof progress === "function" || isUndefined(progress),
+      "`progress` must be undefined or a function!"
+    )
+
+    if (!self._fitState) {
+      const centroids = self.initializeCentroids(x)
+
+      self._fitState = {
+        currentRestart: 0,
+        currentIteration: 0,
+        currentCentroids: centroids,
+        bestCentroids: centroids,
+        bestScore: -Infinity,
+        isFinished: false,
+      }
+    } else if (self._fitState.isFinished) {
+      return self
+    }
+
+    return tf.tidy(() => {
+      const xtf = tf.tensor(x)
+
+      // label data points
+      const labels = self.predict(xtf, self._fitState.currentCentroids)
+
+      // adjust centroids
+      let temp = []
+
+      for (let i = 0; i < self.k; i++) {
+        const indices = []
+
+        labels.forEach((label, j) => {
+          if (label === i) indices.push(j)
+        })
+
+        if (indices.length === 0) {
+          const getRandom = x => x[parseInt(random() * x.length)]
+
+          temp.push(
+            add(
+              getRandom(self._fitState.currentCentroids.arraySync()),
+              scale(0.01, normal(x[0].length))
+            )
+          )
+        } else {
+          const cluster = xtf.gather(indices)
+          temp.push(cluster.mean(0))
+        }
+      }
+
+      temp = tf.stack(temp)
+
+      // if has converged, finish iterations early
+      const d = sse(self._fitState.currentCentroids, temp)
+
+      if (d < self.tolerance) {
+        self._fitState.currentIteration = self.maxIterations - 1
+      }
+
+      self._fitState.currentIteration++
+
+      if (self._fitState.currentIteration >= self.maxIterations) {
+        self._fitState.currentRestart++
+
+        const score = self.score(xtf, temp)
+
+        if (score > self._fitState.bestScore) {
+          self._fitState.bestScore = score
+          self._fitState.bestCentroids = temp.clone()
+        }
+
+        self._fitState.currentIteration = 0
+
+        if (self._fitState.currentRestart >= self.maxRestarts) {
+          self._fitState.isFinished = true
+        } else {
+          self._fitState.currentCentroids = self.initializeCentroids(x)
+        }
+      } else {
+        self._fitState.currentCentroids = temp.clone()
+      }
+
+      if (self._fitState.isFinished) {
+        self.centroids = self._fitState.bestCentroids.clone()
+        self._fitState = { isFinished: true }
       }
 
       return self
+    })
+  }
+
+  fit(x, progress) {
+    const self = this
+    self._fitState = null
+
+    while (!self._fitState || !self._fitState.isFinished) {
+      self.fitStep(x, progress)
     }
+
+    return self
   }
 
   predict(x, centroids) {
