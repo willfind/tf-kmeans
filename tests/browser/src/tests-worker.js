@@ -10,8 +10,8 @@ const {
 
 const { accuracy } = require("../../..").metrics
 const { orderCentroids } = require("../../../src/helpers")
-const { TFKMeansPlusPlus } = require("../../..").models
-const { trainTestSplit } = require("@jrc03c/js-data-science-helpers")
+const { TFKMeansMeta } = require("../../..").models
+const { rScore, trainTestSplit } = require("@jrc03c/js-data-science-helpers")
 
 const Bee = require("@jrc03c/bee")
 const pause = require("@jrc03c/pause")
@@ -42,8 +42,8 @@ function expect(value) {
   }
 }
 
-function createGenericTest(Model, progFn) {
-  test(`tests that the \`${Model.name}\` model works correctly`, async () => {
+function createGenericTest(progFn) {
+  test("tests that the`TFKMeansMeta` model works correctly", async () => {
     const centroidsTrue = normal([5, 10])
     const labels = []
 
@@ -51,11 +51,11 @@ function createGenericTest(Model, progFn) {
       const index = int(random() * centroidsTrue.length)
       const c = centroidsTrue[index]
       labels.push(index)
-      return add(c, scale(1, normal(shape(c))))
+      return add(c, scale(0.1, normal(shape(c))))
     })
 
     const [xTrain, xTest, labelsTrain, labelsTest] = trainTestSplit(x, labels)
-    const model = new Model({ k: centroidsTrue.length })
+    const model = new TFKMeansMeta()
 
     while (!model._fitState || !model._fitState.isFinished) {
       model.fitStep(xTrain, progFn)
@@ -67,6 +67,8 @@ function createGenericTest(Model, progFn) {
     const labelsTrainPred = model.predict(xTrain)
     const labelsTestPred = model.predict(xTest)
 
+    expect(model.k).toBe(5)
+    expect(rScore(centroidsTrue, model.centroids)).toBeGreaterThan(0.95)
     expect(accuracy(labelsTrain, labelsTrainPred)).toBeGreaterThan(0.95)
     expect(accuracy(labelsTest, labelsTestPred)).toBeGreaterThan(0.95)
   })
@@ -82,9 +84,7 @@ drone.on("start-tests", (request, response) => {
   startTime = new Date()
   progress = 0
 
-  createGenericTest(TFKMeansPlusPlus, p => {
-    progress = p
-  })
+  createGenericTest(p => (progress = p))
 })
 
 drone.on("get-progress", (request, response) => {
