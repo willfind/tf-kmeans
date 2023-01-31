@@ -38,11 +38,6 @@ class TFKMeansNaive extends KMeansNaive {
       x = x.arraySync()
     }
 
-    assert(
-      typeof progress === "function" || isUndefined(progress),
-      "`progress` must be undefined or a function!"
-    )
-
     if (!self._fitState) {
       const centroids = self.initializeCentroids(x)
 
@@ -124,6 +119,17 @@ class TFKMeansNaive extends KMeansNaive {
       if (self._fitState.isFinished) {
         self.centroids = self._fitState.bestCentroids.clone()
         self._fitState = { isFinished: true }
+
+        if (progress) {
+          progress(1, self)
+        }
+      } else {
+        progress(
+          (self._fitState.currentRestart +
+            self._fitState.currentIteration / self.maxIterations) /
+            self.maxRestarts,
+          self
+        )
       }
 
       return self
@@ -285,12 +291,6 @@ class TFKMeansNaive extends KMeansNaive {
 
       return -sse(xtf, assignments)
     })
-  }
-
-  dispose() {
-    const self = this
-    self.centroids.dispose()
-    return self
   }
 }
 
