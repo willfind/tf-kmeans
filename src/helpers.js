@@ -35,16 +35,26 @@ function isWholeNumber(x) {
 }
 
 function orderCentroids(cTrue, cPred) {
-  const out = []
-  const temp = cPred.slice()
+  return tf.tidy(() => {
+    if (isTFTensor(cTrue)) {
+      cTrue = cTrue.arraySync()
+    }
 
-  cTrue.forEach(c1 => {
-    const closestCentroidIndex = argmin(temp.map(c2 => distance(c1, c2)))
-    out.push(temp[closestCentroidIndex])
-    temp.splice(closestCentroidIndex, 1)
+    if (isTFTensor(cPred)) {
+      cPred = cPred.arraySync()
+    }
+
+    const out = []
+    const temp = cPred.slice()
+
+    cTrue.forEach(c1 => {
+      const closestCentroidIndex = argmin(temp.map(c2 => distance(c1, c2)))
+      out.push(temp[closestCentroidIndex])
+      temp.splice(closestCentroidIndex, 1)
+    })
+
+    return out.concat(temp)
   })
-
-  return out.concat(temp)
 }
 
 function sign(x) {
