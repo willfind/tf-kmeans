@@ -107,7 +107,11 @@ The constructor for the meta model takes a configuration object argument. There 
 
 ### `(TFKMeansPlusPlus || TFKMeansMeta).fit(x, progress)`
 
-Fits the model to the two-dimensional data, `x`. Optionally, a `progress` callback function can be provided. This function takes a single argument that represents the overall completion of the `fit` method (in terms of restarts and iterations) expressed as a fraction between 0 and 1.
+Fits the model to the two-dimensional data, `x`. Optionally, a `progress` callback function can be provided. This function takes a single argument that represents the overall completion of the `fit` method (in terms of restarts and iterations) expressed as a fraction between 0 and 1. Note that although the `progress` method technically works, it's not usually realistic to expect to see progress since the fitting is done in a single shot and consumes all available resources until finished. If you _really_ want to see the progress, use the `fitStep` method instead.
+
+### `(TFKMeansPlusPlus || TFKMeansMeta).fitStep(x, progress)`
+
+Takes one step in the process of fitting the model to the two-dimensional data, `x`. Optionally, a `progress` callback function can be provided. This function takes a single argument that represents the overall completion of the `fit` method (in terms of restarts and iterations) expressed as a fraction between 0 and 1.
 
 ### `(TFKMeansPlusPlus || TFKMeansMeta).predict(x, centroids)`
 
