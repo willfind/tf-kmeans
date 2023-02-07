@@ -11,8 +11,8 @@
   },
   "main": "src/index.js",
   "scripts": {
-    "build": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js",
-    "watch": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js --watch",
+    "build": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js --minify",
+    "watch": "esbuild src/index.js --bundle --outfile=dist/tf-kmeans.js --minify --watch",
     "build-browser-tests": "esbuild tests/browser/src/tests.js --bundle --outfile=tests/browser/tests-bundle.js",
     "watch-browser-tests": "esbuild tests/browser/src/tests.js --bundle --outfile=tests/browser/tests-bundle.js --watch",
     "build-browser-tests-worker": "esbuild tests/browser/src/tests-worker.js --bundle --outfile=tests/browser/tests-worker-bundle.js",
