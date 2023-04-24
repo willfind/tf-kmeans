@@ -20,6 +20,7 @@
     "test": "jest --testTimeout=300"
   },
   "dependencies": {
+    "@jrc03c/js-data-science-helpers": "^0.0.56",
     "@jrc03c/js-math-tools": "github:jrc03c/js-math-tools",
     "@tensorflow/tfjs": "^4.1.0",
     "@tensorflow/tfjs-node": "^4.2.0"
@@ -27,7 +28,6 @@
   "devDependencies": {
     "@jrc03c/bee": "^0.0.18",
     "@jrc03c/js-convex-hull": "github:jrc03c/js-convex-hull",
-    "@jrc03c/js-data-science-helpers": "github:jrc03c/js-data-science-helpers",
     "@jrc03c/pause": "^0.0.3",
     "@jrc03c/progress": "github:jrc03c/progress",
     "esbuild": "^0.15.9",
