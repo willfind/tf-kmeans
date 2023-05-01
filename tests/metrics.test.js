@@ -19,7 +19,7 @@ const {
   zeros,
 } = require("@jrc03c/js-math-tools")
 
-const { tf } = require("../src/helpers")
+const tf = require("@tensorflow/tfjs")
 
 function slowAccuracy(xTrue, xPred) {
   const xTrueFlat = flatten(xTrue)
@@ -67,6 +67,9 @@ test("tests that the `accuracy` function computes scores correctly", () => {
 
     expect(accuracy(c, d)).toBeCloseTo(slowAccuracy(c, d))
   })
+
+  expect(tf.memory().numTensors).toBe(0)
+  expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
 
 test("tests that the `rScore` function computes scores correctly", () => {
@@ -83,6 +86,9 @@ test("tests that the `rScore` function computes scores correctly", () => {
     const d = random() < 0.5 ? normal(tempShape) : null
     expect(rScore(b, c, d)).toBeCloseTo(slowRScore(b, c, d))
   })
+
+  expect(tf.memory().numTensors).toBe(0)
+  expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
 
 test("tests that the `rSquared` function computes scores correctly", () => {
@@ -99,6 +105,9 @@ test("tests that the `rSquared` function computes scores correctly", () => {
     const d = random() < 0.5 ? normal(tempShape) : null
     expect(rSquared(b, c, d)).toBeCloseTo(slowRSquared(b, c, d))
   })
+
+  expect(tf.memory().numTensors).toBe(0)
+  expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
 
 test("tests that the `sse` function computes scores correctly", () => {
@@ -114,6 +123,9 @@ test("tests that the `sse` function computes scores correctly", () => {
     const c = normal(tempShape)
     expect(sse(b, c)).toBeCloseTo(slowSse(b, c))
   })
+
+  expect(tf.memory().numTensors).toBe(0)
+  expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
 
 test("tests that the `accuracy` function throws errors when given invalid data types", () => {
@@ -130,6 +142,10 @@ test("tests that the `accuracy` function throws errors when given invalid data t
 
   rights.forEach(right => {
     expect(() => accuracy(right, right)).not.toThrow()
+
+    if (right instanceof tf.Tensor) {
+      right.dispose()
+    }
   })
 
   const wrongs = [
@@ -156,6 +172,9 @@ test("tests that the `accuracy` function throws errors when given invalid data t
   wrongs.forEach(wrong => {
     expect(() => accuracy(wrong, wrong)).toThrow()
   })
+
+  expect(tf.memory().numTensors).toBe(0)
+  expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
 
 test("tests that the `rScore` function throws errors when given invalid data types", () => {
@@ -172,6 +191,10 @@ test("tests that the `rScore` function throws errors when given invalid data typ
 
   rights.forEach(right => {
     expect(() => rScore(right, right, right)).not.toThrow()
+
+    if (right instanceof tf.Tensor) {
+      right.dispose()
+    }
   })
 
   const wrongs = [
@@ -198,6 +221,9 @@ test("tests that the `rScore` function throws errors when given invalid data typ
   wrongs.forEach(wrong => {
     expect(() => rScore(wrong, wrong, wrong)).toThrow()
   })
+
+  expect(tf.memory().numTensors).toBe(0)
+  expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
 
 test("tests that the `rSquared` function throws errors when given invalid data types", () => {
@@ -214,6 +240,10 @@ test("tests that the `rSquared` function throws errors when given invalid data t
 
   rights.forEach(right => {
     expect(() => rSquared(right, right, right)).not.toThrow()
+
+    if (right instanceof tf.Tensor) {
+      right.dispose()
+    }
   })
 
   const wrongs = [
@@ -240,6 +270,9 @@ test("tests that the `rSquared` function throws errors when given invalid data t
   wrongs.forEach(wrong => {
     expect(() => rSquared(wrong, wrong, wrong)).toThrow()
   })
+
+  expect(tf.memory().numTensors).toBe(0)
+  expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
 
 test("tests that the `sse` function throws errors when given invalid data types", () => {
@@ -256,6 +289,10 @@ test("tests that the `sse` function throws errors when given invalid data types"
 
   rights.forEach(right => {
     expect(() => sse(right, right)).not.toThrow()
+
+    if (right instanceof tf.Tensor) {
+      right.dispose()
+    }
   })
 
   const wrongs = [
@@ -282,4 +319,7 @@ test("tests that the `sse` function throws errors when given invalid data types"
   wrongs.forEach(wrong => {
     expect(() => sse(wrong, wrong)).toThrow()
   })
+
+  expect(tf.memory().numTensors).toBe(0)
+  expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })

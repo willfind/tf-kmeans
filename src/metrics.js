@@ -8,7 +8,8 @@ const {
   shape,
 } = require("@jrc03c/js-math-tools")
 
-const { isTFTensor, sign, tf } = require("./helpers")
+const { isTFTensor, sign } = require("./helpers")
+const tf = require("@tensorflow/tfjs")
 
 function sse(yTrue, yPred) {
   if (isTFTensor(yTrue)) {
