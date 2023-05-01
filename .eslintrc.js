@@ -19,5 +19,12 @@ module.exports = {
         ignoreReadBeforeAssign: false,
       },
     ],
+
+    "no-empty": [
+      "error",
+      {
+        allowEmptyCatch: true,
+      },
+    ],
   },
 }
