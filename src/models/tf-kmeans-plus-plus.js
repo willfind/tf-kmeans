@@ -1,5 +1,6 @@
 const { assert, int, random } = require("@jrc03c/js-math-tools")
-const { isMatrix, tf } = require("../helpers")
+const { isMatrix } = require("../helpers")
+const tf = require("@tensorflow/tfjs")
 const TFKMeansNaive = require("./tf-kmeans-naive")
 
 class TFKMeansPlusPlus extends TFKMeansNaive {
