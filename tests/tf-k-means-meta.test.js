@@ -12,6 +12,7 @@ const { accuracy } = require("../src").metrics
 const { orderCentroids } = require("../src/helpers")
 const { rScore, trainTestSplit } = require("@jrc03c/js-data-science-helpers")
 const { TFKMeansMeta } = require("../src").models
+const tf = require("@tensorflow/tfjs")
 
 test("tests that the`TFKMeansMeta` model works correctly", () => {
   const centroidsTrue = normal([5, 10])
@@ -36,4 +37,7 @@ test("tests that the`TFKMeansMeta` model works correctly", () => {
   expect(rScore(centroidsTrue, model.centroids)).toBeGreaterThan(0.95)
   expect(accuracy(labelsTrain, labelsTrainPred)).toBeGreaterThan(0.95)
   expect(accuracy(labelsTest, labelsTestPred)).toBeGreaterThan(0.95)
+
+  expect(tf.memory().numTensors).toBe(0)
+  expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
