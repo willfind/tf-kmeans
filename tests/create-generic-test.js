@@ -9,8 +9,9 @@ const {
 } = require("@jrc03c/js-math-tools")
 
 const { accuracy } = require("..").metrics
-const { orderCentroids } = require("../src/helpers")
+const { orderCentroids, pause } = require("../src/helpers")
 const { trainTestSplit } = require("@jrc03c/js-data-science-helpers")
+const tf = require("@tensorflow/tfjs")
 
 module.exports = function createGenericTest(Model) {
   test(`tests that the \`${Model.name}\` model works correctly`, () => {
@@ -37,5 +38,16 @@ module.exports = function createGenericTest(Model) {
 
     expect(accuracy(labelsTrain, labelsTrainPred)).toBeGreaterThan(0.95)
     expect(accuracy(labelsTest, labelsTestPred)).toBeGreaterThan(0.95)
+
+    const model2 = new Model({ k: centroidsTrue.length })
+    const fitStep = model2.getFitStepFunction(xTrain)
+    let state
+
+    while (!state || !state.isFinished) {
+      state = fitStep()
+    }
+
+    expect(tf.memory().numTensors).toBe(0)
+    expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
   })
 }
