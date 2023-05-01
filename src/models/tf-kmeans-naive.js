@@ -10,140 +10,167 @@ const {
   shape,
 } = require("@jrc03c/js-math-tools")
 
-const { isMatrix, isTFTensor, tf } = require("../helpers.js")
+const { isMatrix, isTFTensor } = require("../helpers.js")
 const { KMeansNaive } = require("@jrc03c/js-data-science-helpers").KMeans
 const { sse } = require("../metrics")
+const tf = require("@tensorflow/tfjs")
 
 class TFKMeansNaive extends KMeansNaive {
   initializeCentroids(x) {
-    return tf.tidy(() => {
-      return tf.tensor(super.initializeCentroids(x))
-    })
-  }
-
-  fitStep(x, progress) {
-    const self = this
-
-    assert(isMatrix(x), "`x` must be a matrix!")
-
     if (isDataFrame(x)) {
       x = x.values
-    }
-
-    if (!isUndefined(progress)) {
-      assert(isFunction(progress), "If defined, `progress` must be a function!")
     }
 
     if (isTFTensor(x)) {
       x = x.arraySync()
     }
 
-    if (!self._fitState) {
-      const centroids = self.initializeCentroids(x)
+    return tf.tensor(super.initializeCentroids(x))
+  }
 
-      self._fitState = {
-        currentRestart: 0,
-        currentIteration: 0,
-        currentCentroids: centroids,
-        bestCentroids: centroids,
-        bestScore: -Infinity,
-        isFinished: false,
-      }
-    } else if (self._fitState.isFinished) {
-      return self
+  getFitStepFunction(x, progress) {
+    const self = this
+
+    if (isDataFrame(x)) {
+      x = x.values
     }
 
-    return tf.tidy(() => {
-      const xtf = tf.tensor(x)
+    if (isTFTensor(x)) {
+      x = x.arraySync()
+    }
 
-      // label data points
-      const labels = self.predict(xtf, self._fitState.currentCentroids)
+    assert(isMatrix(x), "`x` must be a matrix!")
 
-      // adjust centroids
-      let temp = []
+    if (!isUndefined(progress)) {
+      assert(isFunction(progress), "If defined, `progress` must be a function!")
+    }
 
-      for (let i = 0; i < self.k; i++) {
-        const indices = []
+    const tensors = []
 
-        labels.forEach((label, j) => {
-          if (label === i) indices.push(j)
+    const addTensorToScope = x => {
+      tensors.push(x)
+      return x
+    }
+
+    const xtf = addTensorToScope(tf.tensor(x))
+    const centroids = addTensorToScope(self.initializeCentroids(x))
+
+    let state = {
+      currentRestart: 0,
+      currentIteration: 0,
+      currentCentroids: centroids,
+      bestCentroids: centroids,
+      bestScore: -Infinity,
+      isFinished: false,
+    }
+
+    return function fitStep() {
+      try {
+        // label data points
+        const labels = self.predict(xtf, state.currentCentroids)
+        const currentCentroids = state.currentCentroids.arraySync()
+
+        // adjust centroids
+        let temp = []
+
+        for (let i = 0; i < self.k; i++) {
+          const indices = []
+
+          labels.forEach((label, j) => {
+            if (label === i) indices.push(j)
+          })
+
+          if (indices.length === 0) {
+            temp.push(
+              add(
+                currentCentroids[parseInt(random() * currentCentroids.length)],
+                scale(0.01, normal(x[0].length))
+              )
+            )
+          } else {
+            const cluster = addTensorToScope(xtf.gather(indices))
+            temp.push(addTensorToScope(cluster.mean(0)))
+          }
+        }
+
+        temp = addTensorToScope(tf.stack(temp))
+
+        // if has converged, finish iterations early
+        const d = sse(state.currentCentroids, temp)
+
+        if (d < self.tolerance) {
+          state.currentIteration = self.maxIterations - 1
+        }
+
+        state.currentIteration++
+
+        if (state.currentIteration >= self.maxIterations) {
+          state.currentRestart++
+
+          const score = self.score(xtf, temp)
+
+          if (score > state.bestScore) {
+            state.bestScore = score
+            state.bestCentroids = addTensorToScope(temp.clone())
+          }
+
+          state.currentIteration = 0
+
+          if (state.currentRestart >= self.maxRestarts) {
+            state.isFinished = true
+          } else {
+            state.currentCentroids = addTensorToScope(
+              self.initializeCentroids(x)
+            )
+          }
+        } else {
+          state.currentCentroids = addTensorToScope(temp.clone())
+        }
+
+        if (state.isFinished) {
+          self.centroids = state.bestCentroids.arraySync()
+          state = { isFinished: true }
+
+          tensors.forEach(t => {
+            try {
+              t.dispose()
+            } catch (e) {}
+          })
+
+          if (progress) {
+            progress(1, self)
+          }
+        } else {
+          if (progress) {
+            progress(
+              (state.currentRestart +
+                state.currentIteration / self.maxIterations) /
+                self.maxRestarts,
+              self
+            )
+          }
+        }
+
+        return state
+      } catch (e) {
+        tensors.forEach(t => {
+          try {
+            t.dispose()
+          } catch (e) {}
         })
 
-        if (indices.length === 0) {
-          const getRandom = x => x[parseInt(random() * x.length)]
-
-          temp.push(
-            add(
-              getRandom(self._fitState.currentCentroids.arraySync()),
-              scale(0.01, normal(x[0].length))
-            )
-          )
-        } else {
-          const cluster = xtf.gather(indices)
-          temp.push(cluster.mean(0))
-        }
+        throw e
       }
-
-      temp = tf.stack(temp)
-
-      // if has converged, finish iterations early
-      const d = sse(self._fitState.currentCentroids, temp)
-
-      if (d < self.tolerance) {
-        self._fitState.currentIteration = self.maxIterations - 1
-      }
-
-      self._fitState.currentIteration++
-
-      if (self._fitState.currentIteration >= self.maxIterations) {
-        self._fitState.currentRestart++
-
-        const score = self.score(xtf, temp)
-
-        if (score > self._fitState.bestScore) {
-          self._fitState.bestScore = score
-          self._fitState.bestCentroids = temp.clone()
-        }
-
-        self._fitState.currentIteration = 0
-
-        if (self._fitState.currentRestart >= self.maxRestarts) {
-          self._fitState.isFinished = true
-        } else {
-          self._fitState.currentCentroids = self.initializeCentroids(x)
-        }
-      } else {
-        self._fitState.currentCentroids = temp.clone()
-      }
-
-      if (self._fitState.isFinished) {
-        self.centroids = self._fitState.bestCentroids.arraySync()
-        self._fitState = { isFinished: true }
-
-        if (progress) {
-          progress(1, self)
-        }
-      } else {
-        if (progress) {
-          progress(
-            (self._fitState.currentRestart +
-              self._fitState.currentIteration / self.maxIterations) /
-              self.maxRestarts,
-            self
-          )
-        }
-      }
-
-      return self
-    })
+    }
   }
 
   fit(x, progress) {
     const self = this
-    self._fitState = null
+    const fitStep = self.getFitStepFunction(x, progress)
+    let state
 
-    while (!self._fitState || !self._fitState.isFinished) {
-      self.fitStep(x, progress)
+    while (!state || !state.isFinished) {
+      state = fitStep()
     }
 
     return self
@@ -212,35 +239,30 @@ class TFKMeansNaive extends KMeansNaive {
 
     const self = this
 
-    if (isTFTensor(x)) {
-      x = x.arraySync()
-    }
-
-    if (isDataFrame(x)) {
-      x = x.values
-    }
-
-    assert(isMatrix(x), "`x` must be a matrix!")
-
-    centroids = centroids || self.centroids
-
-    if (isTFTensor(centroids)) {
-      centroids = centroids.arraySync()
-    }
-
-    assert(
-      isMatrix(centroids) || isUndefined(centroids),
-      "`centroids` must be a matrix or undefined!"
-    )
-
-    assert(
-      shape(x)[1] === shape(centroids)[1],
-      "`x` and `centroids` must have the same number of columns!"
-    )
-
     return tf.tidy(() => {
+      if (isTFTensor(x)) {
+        x = x.arraySync()
+      }
+
+      if (isDataFrame(x)) {
+        x = x.values
+      }
+
+      assert(isMatrix(x), "`x` must be a matrix!")
+
+      centroids = centroids || self.centroids
+
+      if (!isTFTensor(centroids)) {
+        centroids = tf.tensor(centroids)
+      }
+
+      assert(
+        shape(x)[1] === centroids.shape[1],
+        "`x` and `centroids` must have the same number of columns!"
+      )
+
       const xtf = tf.tensor(x).expandDims(1)
-      const ctf = tf.tensor(centroids).expandDims(0)
+      const ctf = centroids.expandDims(0)
       return xtf.sub(ctf).pow(2).sum(2).argMin(1).arraySync()
     })
   }
@@ -256,40 +278,36 @@ class TFKMeansNaive extends KMeansNaive {
 
     const self = this
 
-    if (isTFTensor(x)) {
-      x = x.arraySync()
-    }
-
-    if (isDataFrame(x)) {
-      x = x.values
-    }
-
-    assert(isMatrix(x), "`x` must be a matrix!")
-
-    centroids = centroids || self.centroids
-
-    if (isTFTensor(centroids)) {
-      centroids = centroids.arraySync()
-    }
-
-    assert(
-      isMatrix(centroids) || isUndefined(centroids),
-      "`centroids` must be a matrix or undefined!"
-    )
-
-    assert(
-      shape(x)[1] === shape(centroids)[1],
-      "`x` and `centroids` must have the same number of columns!"
-    )
-
     return tf.tidy(() => {
-      const xtf = tf.tensor(x)
-      const ctf = tf.tensor(centroids)
+      if (isTFTensor(x)) {
+        x = x.arraySync()
+      }
 
-      const assignments = tf.tidy(() => {
-        const labels = self.predict(xtf, ctf)
-        return ctf.gather(labels).arraySync()
-      })
+      if (isDataFrame(x)) {
+        x = x.values
+      }
+
+      assert(isMatrix(x), "`x` must be a matrix!")
+
+      centroids = centroids || self.centroids
+
+      if (!isTFTensor(centroids)) {
+        centroids = tf.tensor(centroids)
+      }
+
+      assert(
+        isMatrix(centroids) || isUndefined(centroids),
+        "`centroids` must be a matrix or undefined!"
+      )
+
+      assert(
+        shape(x)[1] === centroids.shape[1],
+        "`x` and `centroids` must have the same number of columns!"
+      )
+
+      const xtf = tf.tensor(x)
+      const labels = self.predict(xtf, centroids)
+      const assignments = centroids.gather(labels).arraySync()
 
       return -sse(xtf, assignments)
     })
