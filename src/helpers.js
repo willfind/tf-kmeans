@@ -16,7 +16,7 @@ const isBrowser = new Function(
 
 function isMatrix(x) {
   if (isTFTensor(x)) {
-    return isMatrix(x.arraySync())
+    return x.shape.length === 2
   }
 
   if (isDataFrame(x)) {
