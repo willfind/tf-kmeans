@@ -9,7 +9,7 @@ const {
 } = require("@jrc03c/js-math-tools")
 
 const { accuracy } = require("..").metrics
-const { orderCentroids, pause } = require("../src/helpers")
+const { orderCentroids } = require("../src/helpers")
 const { trainTestSplit } = require("@jrc03c/js-data-science-helpers")
 const tf = require("@tensorflow/tfjs")
 
