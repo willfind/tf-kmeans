@@ -150,9 +150,20 @@
   // node_modules/@jrc03c/js-math-tools/src/math-error.js
   var require_math_error = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/math-error.js"(exports, module) {
+      var isBrowser = new Function(`
+  try {
+    return this === window
+  } catch(e) {}
+
+  try {
+    return typeof importScripts !== "undefined"
+  } catch(e) {}
+
+  return false
+`);
       var MathError = class extends Error {
         constructor(message) {
-          if (typeof window !== "undefined") {
+          if (isBrowser()) {
             super(message);
           } else {
             super("\n\n\x1B[31m" + message + "\n\x1B[0m");
@@ -171,20 +182,6 @@
         if (!isTrue)
           throw new MathError(message);
       };
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/copy.js
-  var require_copy = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/copy.js"(exports, module) {
-      function copy(x) {
-        try {
-          return structuredClone(x);
-        } catch (e) {
-          return x;
-        }
-      }
-      module.exports = copy;
     }
   });
 
@@ -213,53 +210,6 @@
         }
       }
       module.exports = isDataFrame;
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/is-series.js
-  var require_is_series = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/is-series.js"(exports, module) {
-      function isSeries(x) {
-        try {
-          return !!x._symbol && x._symbol === Symbol.for("@jrc03c/js-math-tools/series");
-        } catch (e) {
-          return false;
-        }
-      }
-      module.exports = isSeries;
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/flatten.js
-  var require_flatten = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/flatten.js"(exports, module) {
-      var assert = require_assert();
-      var copy = require_copy();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isSeries = require_is_series();
-      function flatten(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return flatten(arr.values);
-        }
-        assert(
-          isArray(arr),
-          "The `flatten` function only works on arrays, Series, and DataFrames!"
-        );
-        function helper(arr2) {
-          let out = [];
-          copy(arr2).forEach((child) => {
-            if (isArray(child)) {
-              out = out.concat(helper(child));
-            } else {
-              out.push(child);
-            }
-          });
-          return out;
-        }
-        return helper(arr);
-      }
-      module.exports = flatten;
     }
   });
 
@@ -302,6 +252,20 @@
         return typeof x === "object" && !isUndefined(x) && !isArray(x);
       }
       module.exports = isObject;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/is-series.js
+  var require_is_series = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/is-series.js"(exports, module) {
+      function isSeries(x) {
+        try {
+          return !!x._symbol && x._symbol === Symbol.for("@jrc03c/js-math-tools/series");
+        } catch (e) {
+          return false;
+        }
+      }
+      module.exports = isSeries;
     }
   });
 
@@ -397,15 +361,47 @@
     }
   });
 
-  // node_modules/@jrc03c/js-math-tools/src/decycle.js
-  var require_decycle = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/decycle.js"(exports, module) {
-      var copy = require_copy();
+  // node_modules/@jrc03c/js-math-tools/src/copy.js
+  var require_copy = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/copy.js"(exports, module) {
       var indexOf = require_index_of();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isSeries = require_is_series();
-      module.exports = function decycle(x) {
+      function copy(x) {
+        try {
+          const out = structuredClone(x);
+          return out;
+        } catch (e) {
+          if (typeof x === "object") {
+            if (x === null) {
+              return null;
+            }
+            if (isArray(x)) {
+              return x.map((v) => copy(v));
+            }
+            if (isSeries(x)) {
+              const out2 = x.copy();
+              out2.values = copy(out2.values);
+              return out2;
+            }
+            if (isDataFrame(x)) {
+              const out2 = x.copy();
+              out2.values = copy(x.values);
+              return out2;
+            }
+            x = decycle(x);
+            const out = {};
+            Object.keys(x).forEach((key) => {
+              out[key] = copy(x[key]);
+            });
+            return out;
+          } else {
+            return x;
+          }
+        }
+      }
+      function decycle(x) {
         function helper(x2, checked, currentPath) {
           checked = checked || [];
           currentPath = currentPath || "";
@@ -457,15 +453,48 @@
           out = temp;
         }
         return out;
-      };
+      }
+      module.exports = { copy, decycle };
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/flatten.js
+  var require_flatten = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/flatten.js"(exports, module) {
+      var { copy } = require_copy();
+      var assert = require_assert();
+      var isArray = require_is_array();
+      var isDataFrame = require_is_dataframe();
+      var isSeries = require_is_series();
+      function flatten(arr) {
+        if (isDataFrame(arr) || isSeries(arr)) {
+          return flatten(arr.values);
+        }
+        assert(
+          isArray(arr),
+          "The `flatten` function only works on arrays, Series, and DataFrames!"
+        );
+        function helper(arr2) {
+          let out = [];
+          copy(arr2).forEach((child) => {
+            if (isArray(child)) {
+              out = out.concat(helper(child));
+            } else {
+              out.push(child);
+            }
+          });
+          return out;
+        }
+        return helper(arr);
+      }
+      module.exports = flatten;
     }
   });
 
   // node_modules/@jrc03c/js-math-tools/src/is-equal.js
   var require_is_equal = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/is-equal.js"(exports, module) {
-      var copy = require_copy();
-      var decycle = require_decycle();
+      var { decycle } = require_copy();
       function isEqual(a, b) {
         function helper(a2, b2) {
           const aType = typeof a2;
@@ -506,7 +535,10 @@
           }
         }
         try {
-          return helper(copy(a), copy(b));
+          if (a instanceof Date && b instanceof Date) {
+            return a.getTime() === b.getTime();
+          }
+          return helper(a, b);
         } catch (e) {
           return helper(decycle(a), decycle(b));
         }
@@ -583,13 +615,13 @@
           "The first argument to the `count` function must be an array, Series, or DataFrame!"
         );
         if (isFunction(matcher)) {
-          return flatten(arr).filter((item) => matcher(item)).length;
+          return flatten(arr).filter((value) => matcher(value)).length;
         } else if (isArray(matcher)) {
           const temp = flatten(arr);
-          return set(matcher).map((item) => {
+          return set(matcher).map((value) => {
             return {
-              item,
-              count: temp.filter((v) => isEqual(v, item)).length
+              value,
+              count: temp.filter((v) => isEqual(v, value)).length
             };
           });
         } else if (arguments.length > 1) {
@@ -1154,7 +1186,7 @@
   // node_modules/@jrc03c/js-math-tools/src/dataframe/df-copy.js
   var require_df_copy = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/dataframe/df-copy.js"(exports, module) {
-      var copy = require_copy();
+      var { copy } = require_copy();
       function dfCopy(DataFrame, df) {
         if (df.isEmpty)
           return new DataFrame();
@@ -1857,7 +1889,7 @@
         }
         const maxRows = typeof window === "undefined" ? 20 : 10;
         const halfMaxRows = parseInt(maxRows / 2);
-        const maxColumns = typeof window === "undefined" ? Math.floor(process.stdout.columns / 24) - 1 : 10;
+        const maxColumns = typeof process === "undefined" ? 10 : Math.floor(process.stdout.columns / 24) - 1;
         const halfMaxColumns = parseInt(maxColumns / 2);
         const tempRows = maxRows > df.index.length ? null : range(0, halfMaxRows).concat(
           range(df.index.length - halfMaxRows, df.index.length)
@@ -2033,8 +2065,8 @@
   // node_modules/@jrc03c/js-math-tools/src/random.js
   var require_random = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/random.js"(exports, module) {
+      var { copy } = require_copy();
       var assert = require_assert();
-      var copy = require_copy();
       var isArray = require_is_array();
       var isNumber = require_is_number();
       var isUndefined = require_is_undefined();
@@ -2049,9 +2081,9 @@
         function helper() {
           state += uint("0x9e3779b97f4a7c15");
           let z = copy(state);
-          z = (z ^ z >> 30n) * uint("0xbf58476d1ce4e5b9");
-          z = (z ^ z >> 27n) * uint("0x94d049bb133111eb");
-          return z ^ z >> 31n;
+          z = (z ^ z >> BigInt(30)) * uint("0xbf58476d1ce4e5b9");
+          z = (z ^ z >> BigInt(27)) * uint("0x94d049bb133111eb");
+          return z ^ z >> BigInt(31);
         }
         const out = [];
         for (let i = 0; i < n; i++)
@@ -2064,7 +2096,7 @@
       function rotl(x, k) {
         x = uint(x);
         k = BigInt(k);
-        return uint(uint(x << k) | uint(x >> uint(64n - k)));
+        return uint(uint(x << k) | uint(x >> uint(BigInt(64) - k)));
       }
       function seed(val) {
         if (!isUndefined(val)) {
@@ -2083,7 +2115,7 @@
       }
       function next() {
         const result = uint(rotl(s[0] + s[3], 23) + s[0]);
-        const t = uint(s[1] << 17n);
+        const t = uint(s[1] << BigInt(17));
         s[2] = uint(s[2] ^ s[0]);
         s[3] = uint(s[3] ^ s[1]);
         s[1] = uint(s[1] ^ s[2]);
@@ -2531,7 +2563,7 @@
   // node_modules/@jrc03c/js-math-tools/src/series/series-filter.js
   var require_series_filter = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/series/series-filter.js"(exports, module) {
-      var copy = require_copy();
+      var { copy } = require_copy();
       function seriesFilter(Series, series, fn) {
         let out = series.copy();
         const index = copy(out.index);
@@ -2699,7 +2731,7 @@
   // node_modules/@jrc03c/js-math-tools/src/series/series-print.js
   var require_series_print = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/series/series-print.js"(exports, module) {
-      var copy = require_copy();
+      var { copy } = require_copy();
       var range = require_range();
       function seriesPrint(series) {
         let temp = series.copy();
@@ -2820,8 +2852,8 @@
   // node_modules/@jrc03c/js-math-tools/src/series/index.js
   var require_series = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/series/index.js"(exports, module) {
+      var { copy } = require_copy();
       var assert = require_assert();
-      var copy = require_copy();
       var isArray = require_is_array();
       var isString = require_is_string();
       var isUndefined = require_is_undefined();
@@ -3091,8 +3123,8 @@
   // node_modules/@jrc03c/js-math-tools/src/dataframe/index.js
   var require_dataframe = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/dataframe/index.js"(exports, module) {
+      var { copy } = require_copy();
       var assert = require_assert();
-      var copy = require_copy();
       var count = require_count();
       var dfAppend = require_df_append();
       var dfApply = require_df_apply();
@@ -3227,7 +3259,7 @@
                 const temp = count(x);
                 const out = {};
                 temp.forEach((obj) => {
-                  out[obj.item] = obj.count;
+                  out[obj.value] = obj.count;
                 });
                 return out;
               })();
@@ -3278,7 +3310,7 @@
                 const temp = count(x);
                 const out = {};
                 temp.forEach((obj) => {
-                  out[obj.item] = obj.count;
+                  out[obj.value] = obj.count;
                 });
                 return out;
               })();
@@ -3837,6 +3869,153 @@
         }
       }
       module.exports = argmin;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/cast.js
+  var require_cast = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/cast.js"(exports, module) {
+      var isArray = require_is_array();
+      var isBoolean = require_is_boolean();
+      var isDataFrame = require_is_dataframe();
+      var isEqual = require_is_equal();
+      var isNumber = require_is_number();
+      var isObject = require_is_object();
+      var isSeries = require_is_series();
+      var isUndefined = require_is_undefined();
+      function cast(value, type) {
+        if (isDataFrame(value) || isSeries(value)) {
+          return value.apply((item) => cast(item, type));
+        }
+        if (isArray(value)) {
+          return value.map((v) => cast(v, type));
+        }
+        if (type === "null") {
+          return null;
+        }
+        if (type === "number") {
+          if (isUndefined(value)) {
+            return NaN;
+          }
+          const booleanValue = cast(value, "boolean");
+          if (isBoolean(booleanValue)) {
+            return booleanValue ? 1 : 0;
+          }
+          try {
+            JSON.parse(value);
+          } catch (e) {
+            const dateValue = cast(value, "date");
+            if (dateValue instanceof Date) {
+              return dateValue.getTime();
+            }
+          }
+          const out = parseFloat(value);
+          if (isNaN(out))
+            return NaN;
+          return out;
+        }
+        if (type === "boolean") {
+          if (isBoolean(value)) {
+            return value;
+          }
+          if (isNumber(value)) {
+            if (value === 0) {
+              return false;
+            }
+            if (value === 1) {
+              return true;
+            }
+            return null;
+          }
+          try {
+            const vBool = (typeof value === "object" ? value.toString() === "null" ? "false" : JSON.stringify(value) : value.toString()).trim().toLowerCase();
+            if (vBool === "true" || vBool === "yes" || vBool === "y") {
+              return true;
+            }
+            if (vBool === "false" || vBool === "no" || vBool === "n") {
+              return false;
+            }
+            return null;
+          } catch (e) {
+            return null;
+          }
+        }
+        if (type === "date") {
+          if (value instanceof Date) {
+            return value;
+          }
+          if (isUndefined(value)) {
+            return null;
+          }
+          const valueFloat = parseFloat(value);
+          if (!isNaN(valueFloat)) {
+            const out = new Date(value);
+            if (out.toString() === "Invalid Date")
+              return null;
+            return out;
+          }
+          const valueDate = Date.parse(value);
+          if (!isNaN(valueDate)) {
+            return new Date(valueDate);
+          }
+          return null;
+        }
+        if (type === "object") {
+          if (isObject(value)) {
+            return value;
+          }
+          const booleanValue = cast(value, "boolean");
+          if (isBoolean(booleanValue)) {
+            return null;
+          }
+          try {
+            const numberValue = cast(value, "number");
+            if (isNumber(numberValue)) {
+              JSON.parse(value);
+              return null;
+            }
+          } catch (e) {
+          }
+          const dateValue = cast(value, "date");
+          if (dateValue) {
+            return dateValue;
+          }
+          try {
+            const out = JSON.parse(value);
+            if (isArray(out)) {
+              return out.map((v) => cast(v, type));
+            } else {
+              return out;
+            }
+          } catch (e) {
+            return null;
+          }
+        }
+        if (type === "string") {
+          if (isUndefined(value)) {
+            if (isEqual(value, void 0)) {
+              return "undefined";
+            }
+            return "null";
+          }
+          if (value instanceof Date) {
+            return value.toJSON();
+          }
+          const valueString = (() => {
+            if (typeof value === "object") {
+              if (value === null) {
+                return "null";
+              } else {
+                return JSON.stringify(value);
+              }
+            } else {
+              return value.toString();
+            }
+          })();
+          return valueString;
+        }
+      }
+      module.exports = cast;
     }
   });
 
@@ -4899,67 +5078,6 @@
     }
   });
 
-  // node_modules/@jrc03c/js-math-tools/src/cast.js
-  var require_cast = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/cast.js"(exports, module) {
-      var isArray = require_is_array();
-      var nullValues = require_null_values();
-      function cast(value, type) {
-        if (value === void 0) {
-          value = "undefined";
-        }
-        if (type === "null") {
-          return null;
-        }
-        if (type === "number") {
-          const out = parseFloat(value);
-          if (isNaN(out))
-            return NaN;
-          return out;
-        }
-        if (type === "boolean") {
-          try {
-            const vBool = value.trim().toLowerCase();
-            if (vBool === "true" || vBool === "yes") {
-              return true;
-            }
-            if (vBool === "false" || vBool === "no") {
-              return false;
-            }
-          } catch (e) {
-          }
-          return null;
-        }
-        if (type === "date") {
-          const out = new Date(value);
-          if (out.toString() === "Invalid Date")
-            return null;
-          return out;
-        }
-        if (type === "object") {
-          try {
-            const out = JSON.parse(value);
-            if (isArray(out))
-              return null;
-            return out;
-          } catch (e) {
-            return null;
-          }
-        }
-        if (type === "string") {
-          try {
-            if (nullValues.indexOf(value.trim().toLowerCase()) > -1)
-              return null;
-          } catch (e) {
-            return null;
-          }
-          return value;
-        }
-      }
-      module.exports = cast;
-    }
-  });
-
   // node_modules/@jrc03c/js-math-tools/src/infer-type.js
   var require_infer_type = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/infer-type.js"(exports, module) {
@@ -4988,6 +5106,12 @@
           out.values = results.values;
           return { type: results.type, values: out };
         }
+        if (!isArray(arr)) {
+          const out = inferType([arr]);
+          out.value = out.values[0];
+          delete out.values;
+          return out;
+        }
         assert(
           isArray(arr),
           "The `inferType` function only works on arrays, Series, and DataFrames!"
@@ -4995,6 +5119,15 @@
         const types = flatten(arr).map((v) => {
           if (v === void 0)
             return "null";
+          try {
+            if (typeof v === "object") {
+              const temp = new Date(v.toString());
+              if (temp instanceof Date && temp.toString() !== "Invalid Date") {
+                return "date";
+              }
+            }
+          } catch (e) {
+          }
           if (!isString(v)) {
             v = JSON.stringify(v);
           }
@@ -5026,7 +5159,7 @@
           }
         });
         const counts = count(types).sort((a, b) => b.count - a.count);
-        const primaryType = counts[0].item;
+        const primaryType = counts[0].value;
         return { type: primaryType, values: apply(arr, (v) => cast(v, primaryType)) };
       }
       module.exports = inferType;
@@ -5168,6 +5301,26 @@
     }
   });
 
+  // node_modules/@jrc03c/js-math-tools/src/helpers/is-browser.js
+  var require_is_browser = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/helpers/is-browser.js"(exports, module) {
+      var isBrowser = new Function(
+        `
+    try {
+      return this === window
+    } catch(e) {}
+
+    try {
+      return !!importScripts
+    } catch(e){}
+
+    return false
+  `
+      );
+      module.exports = isBrowser;
+    }
+  });
+
   // node_modules/@jrc03c/js-math-tools/src/lerp.js
   var require_lerp = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/lerp.js"(exports, module) {
@@ -5293,13 +5446,13 @@
             return NaN;
           const counts = {};
           const tempSet = set(temp);
-          tempSet.forEach((item) => {
-            counts[item] = count(temp, item);
+          tempSet.forEach((value) => {
+            counts[value] = count(temp, value);
           });
           const sortedTempSet = sort(tempSet, (a, b) => counts[b] - counts[a]);
-          const mostCountedItem = sortedTempSet[0];
+          const mostCountedValue = sortedTempSet[0];
           const out = sort(
-            sortedTempSet.filter((item) => counts[item] === counts[mostCountedItem])
+            sortedTempSet.filter((value) => counts[value] === counts[mostCountedValue])
           );
           return out;
         } catch (e) {
@@ -5639,6 +5792,7 @@
   // node_modules/@jrc03c/js-math-tools/src/index.js
   var require_src = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/index.js"(exports, module) {
+      var { copy, decycle } = require_copy();
       var { DataFrame, Series } = require_dataframe();
       var out = {
         abs: require_abs(),
@@ -5650,18 +5804,19 @@
         argmax: require_argmax(),
         argmin: require_argmin(),
         assert: require_assert(),
+        cast: require_cast(),
         ceil: require_ceil(),
         chop: require_chop(),
         clamp: require_clamp(),
         combinations: require_combinations(),
-        copy: require_copy(),
+        copy,
         correl: require_correl(),
         cos: require_cos(),
         count: require_count(),
         covariance: require_covariance(),
         DataFrame,
         dataTypes: require_data_types(),
-        decycle: require_decycle(),
+        decycle,
         diff: require_diff(),
         distance: require_distance(),
         divide: require_divide(),
@@ -5686,6 +5841,7 @@
         inverse: require_inverse(),
         isArray: require_is_array(),
         isBoolean: require_is_boolean(),
+        isBrowser: require_is_browser(),
         isDataFrame: require_is_dataframe(),
         isEqual: require_is_equal(),
         isFunction: require_is_function(),
