@@ -59,6 +59,13 @@
     }
   });
 
+  // node_modules/@jrc03c/js-text-tools/src/helpers/punctuation.js
+  var require_punctuation = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/helpers/punctuation.js"(exports, module) {
+      module.exports = "!\"#%&'()*+,-./:;<=>?@[]^_`{|}~\xA0\xA1\xA4\xA7\xA9\xAA\xAB\xAE\xB0\xB1\xB6\xB7\xBA\xBB\xBF\xD7\xF7\u0254\u0300\u0301\u0302\u0303\u037E\u0387\u055A\u055B\u055C\u055D\u055E\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A\u066B\u066C\u066D\u06D4\u0700\u0701\u0702\u0703\u0704\u0705\u0706\u0707\u0708\u0709\u070A\u070B\u070C\u070D\u07F7\u07F8\u07F9\u0830\u0831\u0832\u0833\u0834\u0835\u0836\u0837\u0838\u0839\u083A\u083B\u083C\u083D\u083E\u085E\u0964\u0965\u0970\u09FD\u0A76\u0AF0\u0C77\u0C84\u0DF4\u0E4F\u0E5A\u0E5B\u0F04\u0F05\u0F06\u0F07\u0F08\u0F09\u0F0A\u0F0B\u0F0C\u0F0D\u0F0E\u0F0F\u0F10\u0F11\u0F12\u0F14\u0F3A\u0F3B\u0F3C\u0F3D\u0F85\u0FD0\u0FD1\u0FD2\u0FD3\u0FD4\u0FD9\u0FDA\u104A\u104B\u104C\u104D\u104E\u104F\u10FB\u1360\u1361\u1362\u1363\u1364\u1365\u1366\u1367\u1368\u1400\u166E\u169B\u169C\u16EB\u16EC\u16ED\u1735\u1736\u17D4\u17D5\u17D6\u17D8\u17D9\u17DA\u1800\u1801\u1802\u1803\u1804\u1805\u1806\u1807\u1808\u1809\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0\u1AA1\u1AA2\u1AA3\u1AA4\u1AA5\u1AA6\u1AA8\u1AA9\u1AAA\u1AAB\u1AAC\u1AAD\u1B5A\u1B5B\u1B5C\u1B5D\u1B5E\u1B5F\u1B60\u1BFC\u1BFD\u1BFE\u1BFF\u1C3B\u1C3C\u1C3D\u1C3E\u1C3F\u1C7E\u1C7F\u1CC0\u1CC1\u1CC2\u1CC3\u1CC4\u1CC5\u1CC6\u1CC7\u1CD3\u2010\u2011\u2012\u2013\u2014\u2015\u2016\u2017\u2018\u2019\u201A\u201B\u201C\u201D\u201E\u201F\u2020\u2021\u2022\u2023\u2024\u2025\u2026\u2027\u2030\u2031\u2032\u2033\u2034\u2035\u2036\u2037\u2038\u2039\u203A\u203B\u203C\u203D\u203E\u203F\u2040\u2041\u2042\u2043\u2045\u2046\u2047\u2048\u2049\u204A\u204B\u204C\u204D\u204E\u204F\u2050\u2051\u2052\u2053\u2054\u2055\u2056\u2057\u2058\u2059\u205A\u205B\u205C\u205D\u205E\u207D\u207E\u208D\u208E\u2116\u2117\u2120\u2122\u212E\u2212\u2234\u2235\u2248\u2300\u2308\u2309\u230A\u230B\u2311\u2329\u232A\u2380\u25CA\u25CC\u261E\u2640\u2642\u26A5\u2766\u2767\u2768\u2769\u276A\u276B\u276C\u276D\u276E\u276F\u2770\u2771\u2772\u2773\u2774\u2775\u27C5\u27C6\u27E6\u27E7\u27E8\u27E9\u27EA\u27EB\u27EC\u27ED\u27EE\u27EF\u2983\u2984\u2985\u2986\u2987\u2988\u2989\u298A\u298B\u298C\u298D\u298E\u298F\u2990\u2991\u2992\u2993\u2994\u2995\u2996\u2997\u2998\u29D8\u29D9\u29DA\u29DB\u29FC\u29FD\u2CF9\u2CFA\u2CFB\u2CFC\u2CFE\u2CFF\u2D70\u2E00\u2E01\u2E02\u2E03\u2E04\u2E05\u2E06\u2E07\u2E08\u2E09\u2E0A\u2E0B\u2E0C\u2E0D\u2E0E\u2E0F\u2E10\u2E11\u2E12\u2E13\u2E14\u2E15\u2E16\u2E17\u2E18\u2E19\u2E1A\u2E1B\u2E1C\u2E1D\u2E1E\u2E1F\u2E20\u2E21\u2E22\u2E23\u2E24\u2E25\u2E26\u2E27\u2E28\u2E29\u2E2A\u2E2B\u2E2C\u2E2D\u2E2E\u2E30\u2E31\u2E32\u2E33\u2E34\u2E35\u2E36\u2E37\u2E38\u2E39\u2E3A\u2E3B\u2E3C\u2E3D\u2E3E\u2E3F\u2E40\u2E41\u2E42\u2E43\u2E44\u2E45\u2E46\u2E47\u2E48\u2E49\u2E4A\u2E4B\u2E4C\u2E4D\u2E4E\u2E4F\u2E52\u3001\u3002\u3003\u3008\u3009\u300A\u300B\u300C\u300D\u300E\u300F\u3010\u3011\u3014\u3015\u3016\u3017\u3018\u3019\u301A\u301B\u301C\u301D\u301E\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D\uA60E\uA60F\uA673\uA67E\uA6F2\uA6F3\uA6F4\uA6F5\uA6F6\uA6F7\uA874\uA875\uA876\uA877\uA8CE\uA8CF\uA8F8\uA8F9\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1\uA9C2\uA9C3\uA9C4\uA9C5\uA9C6\uA9C7\uA9C8\uA9C9\uA9CA\uA9CB\uA9CC\uA9CD\uA9DE\uA9DF\uAA5C\uAA5D\uAA5E\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uD800\uD801\uD802\uD803\uD804\uD805\uD806\uD807\uD809\uD81A\uD81B\uD82F\uD836\uD83A\u{1F03B}\uDC41\uDC42\uDC43\uDC44\uDC45\uDC47\uDC48\uDC49\uDC4A\uDC4B\uDC4C\uDC4D\uDC4E\uDC4F\uDC57\uDC5A\uDC5B\uDC5D\uDC70\uDC71\uDC72\uDC73\uDC74\uDC9F\uDCBB\uDCBC\uDCBE\uDCBF\uDCC0\uDCC1\uDCC6\uDD00\uDD01\uDD02\uDD1F\uDD2F\uDD3F\uDD40\uDD41\uDD42\uDD43\uDD44\uDD45\uDD46\uDD5E\uDD5F\uDD6F\uDD74\uDD75\uDDC1\uDDC2\uDDC3\uDDC4\uDDC5\uDDC6\uDDC7\uDDC8\uDDC9\uDDCA\uDDCB\uDDCC\uDDCD\uDDCE\uDDCF\uDDD0\uDDD1\uDDD2\uDDD3\uDDD4\uDDD5\uDDD6\uDDD7\uDDDB\uDDDD\uDDDE\uDDDF\uDDE2\uDE38\uDE39\uDE3A\uDE3B\uDE3C\uDE3D\uDE3F\uDE40\uDE41\uDE42\uDE43\uDE44\uDE45\uDE46\uDE50\uDE51\uDE52\uDE53\uDE54\uDE55\uDE56\uDE57\uDE58\uDE60\uDE61\uDE62\uDE63\uDE64\uDE65\uDE66\uDE67\uDE68\uDE69\uDE6A\uDE6B\uDE6C\uDE6E\uDE6F\uDE7F\uDE87\uDE88\uDE89\uDE8A\uDE8B\uDE97\uDE98\uDE99\uDE9A\uDE9B\uDE9C\uDE9E\uDE9F\uDEA0\uDEA1\uDEA2\uDEA9\uDEAD\uDEF0\uDEF1\uDEF2\uDEF3\uDEF4\uDEF5\uDEF6\uDEF7\uDEF8\uDF37\uDF38\uDF39\uDF3A\uDF3B\uDF3C\uDF3D\uDF3E\uDF3F\uDF44\uDF55\uDF56\uDF57\uDF58\uDF59\uDF99\uDF9A\uDF9B\uDF9C\uDF9F\uDFD0\uDFE2\uDFFF\uFD3F\uFE10\uFE11\uFE12\uFE13\uFE14\uFE15\uFE16\uFE17\uFE18\uFE19\uFE30\uFE31\uFE32\uFE33\uFE34\uFE35\uFE36\uFE37\uFE38\uFE39\uFE3A\uFE3B\uFE3C\uFE3D\uFE3E\uFE3F\uFE40\uFE41\uFE42\uFE43\uFE44\uFE45\uFE46\uFE47\uFE48\uFE49\uFE4A\uFE4B\uFE4C\uFE4D\uFE4E\uFE4F\uFE50\uFE51\uFE52\uFE54\uFE55\uFE56\uFE57\uFE58\uFE59\uFE5A\uFE5B\uFE5C\uFE5D\uFE5E\uFE5F\uFE60\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01\uFF02\uFF03\uFF05\uFF06\uFF07\uFF08\uFF09\uFF0A\uFF0C\uFF0D\uFF0E\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B\uFF3C\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F\uFF60\uFF61\uFF62\uFF63\uFF64\uFF65";
+    }
+  });
+
   // node_modules/@jrc03c/js-text-tools/src/helpers/replace-all.js
   var require_replace_all = __commonJS({
     "node_modules/@jrc03c/js-text-tools/src/helpers/replace-all.js"(exports, module) {
@@ -78,18 +85,11 @@
     }
   });
 
-  // node_modules/@jrc03c/js-text-tools/src/helpers/punctuation.js
-  var require_punctuation = __commonJS({
-    "node_modules/@jrc03c/js-text-tools/src/helpers/punctuation.js"(exports, module) {
-      module.exports = "!\"#%&'()*+,-./:;<=>?@[]^_`{|}~\xA0\xA1\xA4\xA7\xA9\xAA\xAB\xAE\xB0\xB1\xB6\xB7\xBA\xBB\xBF\xD7\xF7\u0254\u0300\u0301\u0302\u0303\u037E\u0387\u055A\u055B\u055C\u055D\u055E\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A\u066B\u066C\u066D\u06D4\u0700\u0701\u0702\u0703\u0704\u0705\u0706\u0707\u0708\u0709\u070A\u070B\u070C\u070D\u07F7\u07F8\u07F9\u0830\u0831\u0832\u0833\u0834\u0835\u0836\u0837\u0838\u0839\u083A\u083B\u083C\u083D\u083E\u085E\u0964\u0965\u0970\u09FD\u0A76\u0AF0\u0C77\u0C84\u0DF4\u0E4F\u0E5A\u0E5B\u0F04\u0F05\u0F06\u0F07\u0F08\u0F09\u0F0A\u0F0B\u0F0C\u0F0D\u0F0E\u0F0F\u0F10\u0F11\u0F12\u0F14\u0F3A\u0F3B\u0F3C\u0F3D\u0F85\u0FD0\u0FD1\u0FD2\u0FD3\u0FD4\u0FD9\u0FDA\u104A\u104B\u104C\u104D\u104E\u104F\u10FB\u1360\u1361\u1362\u1363\u1364\u1365\u1366\u1367\u1368\u1400\u166E\u169B\u169C\u16EB\u16EC\u16ED\u1735\u1736\u17D4\u17D5\u17D6\u17D8\u17D9\u17DA\u1800\u1801\u1802\u1803\u1804\u1805\u1806\u1807\u1808\u1809\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0\u1AA1\u1AA2\u1AA3\u1AA4\u1AA5\u1AA6\u1AA8\u1AA9\u1AAA\u1AAB\u1AAC\u1AAD\u1B5A\u1B5B\u1B5C\u1B5D\u1B5E\u1B5F\u1B60\u1BFC\u1BFD\u1BFE\u1BFF\u1C3B\u1C3C\u1C3D\u1C3E\u1C3F\u1C7E\u1C7F\u1CC0\u1CC1\u1CC2\u1CC3\u1CC4\u1CC5\u1CC6\u1CC7\u1CD3\u2010\u2011\u2012\u2013\u2014\u2015\u2016\u2017\u2018\u2019\u201A\u201B\u201C\u201D\u201E\u201F\u2020\u2021\u2022\u2023\u2024\u2025\u2026\u2027\u2030\u2031\u2032\u2033\u2034\u2035\u2036\u2037\u2038\u2039\u203A\u203B\u203C\u203D\u203E\u203F\u2040\u2041\u2042\u2043\u2045\u2046\u2047\u2048\u2049\u204A\u204B\u204C\u204D\u204E\u204F\u2050\u2051\u2052\u2053\u2054\u2055\u2056\u2057\u2058\u2059\u205A\u205B\u205C\u205D\u205E\u207D\u207E\u208D\u208E\u2116\u2117\u2120\u2122\u212E\u2212\u2234\u2235\u2248\u2300\u2308\u2309\u230A\u230B\u2311\u2329\u232A\u2380\u25CA\u25CC\u261E\u2640\u2642\u26A5\u2766\u2767\u2768\u2769\u276A\u276B\u276C\u276D\u276E\u276F\u2770\u2771\u2772\u2773\u2774\u2775\u27C5\u27C6\u27E6\u27E7\u27E8\u27E9\u27EA\u27EB\u27EC\u27ED\u27EE\u27EF\u2983\u2984\u2985\u2986\u2987\u2988\u2989\u298A\u298B\u298C\u298D\u298E\u298F\u2990\u2991\u2992\u2993\u2994\u2995\u2996\u2997\u2998\u29D8\u29D9\u29DA\u29DB\u29FC\u29FD\u2CF9\u2CFA\u2CFB\u2CFC\u2CFE\u2CFF\u2D70\u2E00\u2E01\u2E02\u2E03\u2E04\u2E05\u2E06\u2E07\u2E08\u2E09\u2E0A\u2E0B\u2E0C\u2E0D\u2E0E\u2E0F\u2E10\u2E11\u2E12\u2E13\u2E14\u2E15\u2E16\u2E17\u2E18\u2E19\u2E1A\u2E1B\u2E1C\u2E1D\u2E1E\u2E1F\u2E20\u2E21\u2E22\u2E23\u2E24\u2E25\u2E26\u2E27\u2E28\u2E29\u2E2A\u2E2B\u2E2C\u2E2D\u2E2E\u2E30\u2E31\u2E32\u2E33\u2E34\u2E35\u2E36\u2E37\u2E38\u2E39\u2E3A\u2E3B\u2E3C\u2E3D\u2E3E\u2E3F\u2E40\u2E41\u2E42\u2E43\u2E44\u2E45\u2E46\u2E47\u2E48\u2E49\u2E4A\u2E4B\u2E4C\u2E4D\u2E4E\u2E4F\u2E52\u3001\u3002\u3003\u3008\u3009\u300A\u300B\u300C\u300D\u300E\u300F\u3010\u3011\u3014\u3015\u3016\u3017\u3018\u3019\u301A\u301B\u301C\u301D\u301E\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D\uA60E\uA60F\uA673\uA67E\uA6F2\uA6F3\uA6F4\uA6F5\uA6F6\uA6F7\uA874\uA875\uA876\uA877\uA8CE\uA8CF\uA8F8\uA8F9\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1\uA9C2\uA9C3\uA9C4\uA9C5\uA9C6\uA9C7\uA9C8\uA9C9\uA9CA\uA9CB\uA9CC\uA9CD\uA9DE\uA9DF\uAA5C\uAA5D\uAA5E\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uD800\uD801\uD802\uD803\uD804\uD805\uD806\uD807\uD809\uD81A\uD81B\uD82F\uD836\uD83A\u{1F03B}\uDC41\uDC42\uDC43\uDC44\uDC45\uDC47\uDC48\uDC49\uDC4A\uDC4B\uDC4C\uDC4D\uDC4E\uDC4F\uDC57\uDC5A\uDC5B\uDC5D\uDC70\uDC71\uDC72\uDC73\uDC74\uDC9F\uDCBB\uDCBC\uDCBE\uDCBF\uDCC0\uDCC1\uDCC6\uDD00\uDD01\uDD02\uDD1F\uDD2F\uDD3F\uDD40\uDD41\uDD42\uDD43\uDD44\uDD45\uDD46\uDD5E\uDD5F\uDD6F\uDD74\uDD75\uDDC1\uDDC2\uDDC3\uDDC4\uDDC5\uDDC6\uDDC7\uDDC8\uDDC9\uDDCA\uDDCB\uDDCC\uDDCD\uDDCE\uDDCF\uDDD0\uDDD1\uDDD2\uDDD3\uDDD4\uDDD5\uDDD6\uDDD7\uDDDB\uDDDD\uDDDE\uDDDF\uDDE2\uDE38\uDE39\uDE3A\uDE3B\uDE3C\uDE3D\uDE3F\uDE40\uDE41\uDE42\uDE43\uDE44\uDE45\uDE46\uDE50\uDE51\uDE52\uDE53\uDE54\uDE55\uDE56\uDE57\uDE58\uDE60\uDE61\uDE62\uDE63\uDE64\uDE65\uDE66\uDE67\uDE68\uDE69\uDE6A\uDE6B\uDE6C\uDE6E\uDE6F\uDE7F\uDE87\uDE88\uDE89\uDE8A\uDE8B\uDE97\uDE98\uDE99\uDE9A\uDE9B\uDE9C\uDE9E\uDE9F\uDEA0\uDEA1\uDEA2\uDEA9\uDEAD\uDEF0\uDEF1\uDEF2\uDEF3\uDEF4\uDEF5\uDEF6\uDEF7\uDEF8\uDF37\uDF38\uDF39\uDF3A\uDF3B\uDF3C\uDF3D\uDF3E\uDF3F\uDF44\uDF55\uDF56\uDF57\uDF58\uDF59\uDF99\uDF9A\uDF9B\uDF9C\uDF9F\uDFD0\uDFE2\uDFFF\uFD3F\uFE10\uFE11\uFE12\uFE13\uFE14\uFE15\uFE16\uFE17\uFE18\uFE19\uFE30\uFE31\uFE32\uFE33\uFE34\uFE35\uFE36\uFE37\uFE38\uFE39\uFE3A\uFE3B\uFE3C\uFE3D\uFE3E\uFE3F\uFE40\uFE41\uFE42\uFE43\uFE44\uFE45\uFE46\uFE47\uFE48\uFE49\uFE4A\uFE4B\uFE4C\uFE4D\uFE4E\uFE4F\uFE50\uFE51\uFE52\uFE54\uFE55\uFE56\uFE57\uFE58\uFE59\uFE5A\uFE5B\uFE5C\uFE5D\uFE5E\uFE5F\uFE60\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01\uFF02\uFF03\uFF05\uFF06\uFF07\uFF08\uFF09\uFF0A\uFF0C\uFF0D\uFF0E\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B\uFF3C\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F\uFF60\uFF61\uFF62\uFF63\uFF64\uFF65";
-    }
-  });
-
   // node_modules/@jrc03c/js-text-tools/src/helpers/strip.js
   var require_strip = __commonJS({
     "node_modules/@jrc03c/js-text-tools/src/helpers/strip.js"(exports, module) {
-      var replaceAll = require_replace_all();
       var punctuation = require_punctuation();
+      var replaceAll = require_replace_all();
       var doubleSpace = "  ";
       var singleSpace = " ";
       function strip(text) {
@@ -133,25 +133,6 @@
     }
   });
 
-  // node_modules/@jrc03c/js-text-tools/src/snakeify.js
-  var require_snakeify = __commonJS({
-    "node_modules/@jrc03c/js-text-tools/src/snakeify.js"(exports, module) {
-      var strip = require_strip();
-      function snakeify(text) {
-        if (typeof text !== "string") {
-          throw new Error("`text` must be a string!");
-        }
-        const words = strip(text).split(" ");
-        if (words.length === 0)
-          return "";
-        if (words.length === 1)
-          return words[0];
-        return words.join("_");
-      }
-      module.exports = snakeify;
-    }
-  });
-
   // node_modules/@jrc03c/js-math-tools/src/math-error.js
   var require_math_error = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/math-error.js"(exports, module) {
@@ -190,12 +171,52 @@
     }
   });
 
+  // node_modules/@jrc03c/js-math-tools/src/is-undefined.js
+  var require_is_undefined = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/is-undefined.js"(exports, module) {
+      function isUndefined(x) {
+        return x === null || typeof x === "undefined";
+      }
+      module.exports = isUndefined;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/helpers/array-types.js
+  var require_array_types = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/helpers/array-types.js"(exports, module) {
+      module.exports = [
+        Array,
+        ArrayBuffer,
+        BigInt64Array,
+        BigUint64Array,
+        Float32Array,
+        Float64Array,
+        Int16Array,
+        Int32Array,
+        Int8Array,
+        Uint16Array,
+        Uint32Array,
+        Uint8Array,
+        Uint8ClampedArray
+      ];
+    }
+  });
+
   // node_modules/@jrc03c/js-math-tools/src/is-array.js
   var require_is_array = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/is-array.js"(exports, module) {
+      var isUndefined = require_is_undefined();
+      var types = require_array_types();
+      var typeStrings = types.map((s) => s.name);
       function isArray(obj) {
         try {
-          return obj instanceof Array || typeof obj.constructor !== "undefined" && obj.constructor.name === "Array";
+          if (obj instanceof Array) {
+            return true;
+          }
+          if (!isUndefined(obj.constructor)) {
+            return types.indexOf(obj.constructor) > -1 || typeStrings.indexOf(obj.constructor.name) > -1;
+          }
+          return false;
         } catch (e) {
           return false;
         }
@@ -235,16 +256,6 @@
         return typeof x === "number" && !isNaN(x);
       }
       module.exports = isNumber;
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/is-undefined.js
-  var require_is_undefined = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/is-undefined.js"(exports, module) {
-      function isUndefined(x) {
-        return x === null || typeof x === "undefined";
-      }
-      module.exports = isUndefined;
     }
   });
 
@@ -317,7 +328,7 @@
           }
           if (isObject(x2)) {
             checked.push(x2);
-            const keys = Object.keys(x2);
+            const keys = Object.keys(x2).concat(Object.getOwnPropertySymbols(x2));
             for (let i = 0; i < keys.length; i++) {
               const key = keys[i];
               const value = x2[key];
@@ -380,6 +391,9 @@
               return null;
             }
             if (isArray(x2)) {
+              if (!(x2 instanceof Array)) {
+                return x2.slice();
+              }
               return x2.map((v) => copy(v));
             }
             if (isSeries(x2)) {
@@ -397,7 +411,7 @@
             }
             x2 = decycle(x2);
             const out = {};
-            Object.keys(x2).forEach((key) => {
+            Object.keys(x2).concat(Object.getOwnPropertySymbols(x2)).forEach((key) => {
               out[key] = copy(x2[key]);
             });
             return out;
@@ -431,10 +445,13 @@
               return null;
             checked.push(x2);
             if (isArray(x2)) {
+              if (typeof x2.constructor !== "undefined" && x2.constructor.name !== "Array") {
+                return x2.slice();
+              }
               return x2.map((v, i) => helper(v, checked, currentPath + "/" + i));
             } else {
-              Object.keys(x2).forEach((key) => {
-                x2[key] = helper(x2[key], checked, currentPath + "/" + key);
+              Object.keys(x2).concat(Object.getOwnPropertySymbols(x2)).forEach((key) => {
+                x2[key] = helper(x2[key], checked, currentPath + "/" + key.toString());
               });
               return x2;
             }
@@ -442,13 +459,7 @@
             return x2;
           }
         }
-        const orig = (() => {
-          try {
-            return structuredClone(x);
-          } catch (e) {
-            return x;
-          }
-        })();
+        const orig = x;
         let out = helper(orig);
         if (isDataFrame(x)) {
           const temp = x.copy();
@@ -544,14 +555,23 @@
             if (a2 === null || b2 === null) {
               return a2 === null && b2 === null;
             } else {
-              if (isDate(a2) && isDate(b2)) {
-                return a2.getTime() === b2.getTime();
+              if (isDate(a2)) {
+                if (isDate(b2)) {
+                  return a2.getTime() === b2.getTime();
+                } else {
+                  return false;
+                }
+              } else if (isDate(b2)) {
+                return false;
+              }
+              if (a2 instanceof RegExp && b2 instanceof RegExp) {
+                return a2.toString() === b2.toString();
               }
               if (isArray(a2) !== isArray(b2)) {
                 return false;
               }
-              const aKeys = Object.keys(a2);
-              const bKeys = Object.keys(b2);
+              const aKeys = Object.keys(a2).concat(Object.getOwnPropertySymbols(a2));
+              const bKeys = Object.keys(b2).concat(Object.getOwnPropertySymbols(b2));
               if (aKeys.length !== bKeys.length)
                 return false;
               for (let i = 0; i < aKeys.length; i++) {
@@ -1190,9 +1210,9 @@
             return df.append(p1, 1);
           } else if (isObject(p1)) {
             const maxColumnLength = Math.max(
-              ...Object.keys(p1).map((key) => p1[key].length)
+              ...Object.keys(p1).concat(Object.getOwnPropertySymbols(p1)).map((key) => p1[key].length)
             );
-            Object.keys(p1).forEach((key) => {
+            Object.keys(p1).concat(Object.getOwnPropertySymbols(p1)).forEach((key) => {
               while (p1[key].length < maxColumnLength) {
                 p1[key].push(void 0);
               }
@@ -1378,7 +1398,7 @@
               temp[colName] = newValues;
             }
           });
-          if (Object.keys(temp).length === 0) {
+          if (Object.keys(temp).length + Object.getOwnPropertySymbols(temp).length === 0) {
             return new DataFrame();
           }
           const newOut = new DataFrame(temp);
@@ -1496,7 +1516,7 @@
         return out;
       }
       function undoArrayToObject(obj) {
-        return Object.keys(obj).sort((a, b) => obj[a] - obj[b]);
+        return Object.keys(obj).concat(Object.getOwnPropertySymbols(obj)).sort((a, b) => obj[a] - obj[b]);
       }
       function dfFilter(DataFrame, Series, df, fn, axis) {
         assert(
@@ -1962,7 +1982,7 @@
           temp.columns = temp.columns.map((col) => truncate(col, maxLength));
           temp.index = temp.index.map((row) => truncate(row, maxLength));
         }
-        console.table(temp.toObject());
+        console.table(temp.toDetailedObject());
         console.log("Shape:", df.shape, "\n");
         return df;
       }
@@ -2355,6 +2375,44 @@
     }
   });
 
+  // node_modules/@jrc03c/js-math-tools/src/dataframe/df-to-detailed-object.js
+  var require_df_to_detailed_object = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/dataframe/df-to-detailed-object.js"(exports, module) {
+      var assert = require_assert();
+      var isUndefined = require_is_undefined();
+      function dfToDetailedObject(df, axis) {
+        if (isUndefined(axis)) {
+          axis = 0;
+        } else {
+          assert(
+            axis === 0 || axis === 1,
+            "The axis parameter of the `toDetailedObject` method must be undefined, 0, or 1. An axis of 0 indicates that the returned object should be organized first by rows and then by columns. An axis of 1 indicates that the returned object should be organized first by columns and then by rows."
+          );
+        }
+        const out = {};
+        if (axis === 0) {
+          df.index.forEach((rowName, i) => {
+            const temp = {};
+            df.columns.forEach((colName, j) => {
+              temp[colName] = df.values[i][j];
+            });
+            out[rowName] = temp;
+          });
+        } else {
+          df.columns.forEach((colName, j) => {
+            const temp = {};
+            df.index.forEach((rowName, i) => {
+              temp[rowName] = df.values[i][j];
+            });
+            out[colName] = temp;
+          });
+        }
+        return out;
+      }
+      module.exports = dfToDetailedObject;
+    }
+  });
+
   // node_modules/@jrc03c/js-math-tools/src/dataframe/df-to-json-string.js
   var require_df_to_json_string = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/dataframe/df-to-json-string.js"(exports, module) {
@@ -2417,35 +2475,11 @@
   // node_modules/@jrc03c/js-math-tools/src/dataframe/df-to-object.js
   var require_df_to_object = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/dataframe/df-to-object.js"(exports, module) {
-      var assert = require_assert();
-      var isUndefined = require_is_undefined();
-      function dfToObject(df, axis) {
-        if (isUndefined(axis)) {
-          axis = 0;
-        } else {
-          assert(
-            axis === 0 || axis === 1,
-            "The axis parameter of the `toObject` method must be undefined, 0, or 1. An axis of 0 indicates that the returned object should be organized first by rows and then by columns. An axis of 1 indicates that the returned object should be organized first by columns and then by rows."
-          );
-        }
+      function dfToObject(df) {
         const out = {};
-        if (axis === 0) {
-          df.index.forEach((rowName, i) => {
-            const temp = {};
-            df.columns.forEach((colName, j) => {
-              temp[colName] = df.values[i][j];
-            });
-            out[rowName] = temp;
-          });
-        } else {
-          df.columns.forEach((colName, j) => {
-            const temp = {};
-            df.index.forEach((rowName, i) => {
-              temp[rowName] = df.values[i][j];
-            });
-            out[colName] = temp;
-          });
-        }
+        df.columns.forEach((col) => {
+          out[col] = df.get(col).values;
+        });
         return out;
       }
       module.exports = dfToObject;
@@ -2912,25 +2946,24 @@
             }
           }
           constructor(data) {
-            const self = this;
-            self.name = "data";
-            Object.defineProperty(self, "_symbol", {
+            this.name = "data";
+            Object.defineProperty(this, "_symbol", {
               configurable: false,
               enumerable: false,
               writable: false,
               value: SERIES_SYMBOL
             });
-            Object.defineProperty(self, "_values", {
+            Object.defineProperty(this, "_values", {
               value: [],
               configurable: true,
               enumerable: false,
               writable: true
             });
-            Object.defineProperty(self, "values", {
+            Object.defineProperty(this, "values", {
               configurable: true,
               enumerable: true,
               get() {
-                return self._values;
+                return this._values;
               },
               set(x) {
                 assert(isArray(x), "The new values must be a 1-dimensional array!");
@@ -2939,29 +2972,29 @@
                   dataShape.length === 1,
                   "The new array of values must be 1-dimensional!"
                 );
-                if (dataShape[0] < self._index.length) {
-                  self._index = self._index.slice(0, dataShape[0]);
-                } else if (dataShape[0] > self._index.length) {
-                  self._index = self._index.concat(
-                    range(self._index.length, dataShape[0]).map((i) => {
+                if (dataShape[0] < this._index.length) {
+                  this._index = this._index.slice(0, dataShape[0]);
+                } else if (dataShape[0] > this._index.length) {
+                  this._index = this._index.concat(
+                    range(this._index.length, dataShape[0]).map((i) => {
                       return "item" + leftPad(i, (x.length - 1).toString().length);
                     })
                   );
                 }
-                self._values = x;
+                this._values = x;
               }
             });
-            Object.defineProperty(self, "_index", {
+            Object.defineProperty(this, "_index", {
               value: [],
               configurable: true,
               enumerable: false,
               writable: true
             });
-            Object.defineProperty(self, "index", {
+            Object.defineProperty(this, "index", {
               configurable: true,
               enumerable: true,
               get() {
-                return self._index;
+                return this._index;
               },
               set(x) {
                 assert(
@@ -2969,7 +3002,7 @@
                   "The new index must be a 1-dimensional array of strings!"
                 );
                 assert(
-                  x.length === self.shape[0],
+                  x.length === this.shape[0],
                   "The new index must be the same length as the old index!"
                 );
                 assert(
@@ -2979,23 +3012,23 @@
                 x.forEach((value) => {
                   assert(isString(value), "All of the row names must be strings!");
                 });
-                self._index = x;
+                this._index = x;
               }
             });
             if (data) {
               if (data instanceof Series) {
-                self.name = data.name;
-                self.values = copy(data.values);
-                self.index = copy(data.index);
+                this.name = data.name;
+                this.values = copy(data.values);
+                this.index = copy(data.index);
               } else if (isArray(data)) {
                 const dataShape = shape(data);
                 assert(
                   dataShape.length === 1,
                   "When passing an array into the constructor of a Series, the array must be 1-dimensional!"
                 );
-                self.values = data;
+                this.values = data;
               } else if (data instanceof Object) {
-                const keys = Object.keys(data);
+                const keys = Object.keys(data).concat(Object.getOwnPropertySymbols(data)).map((v) => v.toString());
                 assert(
                   keys.length === 1,
                   "When passing an object into the constructor of a Series, the object must have only 1 key-value pair, where the key is the name of the data and the value is the 1-dimensional array of values!"
@@ -3006,139 +3039,112 @@
                   shape(values).length === 1,
                   "When passing an object into the constructor of a Series, the object must have only 1 key-value pair, where the key is the name of the data and the value is the 1-dimensional array of values!"
                 );
-                self.name = name;
-                self.values = values.slice();
+                this.name = name;
+                this.values = values.slice();
               }
             }
           }
           get shape() {
-            const self = this;
-            return shape(self.values);
+            return shape(this.values);
           }
           get length() {
-            const self = this;
-            return self.shape[0];
+            return this.shape[0];
           }
           get isEmpty() {
-            const self = this;
-            return self.values.filter((v) => !isUndefined(v)).length === 0;
+            return this.values.filter((v) => !isUndefined(v)).length === 0;
           }
           clear() {
-            const self = this;
-            const out = self.copy();
+            const out = this.copy();
             out.values.forEach((v, i) => {
               out.values[i] = void 0;
             });
             return out;
           }
           get(indices) {
-            const self = this;
-            return seriesGet(self, indices);
+            return seriesGet(this, indices);
           }
           getSubsetByNames(indices) {
-            const self = this;
-            return seriesGetSubsetByNames(Series, self, indices);
+            return seriesGetSubsetByNames(Series, this, indices);
           }
           getSubsetByIndices(indices) {
-            const self = this;
-            return seriesGetSubsetByIndices(self, indices);
+            return seriesGetSubsetByIndices(this, indices);
           }
           loc(indices) {
-            const self = this;
-            return self.getSubsetByNames(indices);
+            return this.getSubsetByNames(indices);
           }
           iloc(indices) {
-            const self = this;
-            return self.getSubsetByIndices(indices);
+            return this.getSubsetByIndices(indices);
           }
           reverse() {
-            const self = this;
-            const out = new Series(reverse(self.values));
-            out.index = reverse(self.index);
-            out.name = self.name;
+            const out = new Series(reverse(this.values));
+            out.index = reverse(this.index);
+            out.name = this.name;
             return out;
           }
           resetIndex() {
-            const self = this;
-            const out = self.copy();
-            out.index = range(0, self.shape[0]).map((i) => {
+            const out = this.copy();
+            out.index = range(0, this.shape[0]).map((i) => {
               return "item" + leftPad(i, (out.index.length - 1).toString().length);
             });
             return out;
           }
           copy() {
-            const self = this;
             const out = new Series();
-            out._values = copy(self.values);
-            out._index = copy(self.index);
-            out.name = self.name;
+            out._values = copy(this.values);
+            out._index = copy(this.index);
+            out.name = this.name;
             return out;
           }
           append(x) {
-            const self = this;
-            return seriesAppend(Series, self, x);
+            return seriesAppend(Series, this, x);
           }
           apply(fn) {
-            const self = this;
-            return seriesApply(self, fn);
+            return seriesApply(this, fn);
           }
           concat(x) {
-            const self = this;
-            return self.append(x);
+            return this.append(x);
           }
           dropMissing(condition, threshold) {
-            const self = this;
-            return seriesDropMissing(self, condition, threshold);
+            return seriesDropMissing(this, condition, threshold);
           }
           dropNaN() {
-            const self = this;
-            return seriesDropNaN(Series, self);
+            return seriesDropNaN(Series, this);
           }
           toObject() {
-            const self = this;
-            return seriesToObject(self);
+            return seriesToObject(this);
           }
           print() {
-            const self = this;
-            return seriesPrint(self);
+            return seriesPrint(this);
           }
           shuffle() {
-            const self = this;
-            return seriesShuffle(self);
+            return seriesShuffle(this);
           }
           sort(direction) {
-            const self = this;
-            return seriesSort(Series, self, direction);
+            return seriesSort(Series, this, direction);
           }
           sortByIndex() {
-            const self = this;
-            return seriesSortByIndex(Series, self);
+            return seriesSortByIndex(Series, this);
           }
           filter(fn) {
-            const self = this;
-            return seriesFilter(Series, self, fn);
+            return seriesFilter(Series, this, fn);
           }
           toDataFrame() {
-            const self = this;
-            const out = new DataFrame(transpose([self.values]));
-            out.columns = [self.name];
-            out.index = self.index;
+            const out = new DataFrame(transpose([this.values]));
+            out.columns = [this.name];
+            out.index = this.index;
             return out;
           }
           transpose() {
-            const self = this;
-            const out = self.copy();
+            const out = this.copy();
             out.values = reverse(out.values);
             out.index = reverse(out.index);
             return out;
           }
           getDummies() {
-            const self = this;
-            return self.toDataFrame().getDummies();
+            return this.toDataFrame().getDummies();
           }
           oneHotEncode() {
-            const self = this;
-            return self.getDummies();
+            return this.getDummies();
           }
         }
         return Series;
@@ -3168,6 +3174,7 @@
       var dfResetIndex = require_df_reset_index();
       var dfShuffle = require_df_shuffle();
       var dfSort = require_df_sort();
+      var dfToDetailedObject = require_df_to_detailed_object();
       var dfToJSON = require_df_to_json();
       var dfToJSONString = require_df_to_json_string();
       var dfToObject = require_df_to_object();
@@ -3178,6 +3185,7 @@
       var leftPad = require_left_pad();
       var ndarray = require_ndarray();
       var range = require_range();
+      var set = require_set();
       var shape = require_shape();
       var transpose = require_transpose();
       var DATAFRAME_SYMBOL = Symbol.for("@jrc03c/js-math-tools/dataframe");
@@ -3197,27 +3205,26 @@
           }
         }
         constructor(data) {
-          const self = this;
-          Object.defineProperty(self, "_symbol", {
+          Object.defineProperty(this, "_symbol", {
             configurable: false,
             enumerable: false,
             writable: false,
             value: DATAFRAME_SYMBOL
           });
-          Object.defineProperty(self, "_values", {
+          Object.defineProperty(this, "_values", {
             value: [],
             configurable: true,
             enumerable: false,
             writable: true
           });
-          Object.defineProperty(self, "values", {
+          Object.defineProperty(this, "values", {
             configurable: true,
             enumerable: true,
             get() {
-              if (self._values.length === 0 || !isUndefined(self._values[0]) && self._values[0].length === 0) {
+              if (this._values.length === 0 || !isUndefined(this._values[0]) && this._values[0].length === 0) {
                 return [[]];
               }
-              return self._values;
+              return this._values;
             },
             set(x) {
               assert(isArray(x), "The new values must be a 2-dimensional array!");
@@ -3226,38 +3233,38 @@
                 dataShape.length === 2,
                 "The new array of values must be 2-dimensional!"
               );
-              if (dataShape[0] < self._index.length) {
-                self._index = self._index.slice(0, dataShape[0]);
-              } else if (dataShape[0] > self._index.length) {
-                self._index = self._index.concat(
-                  range(self._index.length, dataShape[0]).map((i) => {
+              if (dataShape[0] < this._index.length) {
+                this._index = this._index.slice(0, dataShape[0]);
+              } else if (dataShape[0] > this._index.length) {
+                this._index = this._index.concat(
+                  range(this._index.length, dataShape[0]).map((i) => {
                     return "row" + leftPad(i, (dataShape[0] - 1).toString().length);
                   })
                 );
               }
-              if (dataShape[1] < self._columns.length) {
-                self._columns = self._columns.slice(0, dataShape[1]);
-              } else if (dataShape[1] > self._columns.length) {
-                self._columns = self._columns.concat(
-                  range(self._columns.length, dataShape[1]).map((i) => {
+              if (dataShape[1] < this._columns.length) {
+                this._columns = this._columns.slice(0, dataShape[1]);
+              } else if (dataShape[1] > this._columns.length) {
+                this._columns = this._columns.concat(
+                  range(this._columns.length, dataShape[1]).map((i) => {
                     return "col" + leftPad(i, (dataShape[1] - 1).toString().length);
                   })
                 );
               }
-              self._values = x;
+              this._values = x;
             }
           });
-          Object.defineProperty(self, "_columns", {
+          Object.defineProperty(this, "_columns", {
             value: [],
             configurable: true,
             enumerable: false,
             writable: true
           });
-          Object.defineProperty(self, "columns", {
+          Object.defineProperty(this, "columns", {
             configurable: true,
             enumerable: true,
             get() {
-              return self._columns;
+              return this._columns;
             },
             set(x) {
               assert(
@@ -3265,7 +3272,7 @@
                 "The new columns list must be a 1-dimensional array of strings!"
               );
               assert(
-                self.isEmpty || x.length === self.shape[1],
+                this.isEmpty || x.length === this.shape[1],
                 "The new columns list must be the same length as the old columns list!"
               );
               assert(
@@ -3295,20 +3302,20 @@
                 }
                 return v;
               });
-              self._columns = x;
+              this._columns = x;
             }
           });
-          Object.defineProperty(self, "_index", {
+          Object.defineProperty(this, "_index", {
             value: [],
             configurable: true,
             enumerable: false,
             writable: true
           });
-          Object.defineProperty(self, "index", {
+          Object.defineProperty(this, "index", {
             configurable: true,
             enumerable: true,
             get() {
-              return self._index;
+              return this._index;
             },
             set(x) {
               assert(
@@ -3316,7 +3323,7 @@
                 "The new index must be a 1-dimensional array of strings!"
               );
               assert(
-                self.isEmpty || x.length === self.shape[0],
+                this.isEmpty || x.length === this.shape[0],
                 "The new index must be the same length as the old index!"
               );
               assert(
@@ -3346,7 +3353,7 @@
                 }
                 return v;
               });
-              self._index = x;
+              this._index = x;
             }
           });
           assert(
@@ -3355,186 +3362,169 @@
           );
           if (data) {
             if (data instanceof DataFrame) {
-              self.values = copy(data.values);
-              self.columns = copy(data.columns);
-              self.index = copy(data.index);
+              this.values = copy(data.values);
+              this.columns = copy(data.columns);
+              this.index = copy(data.index);
             } else if (isArray(data)) {
               const dataShape = shape(data);
               assert(
                 dataShape.length === 2,
                 "The `data` array passed into the constructor of a DataFrame must be 2-dimensional!"
               );
-              self.values = data;
+              assert(
+                set(data.map((row) => row.length)).length === 1,
+                "The 2-dimensional array passed into the constructor of a DataFrame must not contain sub-arrays (i.e., rows) of different lengths!"
+              );
+              this.values = data;
             } else {
-              self._columns = Object.keys(data);
+              this._columns = Object.keys(data).concat(Object.getOwnPropertySymbols(data)).map((v) => v.toString());
               const temp = [];
-              self._columns.forEach((col) => {
+              let lastColName = null;
+              let lastColLength = null;
+              this._columns.forEach((col) => {
+                if (isUndefined(lastColLength)) {
+                  lastColName = col;
+                  lastColLength = data[col].length;
+                }
+                assert(
+                  data[col].length === lastColLength,
+                  `The object passed into the DataFrame constructor contains arrays of different lengths! The key "${lastColName}" points to an array containing ${lastColLength} items, and the key "${col}" points to an array containing ${data[col].length} items.`
+                );
+                lastColLength = data[col].length;
                 const values = data[col];
                 temp.push(values);
               });
-              self._values = transpose(temp);
-              const dataShape = shape(self.values);
-              self._index = range(0, dataShape[0]).map((i) => {
+              this._values = transpose(temp);
+              const dataShape = shape(this.values);
+              this._index = range(0, dataShape[0]).map((i) => {
                 return "row" + leftPad(i, (dataShape[0] - 1).toString().length);
               });
             }
           }
         }
         get shape() {
-          const self = this;
-          return shape(self.values);
+          return shape(this.values);
         }
         get length() {
-          const self = this;
-          return self.shape[0];
+          return this.shape[0];
         }
         get width() {
-          const self = this;
-          return self.shape[1];
+          return this.shape[1];
         }
         get rows() {
-          const self = this;
-          return self.index;
+          return this.index;
         }
         set rows(rows) {
-          const self = this;
-          self.index = rows;
+          this.index = rows;
         }
         get isEmpty() {
-          const self = this;
-          return flatten(self.values).length === 0;
+          return flatten(this.values).length === 0;
         }
         clear() {
-          const self = this;
-          const out = new DataFrame(ndarray(self.shape));
-          out.columns = self.columns.slice();
-          out.index = self.index.slice();
+          const out = new DataFrame(ndarray(this.shape));
+          out.columns = this.columns.slice();
+          out.index = this.index.slice();
           return out;
         }
         get(rows, cols) {
-          const self = this;
           if (arguments.length === 0) {
-            return self;
+            return this;
           }
           if (arguments.length === 1) {
             try {
-              return self.get(null, rows);
+              return this.get(null, rows);
             } catch (e) {
-              return self.get(rows, null);
+              return this.get(rows, null);
             }
           }
-          return dfGet(self, rows, cols);
+          return dfGet(this, rows, cols);
         }
         getSubsetByNames(rows, cols) {
-          const self = this;
-          return dfGetSubsetByNames(DataFrame, Series, self, rows, cols);
+          return dfGetSubsetByNames(DataFrame, Series, this, rows, cols);
         }
         getSubsetByIndices(rowIndices, colIndices) {
-          const self = this;
-          return dfGetSubsetByIndices(self, rowIndices, colIndices);
+          return dfGetSubsetByIndices(this, rowIndices, colIndices);
         }
         getDummies(columns) {
-          const self = this;
-          return dfGetDummies(DataFrame, self, columns);
+          return dfGetDummies(DataFrame, this, columns);
         }
         oneHotEncode(columns) {
-          const self = this;
-          return dfGetDummies(DataFrame, self, columns);
+          return dfGetDummies(DataFrame, this, columns);
         }
         transpose() {
-          const self = this;
-          const out = new DataFrame(transpose(self.values));
-          out.columns = self.index.slice();
-          out.index = self.columns.slice();
+          const out = new DataFrame(transpose(this.values));
+          out.columns = this.index.slice();
+          out.index = this.columns.slice();
           return out;
         }
         get T() {
-          const self = this;
-          return self.transpose();
+          return this.transpose();
         }
         resetIndex(shouldSkipCopying) {
-          const self = this;
-          return dfResetIndex(self, shouldSkipCopying);
+          return dfResetIndex(this, shouldSkipCopying);
         }
         copy() {
-          const self = this;
-          return dfCopy(DataFrame, self);
+          return dfCopy(DataFrame, this);
         }
         assign(p1, p2) {
-          const self = this;
-          return dfAssign(DataFrame, Series, self, p1, p2);
+          return dfAssign(DataFrame, Series, this, p1, p2);
         }
         apply(fn, axis) {
-          const self = this;
-          return dfApply(DataFrame, Series, self, fn, axis);
+          return dfApply(DataFrame, Series, this, fn, axis);
         }
         dropMissing(axis, condition, threshold) {
-          const self = this;
-          return dfDropMissing(DataFrame, Series, self, axis, condition, threshold);
+          return dfDropMissing(DataFrame, Series, this, axis, condition, threshold);
         }
         dropNaN(axis, condition, threshold) {
-          const self = this;
-          return dfDropNaN(DataFrame, self, axis, condition, threshold);
+          return dfDropNaN(DataFrame, this, axis, condition, threshold);
         }
         drop(rows, cols) {
-          const self = this;
-          return dfDrop(DataFrame, Series, self, rows, cols);
+          return dfDrop(DataFrame, Series, this, rows, cols);
         }
         dropColumns(columns) {
-          const self = this;
-          return self.drop(null, columns);
+          return this.drop(null, columns);
         }
         dropRows(rows) {
-          const self = this;
-          return self.drop(rows, null);
+          return this.drop(rows, null);
         }
-        toObject(axis) {
-          const self = this;
-          return dfToObject(self, axis);
+        toDetailedObject(axis) {
+          return dfToDetailedObject(this, axis);
+        }
+        toObject() {
+          return dfToObject(this);
         }
         toJSONString(axis) {
-          const self = this;
-          return dfToJSONString(self, axis);
+          return dfToJSONString(this, axis);
         }
         saveAsJSON(filename, axis) {
-          const self = this;
-          return dfToJSON(self, filename, axis);
+          return dfToJSON(this, filename, axis);
         }
         print() {
-          const self = this;
-          return dfPrint(DataFrame, Series, self);
+          return dfPrint(DataFrame, Series, this);
         }
         sort(cols, directions) {
-          const self = this;
-          return dfSort(self, cols, directions);
+          return dfSort(this, cols, directions);
         }
         sortByIndex() {
-          const self = this;
-          return self.sort();
+          return this.sort();
         }
         filter(fn, axis) {
-          const self = this;
-          return dfFilter(DataFrame, Series, self, fn, axis);
+          return dfFilter(DataFrame, Series, this, fn, axis);
         }
         shuffle(axis) {
-          const self = this;
-          return dfShuffle(self, axis);
+          return dfShuffle(this, axis);
         }
         append(x, axis) {
-          const self = this;
-          return dfAppend(self, x, axis);
+          return dfAppend(this, x, axis);
         }
         concat(x, axis) {
-          const self = this;
-          return self.append(x, axis);
+          return this.append(x, axis);
         }
         join(x, axis) {
-          const self = this;
-          return self.append(x, axis);
+          return this.append(x, axis);
         }
         toString() {
-          const self = this;
-          return JSON.stringify(self);
+          return JSON.stringify(this);
         }
       };
       var Series = require_series()(DataFrame);
@@ -3559,7 +3549,14 @@
           "The `max` function only works on arrays, Series, and DataFrames!"
         );
         try {
-          return Math.max(...flatten(arr));
+          arr = flatten(arr);
+          let highest = -Infinity;
+          for (const v of arr) {
+            if (v > highest) {
+              highest = v;
+            }
+          }
+          return highest;
         } catch (e) {
           return NaN;
         }
@@ -3846,7 +3843,14 @@
           "The `min` function only works on arrays, Series, and DataFrames!"
         );
         try {
-          return Math.min(...flatten(arr));
+          arr = flatten(arr);
+          let lowest = Infinity;
+          for (const v of arr) {
+            if (v < lowest) {
+              lowest = v;
+            }
+          }
+          return lowest;
         } catch (e) {
           return NaN;
         }
@@ -4863,7 +4867,7 @@
           }
           if (isObject(x2)) {
             checked.push(x2);
-            const keys = Object.keys(x2);
+            const keys = Object.keys(x2).concat(Object.getOwnPropertySymbols(x2));
             for (let i = 0; i < keys.length; i++) {
               const key = keys[i];
               const value = x2[key];
@@ -4939,7 +4943,7 @@
           }
           if (isObject(x2)) {
             checked.push(x2);
-            const keys = Object.keys(x2);
+            const keys = Object.keys(x2).concat(Object.getOwnPropertySymbols(x2));
             const out = [];
             for (let i = 0; i < keys.length; i++) {
               const key = keys[i];
@@ -5944,22 +5948,22 @@
         zeros: require_zeros(),
         zip: require_zip(),
         dump: function() {
-          const pub = typeof global !== "undefined" ? global : window;
-          if (!pub) {
+          const context = typeof globalThis !== "undefined" ? globalThis : typeof global !== "undefined" ? global : typeof window !== "undefined" ? window : typeof self !== "undefined" ? self : void 0;
+          if (!context) {
             throw new out.MathError(
-              "Cannot dump functions into global scope because neither `global` nor `window` exist in the current context!"
+              "Cannot dump functions into global scope because none of `globalThis`, `global`, `window`, or `self` exist in the current context!"
             );
           }
           Object.keys(out).forEach((key) => {
             try {
-              Object.defineProperty(pub, key, {
+              Object.defineProperty(context, key, {
                 configurable: false,
                 enumerable: true,
                 writable: false,
                 value: out[key]
               });
             } catch (e) {
-              pub[key] = out[key];
+              context[key] = out[key];
             }
           });
         }
@@ -5973,12 +5977,299 @@
     }
   });
 
+  // node_modules/@jrc03c/js-text-tools/src/helpers/convert-object-to-typed-array.js
+  var require_convert_object_to_typed_array = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/helpers/convert-object-to-typed-array.js"(exports, module) {
+      var { isArray } = require_src();
+      var context = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : void 0;
+      function convertObjectToTypedArray(x) {
+        const typedArrayConstructorSymbol = Symbol.for("@TypedArrayConstructor");
+        const typedArrayConstructorString = "Symbol(@TypedArrayConstructor)";
+        const typedArrayConstructorKey = typedArrayConstructorSymbol in x ? typedArrayConstructorSymbol : typedArrayConstructorString in x ? typedArrayConstructorString : void 0;
+        if (typedArrayConstructorKey) {
+          if (!("values" in x)) {
+            throw new Error(
+              "The value passed into the `convertObjectToTypedArray` must have a 'values' property!"
+            );
+          }
+          if (x[typedArrayConstructorKey] === "ArrayBuffer") {
+            return new Uint8Array(x.values).buffer;
+          }
+          return new context[x[typedArrayConstructorKey]](x.values);
+        }
+        if (isArray(x) && x.constructor.name === "Array") {
+          return x;
+        }
+        throw new Error(
+          "The value passed into the `convertObjectToTypedArray` must be an object that can be converted into a typed array!"
+        );
+      }
+      module.exports = convertObjectToTypedArray;
+    }
+  });
+
+  // node_modules/@jrc03c/js-text-tools/src/parse.js
+  var require_parse = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/parse.js"(exports, module) {
+      var convertObjectToTypedArray = require_convert_object_to_typed_array();
+      var specials = {
+        "@Infinity": Infinity,
+        "@NegativeInfinity": -Infinity,
+        "@NaN": NaN,
+        "@undefined": void 0
+      };
+      function parse(x) {
+        function helper(x2) {
+          if (typeof x2 === "string") {
+            if (x2.match(/^'?"?Symbol\(.*?\)"?'?$/g)) {
+              x2 = x2.replace(/^.*?Symbol\(/g, "").replace(/\).*?$/g, "");
+              if (x2 in specials) {
+                return specials[x2];
+              }
+              return Symbol.for(x2);
+            }
+            const xTrimmed = x2.trim();
+            if (xTrimmed.match(/^\/.*?\/(d|g|i|m|s|u|v|y)*?$/g)) {
+              try {
+                const pattern = xTrimmed.replace(/^\//g, "").replace(/\/(d|g|i|m|s|u|v|y)*?$/g, "");
+                const flags = xTrimmed.match(/\/(d|g|i|m|s|u|v|y)*?$/g).at(-1).split("/").at(-1);
+                return new RegExp(pattern, flags);
+              } catch (e) {
+              }
+            }
+            try {
+              const f = parseFloat(x2);
+              if (!isNaN(f) && f.toString() === x2) {
+                return f;
+              }
+            } catch (e) {
+            }
+            try {
+              const d = new Date(Date.parse(x2));
+              if (d.toString() !== "Invalid Date") {
+                return d;
+              }
+            } catch (e) {
+            }
+            try {
+              return JSON.parse(x2, function(key, value) {
+                try {
+                  return parse(value);
+                } catch (e) {
+                  return value;
+                }
+              });
+            } catch (e) {
+              return x2;
+            }
+          }
+          if (typeof x2 === "object") {
+            if (x2 === null) {
+              return null;
+            }
+            try {
+              return convertObjectToTypedArray(x2);
+            } catch (e) {
+              Object.keys(x2).concat(Object.getOwnPropertySymbols(x2)).forEach((key) => {
+                try {
+                  try {
+                    key = parse(key);
+                  } catch (e2) {
+                  }
+                  x2[key] = parse(x2[key]);
+                } catch (e2) {
+                }
+              });
+              return x2;
+            }
+          }
+          return x2;
+        }
+        return helper(x);
+      }
+      module.exports = parse;
+    }
+  });
+
+  // node_modules/@jrc03c/js-text-tools/src/pascalify.js
+  var require_pascalify = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/pascalify.js"(exports, module) {
+      var camelify = require_camelify();
+      function pascalify(text) {
+        const out = camelify(text);
+        return out[0].toUpperCase() + out.slice(1);
+      }
+      module.exports = pascalify;
+    }
+  });
+
+  // node_modules/@jrc03c/js-text-tools/src/snakeify.js
+  var require_snakeify = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/snakeify.js"(exports, module) {
+      var strip = require_strip();
+      function snakeify(text) {
+        if (typeof text !== "string") {
+          throw new Error("`text` must be a string!");
+        }
+        const words = strip(text).split(" ");
+        if (words.length === 0)
+          return "";
+        if (words.length === 1)
+          return words[0];
+        return words.join("_");
+      }
+      module.exports = snakeify;
+    }
+  });
+
+  // node_modules/@jrc03c/js-text-tools/src/helpers/convert-typed-array-to-object.js
+  var require_convert_typed_array_to_object = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/helpers/convert-typed-array-to-object.js"(exports, module) {
+      var { isArray, isDate } = require_src();
+      function convertTypedArrayToObject(x) {
+        if (x instanceof ArrayBuffer || x instanceof BigInt64Array || x instanceof BigUint64Array || x instanceof Float32Array || x instanceof Float64Array || x instanceof Int16Array || x instanceof Int32Array || x instanceof Int8Array || x instanceof Uint16Array || x instanceof Uint32Array || x instanceof Uint8Array || x instanceof Uint8ClampedArray) {
+          return {
+            [Symbol.for("@TypedArrayConstructor")]: x.constructor.name,
+            values: x instanceof ArrayBuffer ? Array.from(new Uint8Array(x)) : Array.from(x)
+          };
+        }
+        if (isArray(x)) {
+          return x.map((v) => {
+            try {
+              return convertTypedArrayToObject(v);
+            } catch (e) {
+              return v;
+            }
+          });
+        }
+        if (typeof x === "object" & x !== null) {
+          if (isDate(x)) {
+            return new Date(x.getTime());
+          }
+          const out = {};
+          Object.keys(x).forEach((key) => {
+            try {
+              out[key] = convertTypedArrayToObject(x[key]);
+            } catch (e) {
+              out[key] = x[key];
+            }
+          });
+          return out;
+        }
+        throw new Error(
+          "The value passed into the `convertTypedArrayToObject` function must be a typed array! Valid types include: ArrayBuffer, Float32Array, Float64Array, Int16Array, Int32Array, Int8Array, Uint16Array, Uint32Array, Uint8Array, and Uint8ClampedArray."
+        );
+      }
+      module.exports = convertTypedArrayToObject;
+    }
+  });
+
   // node_modules/@jrc03c/js-text-tools/src/stringify.js
   var require_stringify = __commonJS({
     "node_modules/@jrc03c/js-text-tools/src/stringify.js"(exports, module) {
-      var { decycle } = require_src();
-      function stringify(x, replacer, space) {
-        return JSON.stringify(decycle(x), replacer, space);
+      var {
+        assert,
+        decycle,
+        isArray,
+        isDate,
+        isString,
+        isUndefined,
+        range
+      } = require_src();
+      var convertTypedArrayToObject = require_convert_typed_array_to_object();
+      function prefix(s, n) {
+        if (!s || n <= 0)
+          return "";
+        return range(0, n).map(() => s).join("");
+      }
+      function stringify(x, indent) {
+        assert(
+          isString(indent) || isUndefined(indent),
+          "The second parameter to the `stringify` function must be undefined or a string!"
+        );
+        const newline = indent ? "\n" : "";
+        function helper(x2, indent2, depth) {
+          depth = depth || 0;
+          if (typeof x2 === "number" || typeof x2 === "bigint") {
+            if (x2 === Infinity) {
+              return '"Symbol(@Infinity)"';
+            }
+            if (x2 === -Infinity) {
+              return '"Symbol(@NegativeInfinity)"';
+            }
+            if (isNaN(x2)) {
+              return '"Symbol(@NaN)"';
+            }
+            return x2.toString();
+          }
+          if (typeof x2 === "string") {
+            return JSON.stringify(x2);
+          }
+          if (typeof x2 === "boolean") {
+            return x2.toString();
+          }
+          if (typeof x2 === "undefined") {
+            return '"Symbol(@undefined)"';
+          }
+          if (typeof x2 === "symbol") {
+            return JSON.stringify(x2.toString());
+          }
+          if (typeof x2 === "function") {
+            return JSON.stringify(x2.toString());
+          }
+          if (x2 instanceof RegExp) {
+            return x2.toString();
+          }
+          if (typeof x2 === "object") {
+            if (x2 === null) {
+              return "null";
+            }
+            if (isDate(x2)) {
+              return JSON.stringify(x2.toJSON());
+            }
+            if (isArray(x2)) {
+              if (x2.length === 0) {
+                return prefix(indent2, depth - 1) + "[]";
+              }
+              if (!(x2 instanceof Array)) {
+                return helper(convertTypedArrayToObject(x2), null, indent2);
+              }
+              return prefix(indent2, depth - 1) + "[" + newline + x2.map((v) => {
+                let child = (() => {
+                  try {
+                    return helper(convertTypedArrayToObject(v), indent2, depth + 1);
+                  } catch (e) {
+                    return helper(v, indent2, depth + 1);
+                  }
+                })();
+                if (isString(child))
+                  child = child.trim();
+                return prefix(indent2, depth + 1) + child;
+              }).join("," + newline) + newline + prefix(indent2, depth) + "]";
+            }
+            if (Object.keys(x2).length + Object.getOwnPropertySymbols(x2).length === 0) {
+              return prefix(indent2, depth - 1) + "{}";
+            }
+            return prefix(indent2, depth - 1) + "{" + newline + Object.keys(x2).concat(Object.getOwnPropertySymbols(x2)).map((key) => {
+              let child = (() => {
+                try {
+                  return helper(
+                    convertTypedArrayToObject(x2[key]),
+                    indent2,
+                    depth + 1
+                  );
+                } catch (e) {
+                  return helper(x2[key], indent2, depth + 1);
+                }
+              })();
+              if (isString(child))
+                child = child.trim();
+              return prefix(indent2, depth + 1) + helper(key) + ":" + (indent2 ? " " : "") + child;
+            }).join("," + newline) + newline + prefix(indent2, depth) + "}";
+          }
+          return "undefined";
+        }
+        return helper(decycle(x), indent);
       }
       module.exports = stringify;
     }
@@ -6052,6 +6343,8 @@
         camelify: require_camelify(),
         indent: require_indent(),
         kebabify: require_kebabify(),
+        parse: require_parse(),
+        pascalify: require_pascalify(),
         snakeify: require_snakeify(),
         stringify: require_stringify(),
         unindent: require_unindent(),
@@ -6126,165 +6419,331 @@
     }
   });
 
-  // node_modules/@jrc03c/bee/src/index.js
-  var require_src4 = __commonJS({
-    "node_modules/@jrc03c/bee/src/index.js"(exports, module) {
-      var { stringify } = require_src2();
-      var makeKey = require_src3();
-      var SubscriptionService = class {
-        constructor() {
-          const self = this;
-          self.subscriptions = {};
+  // node_modules/@jrc03c/bee/src/array-prototype-remove.js
+  var require_array_prototype_remove = __commonJS({
+    "node_modules/@jrc03c/bee/src/array-prototype-remove.js"() {
+      Array.prototype.remove = function(x) {
+        let index = this.indexOf(x);
+        while (index > -1) {
+          this.splice(index, 1);
+          index = this.indexOf(x);
         }
-        on(path, callback) {
-          const self = this;
-          if (!self.subscriptions[path])
-            self.subscriptions[path] = [];
-          self.subscriptions[path].push(callback);
-          return self;
-        }
-        off(path, callback) {
-          const self = this;
-          self.subscriptions[path].splice(
-            self.subscriptions[path].indexOf(callback),
-            1
-          );
-          return self;
-        }
-        run(path, payload) {
-          const self = this;
-          const callbacks = self.subscriptions[path];
-          if (callbacks)
-            callbacks.forEach((cb) => cb(payload));
-          return self;
-        }
+        return this;
       };
-      var Drone = class extends SubscriptionService {
+    }
+  });
+
+  // node_modules/@jrc03c/bee/src/subscription-service.js
+  var require_subscription_service = __commonJS({
+    "node_modules/@jrc03c/bee/src/subscription-service.js"(exports, module) {
+      var { parse, stringify } = require_src2();
+      var makeKey = require_src3();
+      require_array_prototype_remove();
+      var alive = {};
+      var SubscriptionService = class {
+        context = void 0;
+        rejects = [];
+        resolves = [];
+        unsubs = [];
         constructor() {
-          super();
-          const self = this;
-          onmessage = (event) => self.run(event.data.path, event.data.payload, event.data.cbid);
+          this.context = globalThis;
+          const id = makeKey(8);
+          Object.defineProperty(this, "id", {
+            configurable: false,
+            enumerable: true,
+            get: () => id,
+            set() {
+              throw new Error(
+                `The \`id\` property of this SubscriptionService instance is read-only!`
+              );
+            }
+          });
+          alive[this.id] = true;
         }
-        run(path, payload, cbid) {
-          const self = this;
-          const request = {
-            data: payload
-          };
-          const response = {
-            send: function(result) {
+        get hasBeenDestroyed() {
+          return !alive[this.id];
+        }
+        set hasBeenDestroyed(value) {
+          throw new Error(
+            `The \`hasBeenDestroyed\` property of this SubscriptionService instance is read-only! To destroy this SubscriptionService instance, invoke its \`destroy\` method.`
+          );
+        }
+        on(signal, callback) {
+          if (this.hasBeenDestroyed) {
+            throw new Error(
+              `This SubscriptionService instance has already been destroyed!`
+            );
+          }
+          const inner = (event) => {
+            if (event.data.signal === signal) {
+              const cbid = event.data.cbid;
+              let payload = event.data.payload;
               try {
-                result = JSON.parse(stringify(result));
+                payload = parse(payload);
               } catch (e) {
               }
-              postMessage({
-                path: cbid,
-                payload: result
-              });
+              const request = { data: payload };
+              const response = {
+                send: (result) => {
+                  try {
+                    result = stringify(result);
+                  } catch (e) {
+                  }
+                  if (!this.hasBeenDestroyed) {
+                    this.context.postMessage({
+                      signal: cbid,
+                      payload: result
+                    });
+                  }
+                }
+              };
+              callback(request, response);
             }
           };
-          const callbacks = self.subscriptions[path];
-          if (callbacks)
-            callbacks.forEach((cb) => cb(request, response));
-          else
-            response.send(null);
-          return self;
+          this.context.addEventListener("message", inner);
+          const unsub = () => this.context.removeEventListener("message", inner);
+          this.unsubs.push(unsub);
+          return unsub;
         }
-      };
-      var Queen = class extends SubscriptionService {
-        constructor(filename, n) {
-          super();
-          const self = this;
-          self.hive = [];
-          if (filename) {
-            self.addDrones(filename, n || 1);
-          }
-        }
-        addDrone(filename) {
-          const self = this;
-          const drone = new Worker(filename);
-          drone.onmessage = (event) => super.run(event.data.path, event.data.payload);
-          self.hive.push(drone);
-          return drone;
-        }
-        addDrones(filename, n) {
-          const self = this;
-          for (let i = 0; i < n; i++)
-            self.addDrone(filename);
-          return self;
-        }
-        removeDrone(drone) {
-          const self = this;
-          self.hive = self.hive.filter((other) => other !== drone);
-          drone.terminate();
-          return self;
-        }
-        removeDrones(drones) {
-          const self = this;
-          drones.forEach((drone) => self.removeDrone(drone));
-          return self;
-        }
-        run(path, payload) {
-          const self = this;
-          if (self.hive.length === 0) {
-            console.warn(
-              "The queen issued a command, but there are no drones in the hive! Use the queen's `addDrone` method to add a drone to the hive! (https://github.com/jrc03c/bee.js)"
+        emit(signal, payload) {
+          if (this.hasBeenDestroyed) {
+            throw new Error(
+              `This SubscriptionService instance has already been destroyed!`
             );
-            return null;
           }
           return new Promise((resolve, reject) => {
             try {
+              const cbid = makeKey(8);
+              const callback = (event) => {
+                if (event.data.signal === cbid) {
+                  this.context.removeEventListener("message", callback);
+                  this.resolves.remove(resolve);
+                  this.rejects.remove(reject);
+                  let out = event.data.payload;
+                  try {
+                    out = parse(out);
+                  } catch (e) {
+                  }
+                  return resolve(out);
+                }
+              };
+              this.context.addEventListener("message", callback);
+              this.resolves.push(resolve);
+              this.rejects.push(reject);
               try {
-                payload = JSON.parse(stringify(payload));
+                payload = stringify(payload);
               } catch (e) {
               }
-              const results = new Array(self.hive.length);
-              const promises = self.hive.map(function(drone, i) {
-                return new Promise(function(innerResolve, innerReject) {
-                  try {
-                    const cbid = makeKey(32);
-                    self.on(cbid, (result) => {
-                      self.off(cbid, this);
-                      results[i] = result;
-                      innerResolve();
-                    });
-                    drone.postMessage({ path, payload, cbid });
-                  } catch (e) {
-                    innerReject(e);
-                  }
-                });
-              });
-              Promise.all(promises).then(() => {
-                if (self.hive.length === 1)
-                  resolve(results[0]);
-                else
-                  resolve(results);
+              this.context.postMessage({
+                cbid,
+                signal,
+                payload
               });
             } catch (e) {
-              reject(e);
+              this.resolves.remove(resolve);
+              this.rejects.remove(reject);
+              return reject(e);
             }
           });
         }
-        command(path, payload) {
-          const self = this;
-          return self.run(path, payload);
-        }
-        kill() {
-          const self = this;
-          self.stop();
-          self.removeDrones(self.hive);
-          return null;
-        }
-        stop() {
-          const self = this;
-          self.hive.forEach((drone) => drone.terminate());
-          return self;
-        }
-        terminate() {
-          const self = this;
-          return self.stop();
+        destroy(error) {
+          if (this.hasBeenDestroyed) {
+            throw new Error(
+              `This SubscriptionService instance has already been destroyed!`
+            );
+          }
+          delete alive[this.id];
+          this.unsubs.forEach((unsub) => unsub());
+          if (error) {
+            this.rejects.forEach((reject) => reject(error));
+          } else {
+            this.resolves.forEach((resolve) => resolve());
+          }
+          delete this.context;
+          delete this.rejects;
+          delete this.resolves;
+          delete this.unsubs;
         }
       };
-      var Bee2 = { Drone, Queen };
+      module.exports = SubscriptionService;
+    }
+  });
+
+  // node_modules/@jrc03c/bee/src/drone.js
+  var require_drone = __commonJS({
+    "node_modules/@jrc03c/bee/src/drone.js"(exports, module) {
+      var SubscriptionService = require_subscription_service();
+      var Drone = class extends SubscriptionService {
+        constructor(path) {
+          super();
+          if (typeof window === "undefined") {
+            if (typeof path !== "undefined") {
+              throw new Error(
+                "You must not pass a `path` to a `Drone` created in a web worker context! (Passing a `path` only makes sense when creating a `Drone` in a window context.)"
+              );
+            }
+          } else if (typeof path === "undefined") {
+            throw new Error("You must pass a `path` into the `Drone` constructor!");
+          }
+          if (path) {
+            this.context = new Worker(path);
+          }
+        }
+        get isDead() {
+          return this.hasBeenDestroyed;
+        }
+        set isDead(value) {
+          throw new Error(
+            `The \`isDead\` property of this Drone instance is read-only! To destroy this Drone instance, invoke its \`destroy\` method.`
+          );
+        }
+        propose(signal, payload) {
+          return this.emit(signal, payload);
+        }
+        destroy() {
+          if (this.context instanceof Worker) {
+            this.context.terminate();
+          }
+          return super.destroy();
+        }
+      };
+      module.exports = Drone;
+    }
+  });
+
+  // node_modules/@jrc03c/bee/src/queen.js
+  var require_queen = __commonJS({
+    "node_modules/@jrc03c/bee/src/queen.js"(exports, module) {
+      var Drone = require_drone();
+      var SubscriptionService = require_subscription_service();
+      var Queen = class extends SubscriptionService {
+        hive = [];
+        constructor(path, n) {
+          super();
+          if (path) {
+            n = n || 1;
+            this.addDrones(path, n);
+          }
+        }
+        get isDead() {
+          return this.hasBeenDestroyed;
+        }
+        set isDead(value) {
+          throw new Error(
+            `The \`isDead\` property of this Queen instance is read-only! To destroy this Queen instance, invoke her \`destroy\` method.`
+          );
+        }
+        addDrone(path) {
+          if (this.isDead) {
+            throw new Error("The queen is dead!");
+          }
+          this.hive.push(new Drone(path));
+          return this;
+        }
+        addDrones(path, n) {
+          for (let i = 0; i < n; i++) {
+            this.addDrone(path);
+          }
+          return this;
+        }
+        removeDrone(drone) {
+          if (this.isDead) {
+            throw new Error("The queen is dead!");
+          }
+          drone.destroy();
+          this.hive.remove(drone);
+          return this;
+        }
+        removeDrones(drones) {
+          drones.forEach((drone) => this.removeDrone(drone));
+          return this;
+        }
+        on(signal, callback) {
+          const unsubs = this.hive.map((drone) => {
+            return drone.on(signal, callback);
+          });
+          const unsub = () => unsubs.forEach((unsub2) => unsub2());
+          this.unsubs.push(unsub);
+          return unsub;
+        }
+        emit(signal, payload) {
+          if (this.isDead) {
+            throw new Error("The queen is dead!");
+          }
+          if (this.hive.length === 0) {
+            throw new Error(
+              `The queen issued a "${signal}" command, but there are no drones in the hive!`
+            );
+          }
+          return new Promise((resolve, reject) => {
+            try {
+              const results = new Array(this.hive.length);
+              const promises = this.hive.map((drone, i) => {
+                return new Promise((resolve2, reject2) => {
+                  try {
+                    this.resolves.push(resolve2);
+                    this.rejects.push(reject2);
+                    drone.emit(signal, payload).then((result) => {
+                      if (!this.hasBeenDestroyed) {
+                        this.resolves.remove(resolve2);
+                        this.rejects.remove(reject2);
+                        results[i] = result;
+                        resolve2();
+                      }
+                    });
+                  } catch (e) {
+                    this.resolves.remove(resolve2);
+                    this.rejects.remove(reject2);
+                    return reject2(e);
+                  }
+                });
+              });
+              this.resolves.push(resolve);
+              this.rejects.push(reject);
+              Promise.all(promises).then(() => {
+                if (!this.hasBeenDestroyed) {
+                  this.resolves.remove(resolve);
+                  this.rejects.remove(reject);
+                  if (results.length === 1) {
+                    return resolve(results[0]);
+                  } else {
+                    return resolve(results);
+                  }
+                }
+              });
+            } catch (e) {
+              this.resolves.remove(resolve);
+              this.rejects.remove(reject);
+              return reject(e);
+            }
+          });
+        }
+        command(signal, payload) {
+          return this.emit(signal, payload);
+        }
+        destroy(error) {
+          if (this.isDead) {
+            throw new Error("The queen is dead!");
+          }
+          const out = super.destroy(error);
+          this.hive.forEach((drone) => {
+            drone.destroy(error);
+          });
+          delete this.hive;
+          return out;
+        }
+      };
+      module.exports = Queen;
+    }
+  });
+
+  // node_modules/@jrc03c/bee/src/index.js
+  var require_src4 = __commonJS({
+    "node_modules/@jrc03c/bee/src/index.js"(exports, module) {
+      var Bee2 = {
+        Drone: require_drone(),
+        Queen: require_queen()
+      };
       if (typeof module !== "undefined") {
         module.exports = Bee2;
       }
