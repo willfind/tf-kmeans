@@ -29,8 +29,6 @@ class TFKMeansNaive extends KMeansNaive {
   }
 
   getFitStepFunction(x, progress) {
-    const self = this
-
     if (isDataFrame(x)) {
       x = x.values
     }
@@ -53,7 +51,7 @@ class TFKMeansNaive extends KMeansNaive {
     }
 
     const xtf = addTensorToScope(tf.tensor(x))
-    const centroids = addTensorToScope(self.initializeCentroids(x))
+    const centroids = addTensorToScope(this.initializeCentroids(x))
 
     let state = {
       currentRestart: 0,
@@ -64,16 +62,16 @@ class TFKMeansNaive extends KMeansNaive {
       isFinished: false,
     }
 
-    return function fitStep() {
+    return () => {
       try {
         // label data points
-        const labels = self.predict(xtf, state.currentCentroids)
+        const labels = this.predict(xtf, state.currentCentroids)
         const currentCentroids = state.currentCentroids.arraySync()
 
         // adjust centroids
         let temp = []
 
-        for (let i = 0; i < self.k; i++) {
+        for (let i = 0; i < this.k; i++) {
           const indices = []
 
           labels.forEach((label, j) => {
@@ -98,16 +96,16 @@ class TFKMeansNaive extends KMeansNaive {
         // if has converged, finish iterations early
         const d = sse(state.currentCentroids, temp)
 
-        if (d < self.tolerance) {
-          state.currentIteration = self.maxIterations - 1
+        if (d < this.tolerance) {
+          state.currentIteration = this.maxIterations - 1
         }
 
         state.currentIteration++
 
-        if (state.currentIteration >= self.maxIterations) {
+        if (state.currentIteration >= this.maxIterations) {
           state.currentRestart++
 
-          const score = self.score(xtf, temp)
+          const score = this.score(xtf, temp)
 
           if (score > state.bestScore) {
             state.bestScore = score
@@ -116,11 +114,11 @@ class TFKMeansNaive extends KMeansNaive {
 
           state.currentIteration = 0
 
-          if (state.currentRestart >= self.maxRestarts) {
+          if (state.currentRestart >= this.maxRestarts) {
             state.isFinished = true
           } else {
             state.currentCentroids = addTensorToScope(
-              self.initializeCentroids(x)
+              this.initializeCentroids(x)
             )
           }
         } else {
@@ -128,7 +126,7 @@ class TFKMeansNaive extends KMeansNaive {
         }
 
         if (state.isFinished) {
-          self.centroids = state.bestCentroids.arraySync()
+          this.centroids = state.bestCentroids.arraySync()
           state = { isFinished: true }
 
           tensors.forEach(t => {
@@ -138,15 +136,15 @@ class TFKMeansNaive extends KMeansNaive {
           })
 
           if (progress) {
-            progress(1, self)
+            progress(1, this)
           }
         } else {
           if (progress) {
             progress(
               (state.currentRestart +
-                state.currentIteration / self.maxIterations) /
-                self.maxRestarts,
-              self
+                state.currentIteration / this.maxIterations) /
+                this.maxRestarts,
+              this
             )
           }
         }
@@ -165,15 +163,14 @@ class TFKMeansNaive extends KMeansNaive {
   }
 
   fit(x, progress) {
-    const self = this
-    const fitStep = self.getFitStepFunction(x, progress)
+    const fitStep = this.getFitStepFunction(x, progress)
     let state
 
     while (!state || !state.isFinished) {
       state = fitStep()
     }
 
-    return self
+    return this
   }
 
   predict(x, centroids) {
@@ -237,8 +234,6 @@ class TFKMeansNaive extends KMeansNaive {
     // (effectively collapsing that row), then we end up finally with a vector
     // representing the labels for each of the 100 data points! Whew!
 
-    const self = this
-
     return tf.tidy(() => {
       if (isTFTensor(x)) {
         x = x.arraySync()
@@ -250,7 +245,7 @@ class TFKMeansNaive extends KMeansNaive {
 
       assert(isMatrix(x), "`x` must be a matrix!")
 
-      centroids = centroids || self.centroids
+      centroids = centroids || this.centroids
 
       if (!isTFTensor(centroids)) {
         centroids = tf.tensor(centroids)
@@ -276,8 +271,6 @@ class TFKMeansNaive extends KMeansNaive {
     // scores are better! (That's a convention that sklearn follows for all of
     // its models, I believe.)
 
-    const self = this
-
     return tf.tidy(() => {
       if (isTFTensor(x)) {
         x = x.arraySync()
@@ -289,7 +282,7 @@ class TFKMeansNaive extends KMeansNaive {
 
       assert(isMatrix(x), "`x` must be a matrix!")
 
-      centroids = centroids || self.centroids
+      centroids = centroids || this.centroids
 
       if (!isTFTensor(centroids)) {
         centroids = tf.tensor(centroids)
@@ -306,7 +299,7 @@ class TFKMeansNaive extends KMeansNaive {
       )
 
       const xtf = tf.tensor(x)
-      const labels = self.predict(xtf, centroids)
+      const labels = this.predict(xtf, centroids)
       const assignments = centroids.gather(labels).arraySync()
 
       return -sse(xtf, assignments)

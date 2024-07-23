@@ -15,8 +15,6 @@ class TFKMeansPlusPlus extends TFKMeansNaive {
     //    c) use the probabilities to randomly select a point to be the next
     //       centroid
 
-    const self = this
-
     return tf.tidy(() => {
       const xtf = tf.tensor(x)
 
@@ -24,9 +22,9 @@ class TFKMeansPlusPlus extends TFKMeansNaive {
       // later, we'll map those to actual points
       const centroids = [int(random() * x.length)]
 
-      while (centroids.length < self.k) {
+      while (centroids.length < this.k) {
         const centroidsTemp = centroids.map(i => x[i])
-        const labels = tf.tensor(self.predict(x, centroidsTemp), null, "int32")
+        const labels = tf.tensor(this.predict(x, centroidsTemp), null, "int32")
 
         const distances = tf.tidy(() => {
           return tf.tensor(centroidsTemp).gather(labels).sub(xtf).pow(2).sum(1)

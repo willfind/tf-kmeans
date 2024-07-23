@@ -7,32 +7,27 @@ class TFKMeansMeta extends KMeansMeta {
   constructor(config) {
     super(config)
 
-    const self = this
     config = config || {}
-    self.modelClass = config.modelClass || TFKMeansPlusPlus
+    this.modelClass = config.modelClass || TFKMeansPlusPlus
   }
 
   get centroids() {
-    const self = this
-
-    if (self.fittedModel) {
-      return self.fittedModel.centroids
+    if (this.fittedModel) {
+      return this.fittedModel.centroids
     } else {
-      return self._fitState.bestCentroids
+      return this._fitState.bestCentroids
     }
   }
 
   set centroids(centroids) {
-    const self = this
-
     if (isTFTensor(centroids)) {
       centroids = centroids.arraySync()
     }
 
     const newShape = shape(centroids)
 
-    if (self.centroids) {
-      const oldCentroids = self.centroids
+    if (this.centroids) {
+      const oldCentroids = this.centroids
       const oldShape = shape(oldCentroids)
 
       assert(
@@ -43,16 +38,16 @@ class TFKMeansMeta extends KMeansMeta {
       )
     }
 
-    if (!self.fittedModel) {
-      self.fittedModel = new self.modelClass({
+    if (!this.fittedModel) {
+      this.fittedModel = new this.modelClass({
         k: newShape[0],
-        maxIterations: self.maxIterations,
-        maxRestarts: self.maxRestarts,
-        tolerance: self.tolerance,
+        maxIterations: this.maxIterations,
+        maxRestarts: this.maxRestarts,
+        tolerance: this.tolerance,
       })
     }
 
-    self.fittedModel.centroids = centroids
+    this.fittedModel.centroids = centroids
   }
 }
 
