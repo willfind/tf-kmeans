@@ -14,7 +14,7 @@ const { rScore, trainTestSplit } = require("@jrc03c/js-data-science-helpers")
 const { TFKMeansMeta } = require("../src").models
 const tf = require("@tensorflow/tfjs")
 
-test("tests that the`TFKMeansMeta` model works correctly", () => {
+test("tests that the`TFKMeansMeta` model works correctly", async () => {
   const centroidsTrue = normal([5, 10])
   const labels = []
 
@@ -27,7 +27,7 @@ test("tests that the`TFKMeansMeta` model works correctly", () => {
 
   const [xTrain, xTest, labelsTrain, labelsTest] = trainTestSplit(x, labels)
   const model = new TFKMeansMeta()
-  model.fit(xTrain)
+  await model.fit(xTrain)
   model.centroids = orderCentroids(centroidsTrue, model.centroids)
 
   const labelsTrainPred = model.predict(xTrain)

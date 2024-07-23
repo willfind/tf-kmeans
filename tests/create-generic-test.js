@@ -14,7 +14,7 @@ const { trainTestSplit } = require("@jrc03c/js-data-science-helpers")
 const tf = require("@tensorflow/tfjs")
 
 module.exports = function createGenericTest(Model) {
-  test(`tests that the \`${Model.name}\` model works correctly`, () => {
+  test(`tests that the \`${Model.name}\` model works correctly`, async () => {
     const centroidsTrue = normal([5, 10]).map(row =>
       row.map(v => v * 100 + normal() * 100)
     )
@@ -30,7 +30,7 @@ module.exports = function createGenericTest(Model) {
 
     const [xTrain, xTest, labelsTrain, labelsTest] = trainTestSplit(x, labels)
     const model = new Model({ k: centroidsTrue.length })
-    model.fit(xTrain)
+    await model.fit(xTrain)
     model.centroids = orderCentroids(centroidsTrue, model.centroids)
 
     const labelsTrainPred = model.predict(xTrain)
@@ -44,7 +44,7 @@ module.exports = function createGenericTest(Model) {
     let state
 
     while (!state || !state.isFinished) {
-      state = fitStep()
+      state = await fitStep()
     }
 
     expect(tf.memory().numTensors).toBe(0)

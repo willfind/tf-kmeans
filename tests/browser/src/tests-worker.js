@@ -14,7 +14,6 @@ const { TFKMeansMeta } = require("../../..").models
 const { rScore, trainTestSplit } = require("@jrc03c/js-data-science-helpers")
 
 const Bee = require("@jrc03c/bee")
-const pause = require("@jrc03c/pause")
 
 const test = (desc, fn) => fn()
 
@@ -56,10 +55,11 @@ function createGenericTest(progFn) {
 
     const [xTrain, xTest, labelsTrain, labelsTest] = trainTestSplit(x, labels)
     const model = new TFKMeansMeta()
+    const fitStep = model.getFitStepFunction(xTrain, progFn)
+    let state
 
-    while (!model._fitState || !model._fitState.isFinished) {
-      model.fitStep(xTrain, progFn)
-      await pause(0)
+    while (!state || !state.isFinished) {
+      state = await fitStep(xTrain, progFn)
     }
 
     model.centroids = orderCentroids(centroidsTrue, model.centroids)

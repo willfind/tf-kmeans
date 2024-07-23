@@ -13,6 +13,7 @@ const {
 const { isMatrix, isTFTensor } = require("../helpers.js")
 const { KMeansNaive } = require("@jrc03c/js-data-science-helpers").KMeans
 const { sse } = require("../metrics")
+const pause = require("@jrc03c/pause")
 const tf = require("@tensorflow/tfjs")
 
 class TFKMeansNaive extends KMeansNaive {
@@ -62,7 +63,7 @@ class TFKMeansNaive extends KMeansNaive {
       isFinished: false,
     }
 
-    return () => {
+    return async () => {
       try {
         // label data points
         const labels = this.predict(xtf, state.currentCentroids)
@@ -137,8 +138,11 @@ class TFKMeansNaive extends KMeansNaive {
 
           if (progress) {
             progress(1, this)
+            await pause(0)
           }
         } else {
+          this.centroids = state.currentCentroids.arraySync()
+
           if (progress) {
             progress(
               (state.currentRestart +
@@ -146,6 +150,8 @@ class TFKMeansNaive extends KMeansNaive {
                 this.maxRestarts,
               this
             )
+
+            await pause(0)
           }
         }
 
@@ -162,12 +168,12 @@ class TFKMeansNaive extends KMeansNaive {
     }
   }
 
-  fit(x, progress) {
+  async fit(x, progress) {
     const fitStep = this.getFitStepFunction(x, progress)
     let state
 
     while (!state || !state.isFinished) {
-      state = fitStep()
+      state = await fitStep()
     }
 
     return this
