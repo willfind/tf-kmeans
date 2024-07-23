@@ -16,7 +16,7 @@
     "test": "jest --testTimeout=300000"
   },
   "dependencies": {
-    "@jrc03c/js-data-science-helpers": "^0.0.68",
+    "@jrc03c/js-data-science-helpers": "^0.0.72",
     "@jrc03c/js-math-tools": "^0.0.63",
     "@jrc03c/pause": "^0.0.2",
     "@tensorflow/tfjs": "^4.1.0",
