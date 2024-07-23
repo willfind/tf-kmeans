@@ -3,7 +3,7 @@
   "name": "@willfind/tf-kmeans",
   "description": "my silly attempt to implement k-means in tensorflow.js",
   "author": "jrc03c",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "ISC",
   "repository": {
     "type": "git",
