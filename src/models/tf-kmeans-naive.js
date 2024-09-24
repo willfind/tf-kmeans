@@ -82,7 +82,9 @@ class TFKMeansNaive extends KMeansNaive {
           if (indices.length === 0) {
             temp.push(
               add(
-                currentCentroids[parseInt(random() * currentCentroids.length)],
+                currentCentroids[
+                  Math.floor(random() * currentCentroids.length)
+                ],
                 scale(0.01, normal(x[0].length))
               )
             )

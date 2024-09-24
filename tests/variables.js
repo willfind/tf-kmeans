@@ -8,6 +8,8 @@ const variables = [
   1,
   2.3,
   -2.3,
+  234n,
+  -234n,
   Infinity,
   -Infinity,
   NaN,

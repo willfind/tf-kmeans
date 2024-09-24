@@ -31,7 +31,9 @@ function isTFTensor(x) {
 }
 
 function isWholeNumber(x) {
-  return isNumber(x) && parseInt(x) === x && x >= 0
+  return (
+    isNumber(x) && Math.floor(Number(x)) === Number(x) && x >= 0 && x < Infinity
+  )
 }
 
 function orderCentroids(cTrue, cPred) {
