@@ -16,6 +16,7 @@ const {
   sqrt,
   subtract,
   sum,
+  time,
   zeros,
 } = require("@jrc03c/js-math-tools")
 
@@ -68,6 +69,12 @@ test("tests that the `accuracy` function computes scores correctly", () => {
     expect(accuracy(c, d)).toBeCloseTo(slowAccuracy(c, d))
   })
 
+  const eInts = round(random(100))
+  const fInts = round(random(100))
+  const eBigInts = eInts.map(v => BigInt(v))
+  const fBigInts = fInts.map(v => BigInt(v))
+  expect(accuracy(eInts, fInts)).toBeCloseTo(accuracy(eBigInts, fBigInts))
+
   expect(tf.memory().numTensors).toBe(0)
   expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
@@ -86,6 +93,12 @@ test("tests that the `rScore` function computes scores correctly", () => {
     const d = random() < 0.5 ? normal(tempShape) : null
     expect(rScore(b, c, d)).toBeCloseTo(slowRScore(b, c, d))
   })
+
+  const eInts = normal([100, 5]).map(row => row.map(v => Math.round(v)))
+  const fInts = normal([100, 5]).map(row => row.map(v => Math.round(v)))
+  const eBigInts = eInts.map(row => row.map(v => BigInt(v)))
+  const fBigInts = fInts.map(row => row.map(v => BigInt(v)))
+  expect(rScore(eInts, fInts)).toBeCloseTo(rScore(eBigInts, fBigInts))
 
   expect(tf.memory().numTensors).toBe(0)
   expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
@@ -106,6 +119,12 @@ test("tests that the `rSquared` function computes scores correctly", () => {
     expect(rSquared(b, c, d)).toBeCloseTo(slowRSquared(b, c, d))
   })
 
+  const eInts = normal([100, 5]).map(row => row.map(v => Math.round(v)))
+  const fInts = normal([100, 5]).map(row => row.map(v => Math.round(v)))
+  const eBigInts = eInts.map(row => row.map(v => BigInt(v)))
+  const fBigInts = fInts.map(row => row.map(v => BigInt(v)))
+  expect(rSquared(eInts, fInts)).toBeCloseTo(rSquared(eBigInts, fBigInts))
+
   expect(tf.memory().numTensors).toBe(0)
   expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
@@ -123,6 +142,12 @@ test("tests that the `sse` function computes scores correctly", () => {
     const c = normal(tempShape)
     expect(sse(b, c)).toBeCloseTo(slowSse(b, c))
   })
+
+  const eInts = normal([100, 5]).map(row => row.map(v => Math.round(v)))
+  const fInts = normal([100, 5]).map(row => row.map(v => Math.round(v)))
+  const eBigInts = eInts.map(row => row.map(v => BigInt(v)))
+  const fBigInts = fInts.map(row => row.map(v => BigInt(v)))
+  expect(sse(eInts, fInts)).toBeCloseTo(sse(eBigInts, fBigInts))
 
   expect(tf.memory().numTensors).toBe(0)
   expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
@@ -153,6 +178,8 @@ test("tests that the `accuracy` function throws errors when given invalid data t
     1,
     2.3,
     -2.3,
+    234n,
+    -234n,
     Infinity,
     -Infinity,
     NaN,
@@ -202,6 +229,8 @@ test("tests that the `rScore` function throws errors when given invalid data typ
     1,
     2.3,
     -2.3,
+    234n,
+    -234n,
     Infinity,
     -Infinity,
     NaN,
@@ -251,6 +280,8 @@ test("tests that the `rSquared` function throws errors when given invalid data t
     1,
     2.3,
     -2.3,
+    234n,
+    -234n,
     Infinity,
     -Infinity,
     NaN,
@@ -300,6 +331,8 @@ test("tests that the `sse` function throws errors when given invalid data types"
     1,
     2.3,
     -2.3,
+    234n,
+    -234n,
     Infinity,
     -Infinity,
     NaN,
@@ -322,4 +355,36 @@ test("tests that the `sse` function throws errors when given invalid data types"
 
   expect(tf.memory().numTensors).toBe(0)
   expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
+})
+
+test("tests that the `accuracy` function is faster than the `slowAccuracy` function", () => {
+  const ytrue = round(random(10000))
+  const ypred = round(random(10000))
+  const t1 = time(() => accuracy(ytrue, ypred))
+  const t2 = time(() => slowAccuracy(ytrue, ypred))
+  expect(t1).toBeLessThanOrEqual(t2)
+})
+
+test("tests that the `rScore` function is faster than the `slowRScore` function", () => {
+  const ytrue = normal([1000, 10])
+  const ypred = normal([1000, 10])
+  const t1 = time(() => rScore(ytrue, ypred))
+  const t2 = time(() => slowRScore(ytrue, ypred))
+  expect(t1).toBeLessThanOrEqual(t2)
+})
+
+test("tests that the `rSquared` function is faster than the `slowRSquared` function", () => {
+  const ytrue = normal([1000, 10])
+  const ypred = normal([1000, 10])
+  const t1 = time(() => rSquared(ytrue, ypred))
+  const t2 = time(() => slowRSquared(ytrue, ypred))
+  expect(t1).toBeLessThanOrEqual(t2)
+})
+
+test("tests that the `sse` function is faster than the `slowSse` function", () => {
+  const ytrue = normal([1000, 10])
+  const ypred = normal([1000, 10])
+  const t1 = time(() => sse(ytrue, ypred))
+  const t2 = time(() => slowSse(ytrue, ypred))
+  expect(t1).toBeLessThanOrEqual(t2)
 })
