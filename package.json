@@ -16,17 +16,17 @@
     "test": "jest --testTimeout=300000"
   },
   "dependencies": {
-    "@jrc03c/js-data-science-helpers": "^0.0.72",
-    "@jrc03c/js-math-tools": "^0.0.63",
+    "@jrc03c/js-data-science-helpers": "^0.0.78",
+    "@jrc03c/js-math-tools": "^0.0.81",
     "@jrc03c/pause": "^0.0.2",
     "@tensorflow/tfjs": "^4.1.0",
     "@tensorflow/tfjs-node": "^4.2.0"
   },
   "devDependencies": {
-    "@jrc03c/bee": "^0.0.36",
-    "@jrc03c/js-convex-hull": "^0.0.11",
+    "@jrc03c/bee": "^0.0.45",
+    "@jrc03c/js-convex-hull": "^0.0.13",
     "@jrc03c/progress": "^0.0.2",
-    "@jrc03c/watch": "^0.0.12",
+    "@jrc03c/watch": "^0.0.15",
     "esbuild": "^0.15.9",
     "eslint": "^8.24.0",
     "jest": "^29.3.1",

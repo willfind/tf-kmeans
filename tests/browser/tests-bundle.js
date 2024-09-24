@@ -1,5 +1,7 @@
 (() => {
+  var __defProp = Object.defineProperty;
   var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
     get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
   }) : x)(function(x) {
@@ -9,6 +11,10 @@
   });
   var __commonJS = (cb, mod) => function __require2() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+  var __publicField = (obj, key, value) => {
+    __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
   };
 
   // node_modules/@jrc03c/js-text-tools/src/camelify.js
@@ -253,7 +259,7 @@
   var require_is_number = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/is-number.js"(exports, module) {
       function isNumber(x) {
-        return typeof x === "number" && !isNaN(x);
+        return typeof x === "number" && !isNaN(x) || typeof x === "bigint";
       }
       module.exports = isNumber;
     }
@@ -481,6 +487,74 @@
     }
   });
 
+  // node_modules/@jrc03c/js-math-tools/src/is-nested.js
+  var require_is_nested = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/is-nested.js"(exports, module) {
+      var assert = require_assert();
+      var isArray = require_is_array();
+      var isDataFrame = require_is_dataframe();
+      var isSeries = require_is_series();
+      function isNested(x) {
+        if (isDataFrame(x) || isSeries(x)) {
+          return isNested(x.values);
+        }
+        assert(
+          isArray(x),
+          "The `isNested` function only works on arrays, Series, and DataFrames!"
+        );
+        for (let i = 0; i < x.length; i++) {
+          if (isArray(x[i])) {
+            return true;
+          }
+        }
+        return false;
+      }
+      module.exports = isNested;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/ndarray.js
+  var require_ndarray = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/ndarray.js"(exports, module) {
+      var assert = require_assert();
+      var isArray = require_is_array();
+      var isNested = require_is_nested();
+      var isNumber = require_is_number();
+      var isUndefined = require_is_undefined();
+      var error = "You must pass a natural number or a one-dimensional array of natural numbers into the `ndarray` function!";
+      function ndarray(shape) {
+        assert(!isUndefined(shape), error);
+        if (!isArray(shape))
+          shape = [shape];
+        assert(!isNested(shape), error);
+        assert(shape.length > 0, error);
+        let s = shape[0];
+        if (typeof s === "bigint")
+          s = Number(s);
+        assert(isNumber(s), error);
+        assert(s >= 0, error);
+        assert(Math.floor(s) === s, error);
+        assert(
+          s !== Infinity,
+          "We can't create an array containing an infinite number of values!"
+        );
+        if (shape.length === 1) {
+          const out = [];
+          for (let i = 0; i < s; i++)
+            out.push(void 0);
+          return out;
+        } else {
+          const out = [];
+          for (let i = 0; i < s; i++) {
+            out.push(ndarray(shape.slice(1)));
+          }
+          return out;
+        }
+      }
+      module.exports = ndarray;
+    }
+  });
+
   // node_modules/@jrc03c/js-math-tools/src/flatten.js
   var require_flatten = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/flatten.js"(exports, module) {
@@ -513,6 +587,248 @@
     }
   });
 
+  // node_modules/@jrc03c/js-math-tools/src/product.js
+  var require_product = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/product.js"(exports, module) {
+      var assert = require_assert();
+      var flatten = require_flatten();
+      var isArray = require_is_array();
+      var isDataFrame = require_is_dataframe();
+      var isNumber = require_is_number();
+      var isSeries = require_is_series();
+      function product(arr, shouldDropNaNs) {
+        if (isDataFrame(arr) || isSeries(arr)) {
+          return product(arr.values, shouldDropNaNs);
+        }
+        assert(
+          isArray(arr),
+          "The `product` function only works on arrays, Series, and DataFrames!"
+        );
+        try {
+          if (arr.length === 0)
+            return NaN;
+          const temp = flatten(arr);
+          let resultShouldBeABigInt = false;
+          let out = 1;
+          for (let v of temp) {
+            if (!isNumber(v)) {
+              if (shouldDropNaNs) {
+                v = 1;
+              } else {
+                return NaN;
+              }
+            }
+            if (typeof v === "bigint") {
+              resultShouldBeABigInt = true;
+              v = Number(v);
+            }
+            out *= v;
+          }
+          if (resultShouldBeABigInt) {
+            try {
+              return BigInt(out);
+            } catch (e) {
+            }
+          }
+          return out;
+        } catch (e) {
+          return NaN;
+        }
+      }
+      module.exports = product;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/helpers/is-integer.js
+  var require_is_integer = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/helpers/is-integer.js"(exports, module) {
+      var isNumber = require_is_number();
+      function isInteger(x) {
+        return isNumber(x) && (x >= 0 ? Math.floor(x) === x : Math.ceil(x) === x);
+      }
+      module.exports = isInteger;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/helpers/is-natural-number.js
+  var require_is_natural_number = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/helpers/is-natural-number.js"(exports, module) {
+      var isInteger = require_is_integer();
+      function isNaturalNumber(x) {
+        return isInteger(x) && x > 0;
+      }
+      module.exports = isNaturalNumber;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/shape.js
+  var require_shape = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/shape.js"(exports, module) {
+      var assert = require_assert();
+      var isArray = require_is_array();
+      var isDataFrame = require_is_dataframe();
+      var isSeries = require_is_series();
+      function helper(x) {
+        if (isArray(x)) {
+          const childShapes = helper(x[0]);
+          return [x.length].concat(childShapes || []);
+        } else {
+          return void 0;
+        }
+      }
+      function shape(x) {
+        if (isDataFrame(x) || isSeries(x)) {
+          return shape(x.values);
+        }
+        assert(
+          isArray(x),
+          "The `shape` function only works on arrays, Series, and DataFrames!"
+        );
+        return helper(x);
+      }
+      module.exports = shape;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/reshape.js
+  var require_reshape = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/reshape.js"(exports, module) {
+      var assert = require_assert();
+      var flatten = require_flatten();
+      var isArray = require_is_array();
+      var isDataFrame = require_is_dataframe();
+      var isNaturalNumber = require_is_natural_number();
+      var isNumber = require_is_number();
+      var isSeries = require_is_series();
+      var product = require_product();
+      var shape = require_shape();
+      function reshape(x, newShape) {
+        if (isDataFrame(x) || isSeries(x)) {
+          return reshape(x.values, newShape);
+        }
+        assert(
+          isArray(x),
+          "The first argument passed into the `reshape` function must be an array!"
+        );
+        if (isNumber(newShape))
+          newShape = [newShape];
+        assert(
+          isArray(newShape),
+          "The second argument passed into the `reshape` function must be a whole number or a one-dimensional array of whole numbers!"
+        );
+        assert(
+          shape(newShape).length === 1,
+          "The first argument passed into the `reshape` function must be a whole number or a one-dimensional array of whole numbers!"
+        );
+        newShape = newShape.map((v) => {
+          if (typeof v === "bigint") {
+            v = Number(v);
+          }
+          assert(
+            isNaturalNumber(v),
+            "The first argument passed into the `reshape` function must be a whole number or a one-dimensional array of whole numbers!"
+          );
+          return Number(v);
+        });
+        if (newShape.length === 0) {
+          return flatten(x);
+        }
+        const temp = flatten(x);
+        if (newShape.length === 1 && newShape[0] === temp.length) {
+          return temp;
+        }
+        assert(
+          product(newShape) === temp.length,
+          "The new shape doesn't match the number of values available in `x` (the first argument passed into the `reshape` function)!"
+        );
+        const out = [];
+        const step = Math.floor(temp.length / newShape[0]);
+        for (let i = 0; i < newShape[0]; i++) {
+          const row = temp.slice(i * step, (i + 1) * step);
+          out.push(reshape(row, newShape.slice(1)));
+        }
+        return out;
+      }
+      module.exports = reshape;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/random.js
+  var require_random = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/random.js"(exports, module) {
+      var { copy } = require_copy();
+      var assert = require_assert();
+      var isArray = require_is_array();
+      var isNumber = require_is_number();
+      var isUndefined = require_is_undefined();
+      var ndarray = require_ndarray();
+      var product = require_product();
+      var reshape = require_reshape();
+      var MAX = Math.pow(2, 64);
+      var s = [];
+      seed(Math.floor(Math.random() * MAX));
+      function splitmix64(state, n) {
+        state = uint(state);
+        function helper() {
+          state += uint("0x9e3779b97f4a7c15");
+          let z = copy(state);
+          z = (z ^ z >> BigInt(30)) * uint("0xbf58476d1ce4e5b9");
+          z = (z ^ z >> BigInt(27)) * uint("0x94d049bb133111eb");
+          return z ^ z >> BigInt(31);
+        }
+        const out = [];
+        for (let i = 0; i < n; i++)
+          out.push(helper());
+        return out;
+      }
+      function uint(x) {
+        return BigInt.asUintN(64, BigInt(x));
+      }
+      function rotl(x, k) {
+        x = uint(x);
+        k = BigInt(k);
+        return uint(uint(x << k) | uint(x >> uint(BigInt(64) - k)));
+      }
+      function seed(val) {
+        if (typeof val === "bigint") {
+          val = Number(val);
+        }
+        if (!isUndefined(val)) {
+          assert(
+            isNumber(val),
+            "If passing a value into the `seed` function, then that value must be an integer!"
+          );
+          const temp = splitmix64(Math.floor(val), 4);
+          s[0] = temp[0];
+          s[1] = temp[1];
+          s[2] = temp[2];
+          s[3] = temp[3];
+        } else {
+          return copy(s);
+        }
+      }
+      function next() {
+        const result = uint(rotl(s[0] + s[3], 23) + s[0]);
+        const t = uint(s[1] << BigInt(17));
+        s[2] = uint(s[2] ^ s[0]);
+        s[3] = uint(s[3] ^ s[1]);
+        s[1] = uint(s[1] ^ s[2]);
+        s[0] = uint(s[0] ^ s[3]);
+        s[2] = uint(s[2] ^ t);
+        s[3] = rotl(s[3], 45);
+        return Math.floor(Number(result)) / MAX;
+      }
+      function random(shape) {
+        if (isUndefined(shape))
+          return next();
+        if (!isArray(shape))
+          shape = [shape];
+        return reshape(ndarray(product(shape)).map(next), shape);
+      }
+      module.exports = { random, seed };
+    }
+  });
+
   // node_modules/@jrc03c/js-math-tools/src/is-date.js
   var require_is_date = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/is-date.js"(exports, module) {
@@ -529,23 +845,27 @@
       var { decycle } = require_copy();
       var isArray = require_is_array();
       var isDate = require_is_date();
+      var numberTypes = ["number", "int", "float", "bigint"];
       function isEqual(a, b) {
         function helper(a2, b2) {
           const aType = typeof a2;
           const bType = typeof b2;
-          if (aType !== bType)
+          if (aType !== bType && !numberTypes.includes(aType) && !numberTypes.includes(bType))
             return false;
-          if (aType === "undefined")
+          if (aType === "undefined" && bType === "undefined")
             return true;
           if (aType === "boolean")
             return a2 === b2;
           if (aType === "symbol")
             return a2 === b2;
           if (aType === "number" || aType === "bigint") {
-            if (a2.toString() === "NaN" && b2.toString() === "NaN") {
-              return true;
+            try {
+              const aString = a2.toString();
+              const bString = b2.toString();
+              return aString === bString;
+            } catch (e) {
+              return false;
             }
-            return a2 === b2;
           }
           if (aType === "string")
             return a2 === b2;
@@ -593,11 +913,9 @@
     }
   });
 
-  // node_modules/@jrc03c/js-math-tools/src/set.js
-  var require_set = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/set.js"(exports, module) {
-      var assert = require_assert();
-      var flatten = require_flatten();
+  // node_modules/@jrc03c/js-math-tools/src/helpers/counter.js
+  var require_counter = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/helpers/counter.js"(exports, module) {
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isFunction = require_is_function();
@@ -607,74 +925,226 @@
         const alpha = "abcdefg1234567890";
         let out = "";
         while (out.length < n)
-          out += alpha[parseInt(Math.random() * alpha.length)];
+          out += alpha[Math.floor(Math.random() * alpha.length)];
         return out;
       }
-      var NULL_KEY = makeKey(256);
-      var UNDEFINED_KEY = makeKey(256);
-      var INFINITY_KEY = makeKey(256);
-      var MINUS_INFINITY_KEY = makeKey(256);
-      var SYMBOL_KEY = makeKey(256);
-      function set(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return set(arr.values);
+      var NULL_KEY = makeKey(16);
+      var UNDEFINED_KEY = makeKey(16);
+      var INFINITY_KEY = makeKey(16);
+      var MINUS_INFINITY_KEY = makeKey(16);
+      var SYMBOL_KEY = makeKey(16);
+      var Counter = class {
+        constructor() {
+          this.clear();
         }
-        assert(
-          isArray(arr),
-          "The `set` function only works on arrays, Series, and DataFrames!"
-        );
-        const out = [];
-        const temp = {};
-        flatten(arr).forEach((item) => {
-          const key = typeof item === "object" && item === null ? NULL_KEY : isUndefined(item) ? UNDEFINED_KEY : isFunction(item) ? item.toString() : typeof item === "symbol" ? item.toString() + " - " + SYMBOL_KEY : item === Infinity ? INFINITY_KEY : item === -Infinity ? MINUS_INFINITY_KEY : isDataFrame(item) ? item.toJSONString() : isSeries(item) ? JSON.stringify(item.toObject()) : JSON.stringify(item);
-          if (!temp[key])
-            out.push(item);
-          temp[key] = true;
-        });
+        get counts() {
+          return this.values.map((v) => this.get(v));
+        }
+        get values() {
+          return Object.values(this.valuesDict);
+        }
+        clear() {
+          this.countsDict = {};
+          this.valuesDict = {};
+          return this;
+        }
+        count(x) {
+          for (const v of x) {
+            if (isArray(v)) {
+              this.count(v);
+            } else {
+              this.increment(v);
+            }
+          }
+          return this;
+        }
+        delete(value) {
+          const key = this.getStandardizedKey(value);
+          delete this.countsDict[key];
+          delete this.valuesDict[key];
+          return this;
+        }
+        get(value) {
+          return this.countsDict[this.getStandardizedKey(value)] || 0;
+        }
+        getStandardizedKey(value) {
+          return typeof value === "object" && value === null ? NULL_KEY : isUndefined(value) ? UNDEFINED_KEY : isFunction(value) ? value.toString() : typeof value === "symbol" ? value.toString() + " - " + SYMBOL_KEY : value === Infinity ? INFINITY_KEY : value === -Infinity ? MINUS_INFINITY_KEY : typeof value === "bigint" ? value.toString() : isDataFrame(value) ? value.toJSONString() : isSeries(value) ? JSON.stringify(value.toObject()) : JSON.stringify(value);
+        }
+        has(value) {
+          return !isUndefined(this.countsDict[this.getStandardizedKey(value)]);
+        }
+        increment(value) {
+          return this.set(value, this.get(value) + 1);
+        }
+        set(value, count) {
+          const key = this.getStandardizedKey(value);
+          this.countsDict[key] = count;
+          this.valuesDict[key] = value;
+          return this;
+        }
+        toArray() {
+          return this.values.map((v) => ({ value: v, count: this.get(v) }));
+        }
+        toObject() {
+          const out = {};
+          this.values.forEach((value) => {
+            out[value] = this.get(value);
+          });
+          return out;
+        }
+      };
+      module.exports = Counter;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/stats.js
+  var require_stats = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/stats.js"(exports, module) {
+      var Counter = require_counter();
+      var flatten = require_flatten();
+      var isNumber = require_is_number();
+      function stats(x, options) {
+        options = options || {};
+        const counts = new Counter();
+        const out = {};
+        const xflat = flatten(x);
+        const xnums = [];
+        let max = -Infinity;
+        let min = Infinity;
+        let resultsShouldIncludeBigInts = false;
+        let sum = 0;
+        for (const v of xflat) {
+          if (typeof v === "bigint") {
+            resultsShouldIncludeBigInts = true;
+          }
+          if (!options.shouldDropNaNs || isNumber(v)) {
+            try {
+              if (v > max) {
+                max = v;
+              }
+              if (v < min) {
+                min = v;
+              }
+              sum += Number(v);
+              xnums.push(v);
+            } catch (e) {
+              max = NaN;
+              min = NaN;
+              sum = NaN;
+            }
+          }
+          counts.increment(v);
+        }
+        const mean = sum / xnums.length;
+        out.counts = counts;
+        out.max = max;
+        out.mean = mean;
+        out.min = min;
+        out.n = xflat.length;
+        out.sum = sum;
+        if (isNaN(out.mean)) {
+          out.max = NaN;
+          out.min = NaN;
+        }
+        if (options.shouldDropNaNs) {
+          out.nWithoutNaNs = xnums.length;
+        }
+        if (options.mode) {
+          const sortedCountPairs = Array.from(
+            counts.values.map((v) => [v, counts.get(v)])
+          ).toSorted((a, b) => b[1] - a[1]);
+          const highestCount = sortedCountPairs[0][1];
+          const mode = [];
+          for (const pair of sortedCountPairs) {
+            if (pair[1] == highestCount) {
+              mode.push(pair[0]);
+            } else {
+              break;
+            }
+          }
+          out.mode = mode.toSorted();
+        }
+        if (options.median) {
+          if (isNaN(mean)) {
+            out.median = NaN;
+          } else {
+            const xnumsSorted = xnums.toSorted((a, b) => Number(a) - Number(b));
+            const middle = Math.floor(xnumsSorted.length / 2);
+            if (xnumsSorted.length % 2 === 0) {
+              const left = xnumsSorted[middle - 1];
+              const right = xnumsSorted[middle];
+              out.median = (Number(left) + Number(right)) / 2;
+              if (resultsShouldIncludeBigInts && typeof left === "bigint" && typeof right === "bigint") {
+                try {
+                  out.median = BigInt(out.median);
+                } catch (e) {
+                }
+              }
+            } else {
+              out.median = xnumsSorted[middle];
+            }
+          }
+        }
+        if (options.stdev || options.variance) {
+          let variance = 0;
+          for (const v of xnums) {
+            variance += Math.pow(Number(v) - mean, 2);
+          }
+          variance /= xnums.length;
+          const stdev = Math.sqrt(variance);
+          out.stdev = stdev;
+          out.variance = variance;
+        }
+        if (resultsShouldIncludeBigInts) {
+          try {
+            out.sum = BigInt(out.sum);
+          } catch (e) {
+          }
+          try {
+            out.mean = BigInt(out.mean);
+          } catch (e) {
+          }
+          if (options.mode) {
+            out.mode = out.mode.map((v) => {
+              try {
+                return BigInt(v);
+              } catch (e) {
+                return v;
+              }
+            });
+          }
+        }
         return out;
       }
-      module.exports = set;
+      module.exports = stats;
     }
   });
 
   // node_modules/@jrc03c/js-math-tools/src/count.js
   var require_count = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/count.js"(exports, module) {
-      var assert = require_assert();
-      var flatten = require_flatten();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
       var isEqual = require_is_equal();
       var isFunction = require_is_function();
-      var isSeries = require_is_series();
-      var set = require_set();
+      var isUndefined = require_is_undefined();
+      var stats = require_stats();
       function count(arr, matcher) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          if (arguments.length > 1) {
-            return count(arr.values, matcher);
+        const { counts } = stats(arr);
+        if (!isUndefined(matcher)) {
+          if (isFunction(matcher)) {
+            counts.values.forEach((v) => {
+              if (!matcher(v)) {
+                counts.delete(v);
+              }
+            });
           } else {
-            return count(arr.values, arr.values);
+            counts.values.forEach((v) => {
+              if (!isEqual(v, matcher)) {
+                counts.delete(v);
+              }
+            });
           }
         }
-        assert(
-          isArray(arr),
-          "The first argument to the `count` function must be an array, Series, or DataFrame!"
-        );
-        if (isFunction(matcher)) {
-          return flatten(arr).filter((value) => matcher(value)).length;
-        } else if (isArray(matcher)) {
-          const temp = flatten(arr);
-          return set(matcher).map((value) => {
-            return {
-              value,
-              count: temp.filter((v) => isEqual(v, value)).length
-            };
-          });
-        } else if (arguments.length > 1) {
-          return flatten(arr).filter((other) => isEqual(other, matcher)).length;
-        } else {
-          return count(arr, arr);
-        }
+        return counts;
       }
       module.exports = count;
     }
@@ -683,105 +1153,43 @@
   // node_modules/@jrc03c/js-math-tools/src/is-jagged.js
   var require_is_jagged = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/is-jagged.js"(exports, module) {
-      var assert = require_assert();
+      var { decycle } = require_copy();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isSeries = require_is_series();
-      function isJagged(x) {
+      function helper(x) {
         if (isDataFrame(x) || isSeries(x)) {
-          return isJagged(x.values);
+          return helper(x.values);
         }
-        assert(
-          isArray(x),
-          "The `isJagged` function only works on arrays, Series, and DataFrames!"
-        );
-        let childArrayCount = 0;
-        let firstChildArrayLength = null;
-        for (let i = 0; i < x.length; i++) {
-          if (isArray(x[i])) {
-            childArrayCount++;
-            if (isJagged(x[i])) {
+        if (isArray(x)) {
+          let hasArrayValues = false;
+          let hasNonArrayValues = false;
+          let arrayLength = null;
+          for (const v of x) {
+            if (helper(v)) {
               return true;
             }
-            if (firstChildArrayLength === null) {
-              firstChildArrayLength = x[i].length;
-            } else if (x[i].length !== firstChildArrayLength) {
+            if (isArray(v)) {
+              if (arrayLength === null) {
+                arrayLength = v.length;
+              } else if (v.length !== arrayLength) {
+                return true;
+              }
+              hasArrayValues = true;
+            } else {
+              hasNonArrayValues = true;
+            }
+            if (hasArrayValues && hasNonArrayValues) {
               return true;
             }
           }
         }
-        if (childArrayCount > 0 && childArrayCount < x.length) {
-          return true;
-        }
         return false;
+      }
+      function isJagged(x) {
+        return helper(decycle(x));
       }
       module.exports = isJagged;
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/is-nested.js
-  var require_is_nested = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/is-nested.js"(exports, module) {
-      var assert = require_assert();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isSeries = require_is_series();
-      function isNested(x) {
-        if (isDataFrame(x) || isSeries(x)) {
-          return isNested(x.values);
-        }
-        assert(
-          isArray(x),
-          "The `isNested` function only works on arrays, Series, and DataFrames!"
-        );
-        for (let i = 0; i < x.length; i++) {
-          if (isArray(x[i])) {
-            return true;
-          }
-        }
-        return false;
-      }
-      module.exports = isNested;
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/ndarray.js
-  var require_ndarray = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/ndarray.js"(exports, module) {
-      var assert = require_assert();
-      var isArray = require_is_array();
-      var isNested = require_is_nested();
-      var isNumber = require_is_number();
-      var isUndefined = require_is_undefined();
-      var error = "You must pass a natural number or a one-dimensional array of natural numbers into the `ndarray` function!";
-      function ndarray(shape) {
-        assert(!isUndefined(shape), error);
-        if (!isArray(shape))
-          shape = [shape];
-        assert(!isNested(shape), error);
-        assert(shape.length > 0, error);
-        const s = shape[0];
-        assert(isNumber(s), error);
-        assert(parseInt(s) === s, error);
-        assert(s >= 0, error);
-        assert(
-          s !== Infinity,
-          "We can't create an array containing an infinite number of values!"
-        );
-        if (shape.length === 1) {
-          const out = [];
-          for (let i = 0; i < s; i++)
-            out.push(void 0);
-          return out;
-        } else {
-          const out = [];
-          for (let i = 0; i < s; i++) {
-            out.push(ndarray(shape.slice(1)));
-          }
-          return out;
-        }
-      }
-      module.exports = ndarray;
     }
   });
 
@@ -833,6 +1241,10 @@
           "The step value must be greater than 0! (NOTE: The step value is a magnitude; it does not indicate direction.)"
         );
         let shouldReverse = false;
+        const shouldIncludeBigInts = typeof a === "bigint" || typeof b === "bigint" || typeof step === "bigint";
+        a = Number(a);
+        b = Number(b);
+        step = Number(step);
         if (a > b) {
           shouldReverse = true;
           const buffer = a;
@@ -840,8 +1252,17 @@
           b = buffer + step;
         }
         let out = [];
-        for (let i = a; i < b; i += step)
-          out.push(i);
+        for (let i = a; i < b; i += step) {
+          if (shouldIncludeBigInts) {
+            try {
+              out.push(BigInt(i));
+            } catch (e) {
+              out.push(i);
+            }
+          } else {
+            out.push(i);
+          }
+        }
         if (shouldReverse)
           out = reverse(out);
         return out;
@@ -850,64 +1271,47 @@
     }
   });
 
-  // node_modules/@jrc03c/js-math-tools/src/shape.js
-  var require_shape = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/shape.js"(exports, module) {
+  // node_modules/@jrc03c/js-math-tools/src/set.js
+  var require_set = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/set.js"(exports, module) {
       var assert = require_assert();
+      var flatten = require_flatten();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
-      var isEqual = require_is_equal();
+      var isFunction = require_is_function();
       var isSeries = require_is_series();
       var isUndefined = require_is_undefined();
-      function helper(x) {
-        if (!isArray(x)) {
-          return void 0;
-        }
-        const out = [x.length];
-        let childArrayCount = 0;
-        const childShapes = x.map((v) => {
-          const s = helper(v);
-          if (!isUndefined(s)) {
-            childArrayCount++;
-            if (s.length === 1) {
-              return s[0];
-            } else {
-              return s;
-            }
-          } else {
-            return s;
-          }
-        });
-        if (childArrayCount > 0) {
-          if (childArrayCount === x.length) {
-            const childShapesAreIdentical = childShapes.slice(0, -1).every((s, i) => {
-              return isEqual(s, childShapes[i + 1]);
-            });
-            if (childShapesAreIdentical) {
-              return out.concat(childShapes[0]);
-            } else {
-              out.push(childShapes);
-              return out;
-            }
-          } else {
-            out.push(childShapes);
-            return out;
-          }
-        } else {
-          return out;
-        }
+      function makeKey(n) {
+        const alpha = "abcdefg1234567890";
+        let out = "";
+        while (out.length < n)
+          out += alpha[Math.floor(Math.random() * alpha.length)];
+        return out;
       }
-      function shape(x) {
-        if (isDataFrame(x) || isSeries(x)) {
-          return shape(x.values);
+      var NULL_KEY = makeKey(256);
+      var UNDEFINED_KEY = makeKey(256);
+      var INFINITY_KEY = makeKey(256);
+      var MINUS_INFINITY_KEY = makeKey(256);
+      var SYMBOL_KEY = makeKey(256);
+      function set(arr) {
+        if (isDataFrame(arr) || isSeries(arr)) {
+          return set(arr.values);
         }
         assert(
-          isArray(x),
-          "The `shape` function only works on arrays, Series, and DataFrames!"
+          isArray(arr),
+          "The `set` function only works on arrays, Series, and DataFrames!"
         );
-        return helper(x);
+        const out = [];
+        const temp = {};
+        flatten(arr).forEach((item) => {
+          const key = typeof item === "object" && item === null ? NULL_KEY : isUndefined(item) ? UNDEFINED_KEY : isFunction(item) ? item.toString() : typeof item === "symbol" ? item.toString() + " - " + SYMBOL_KEY : item === Infinity ? INFINITY_KEY : item === -Infinity ? MINUS_INFINITY_KEY : typeof item === "bigint" ? item.toString() : isDataFrame(item) ? item.toJSONString() : isSeries(item) ? JSON.stringify(item.toObject()) : JSON.stringify(item);
+          if (!temp[key])
+            out.push(item);
+          temp[key] = true;
+        });
+        return out;
       }
-      module.exports = shape;
+      module.exports = set;
     }
   });
 
@@ -1311,10 +1715,7 @@
   // node_modules/@jrc03c/js-math-tools/src/helpers/is-whole-number.js
   var require_is_whole_number = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/helpers/is-whole-number.js"(exports, module) {
-      var isNumber = require_is_number();
-      function isInteger(x) {
-        return isNumber(x) && parseInt(x) === x;
-      }
+      var isInteger = require_is_integer();
       function isWholeNumber(x) {
         return isInteger(x) && x >= 0;
       }
@@ -1535,20 +1936,24 @@
         const index = arrayToObject(out.index);
         const columns = arrayToObject(out.columns);
         if (axis === 0) {
+          let count = 0;
           const newValues = out.values.filter((row, i) => {
             const series = new Series(row);
             series.name = df.index[i];
             series.index = df.columns;
             const shouldKeep = fn(series, i, df);
-            if (!shouldKeep)
+            if (shouldKeep) {
+              count++;
+            } else {
               delete index[out.index[i]];
+            }
             return shouldKeep;
           });
-          if (flatten(newValues).length === 0) {
+          if (count === 0) {
             return new DataFrame();
           }
-          if (newValues.length === 1) {
-            const temp = new Series(flatten(newValues));
+          if (count === 1) {
+            const temp = new Series(newValues[0]);
             temp.name = undoArrayToObject(index)[0];
             temp.index = undoArrayToObject(columns);
             return temp;
@@ -1557,20 +1962,24 @@
           out.index = undoArrayToObject(index);
         } else if (axis === 1) {
           out = out.transpose();
+          let count = 0;
           const newValues = out.values.filter((row, i) => {
             const series = new Series(row);
             series.name = df.columns[i];
             series.index = df.index;
             const shouldKeep = fn(series, i, df);
-            if (!shouldKeep)
+            if (shouldKeep) {
+              count++;
+            } else {
               delete columns[out.index[i]];
+            }
             return shouldKeep;
           });
-          if (flatten(newValues).length === 0) {
+          if (count === 0) {
             return new DataFrame();
           }
-          if (newValues.length === 1) {
-            const temp = new Series(flatten(newValues));
+          if (count === 1) {
+            const temp = new Series(newValues[0]);
             temp.name = undoArrayToObject(columns)[0];
             temp.index = undoArrayToObject(index);
             return temp;
@@ -1598,6 +2007,16 @@
           rows = [rows];
         if (isString(cols) || isNumber(cols))
           cols = [cols];
+        for (const i in rows) {
+          if (typeof rows[i] === "bigint") {
+            rows[i] = Number(rows[i]);
+          }
+        }
+        for (const i in cols) {
+          if (typeof cols[i] === "bigint") {
+            cols[i] = Number(cols[i]);
+          }
+        }
         const types = set((rows || []).concat(cols || []).map((v) => typeof v));
         assert(
           types.length <= 2,
@@ -1627,7 +2046,7 @@
             }
             if (isNumber(r)) {
               assert(r >= 0, `Index ${r} is out of bounds!`);
-              assert(parseInt(r) === r, `Row numbers must be integers!`);
+              assert(Math.floor(r) === r, `Row numbers must be integers!`);
               assert(r < df.index.length, `Index ${r} is out of bounds!`);
               return df.index[r];
             }
@@ -1641,7 +2060,7 @@
             }
             if (isNumber(c)) {
               assert(c >= 0, `Column ${c} is out of bounds!`);
-              assert(parseInt(c) === c, `Column numbers must be integers!`);
+              assert(Math.floor(c) === c, `Column numbers must be integers!`);
               assert(c < df.columns.length, `Column ${c} is out of bounds!`);
               return df.columns[c];
             }
@@ -1832,7 +2251,6 @@
   var require_df_get_subset_by_names = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/dataframe/df-get-subset-by-names.js"(exports, module) {
       var assert = require_assert();
-      var flatten = require_flatten();
       var isArray = require_is_array();
       var isString = require_is_string();
       var isUndefined = require_is_undefined();
@@ -1888,16 +2306,16 @@
           });
         });
         if (rows.length === 1 && cols.length === 1) {
-          return flatten(values)[0];
+          return values[0][0];
         }
         if (rows.length === 1) {
-          const out2 = new Series(flatten(values));
+          const out2 = new Series(values[0]);
           out2.name = rows[0];
           out2.index = cols;
           return out2;
         }
         if (cols.length === 1) {
-          const out2 = new Series(flatten(values));
+          const out2 = new Series(values.map((v) => v[0]));
           out2.name = cols[0];
           out2.index = rows;
           return out2;
@@ -1934,9 +2352,9 @@
           return df;
         }
         const maxRows = typeof window === "undefined" ? 20 : 10;
-        const halfMaxRows = parseInt(maxRows / 2);
+        const halfMaxRows = Math.floor(maxRows / 2);
         const maxColumns = typeof process === "undefined" ? 10 : Math.floor(process.stdout.columns / 24) - 1;
-        const halfMaxColumns = parseInt(maxColumns / 2);
+        const halfMaxColumns = Math.floor(maxColumns / 2);
         const tempRows = maxRows > df.index.length ? null : range(0, halfMaxRows).concat(
           range(df.index.length - halfMaxRows, df.index.length)
         );
@@ -2022,165 +2440,6 @@
     }
   });
 
-  // node_modules/@jrc03c/js-math-tools/src/product.js
-  var require_product = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/product.js"(exports, module) {
-      var assert = require_assert();
-      var flatten = require_flatten();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isSeries = require_is_series();
-      function product(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return product(arr.values);
-        }
-        assert(
-          isArray(arr),
-          "The `product` function only works on arrays, Series, and DataFrames!"
-        );
-        try {
-          if (arr.length === 0)
-            return NaN;
-          return flatten(arr).reduce((a, b) => a * b, 1);
-        } catch (e) {
-          return NaN;
-        }
-      }
-      module.exports = product;
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/reshape.js
-  var require_reshape = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/reshape.js"(exports, module) {
-      var assert = require_assert();
-      var flatten = require_flatten();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isNumber = require_is_number();
-      var isSeries = require_is_series();
-      var product = require_product();
-      var shape = require_shape();
-      function reshape(x, newShape) {
-        if (isDataFrame(x) || isSeries(x)) {
-          return reshape(x.values, newShape);
-        }
-        assert(
-          isArray(x),
-          "The first argument passed into the `reshape` function must be an array!"
-        );
-        if (isNumber(newShape))
-          newShape = [newShape];
-        assert(
-          isArray(newShape),
-          "The second argument passed into the `reshape` function must be a whole number or a one-dimensional array of whole numbers!"
-        );
-        assert(
-          shape(newShape).length === 1,
-          "The first argument passed into the `reshape` function must be a whole number or a one-dimensional array of whole numbers!"
-        );
-        newShape.forEach((v) => {
-          assert(
-            isNumber(v) && parseInt(v) === v && v > 0,
-            "The first argument passed into the `reshape` function must be a whole number or a one-dimensional array of whole numbers!"
-          );
-        });
-        if (newShape.length === 0) {
-          return flatten(x);
-        }
-        const temp = flatten(x);
-        if (newShape.length === 1 && newShape[0] === temp.length) {
-          return temp;
-        }
-        assert(
-          product(newShape) === temp.length,
-          "The new shape doesn't match the number of values available in `x` (the first argument passed into the `reshape` function)!"
-        );
-        const out = [];
-        const step = parseInt(temp.length / newShape[0]);
-        for (let i = 0; i < newShape[0]; i++) {
-          const row = temp.slice(i * step, (i + 1) * step);
-          out.push(reshape(row, newShape.slice(1)));
-        }
-        return out;
-      }
-      module.exports = reshape;
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/random.js
-  var require_random = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/random.js"(exports, module) {
-      var { copy } = require_copy();
-      var assert = require_assert();
-      var isArray = require_is_array();
-      var isNumber = require_is_number();
-      var isUndefined = require_is_undefined();
-      var ndarray = require_ndarray();
-      var product = require_product();
-      var reshape = require_reshape();
-      var MAX = Math.pow(2, 64);
-      var s = [];
-      seed(parseInt(Math.random() * MAX));
-      function splitmix64(state, n) {
-        state = uint(state);
-        function helper() {
-          state += uint("0x9e3779b97f4a7c15");
-          let z = copy(state);
-          z = (z ^ z >> BigInt(30)) * uint("0xbf58476d1ce4e5b9");
-          z = (z ^ z >> BigInt(27)) * uint("0x94d049bb133111eb");
-          return z ^ z >> BigInt(31);
-        }
-        const out = [];
-        for (let i = 0; i < n; i++)
-          out.push(helper());
-        return out;
-      }
-      function uint(x) {
-        return BigInt.asUintN(64, BigInt(x));
-      }
-      function rotl(x, k) {
-        x = uint(x);
-        k = BigInt(k);
-        return uint(uint(x << k) | uint(x >> uint(BigInt(64) - k)));
-      }
-      function seed(val) {
-        if (!isUndefined(val)) {
-          assert(
-            isNumber(val),
-            "If passing a value into the `seed` function, then that value must be an integer!"
-          );
-          const temp = splitmix64(parseInt(val), 4);
-          s[0] = temp[0];
-          s[1] = temp[1];
-          s[2] = temp[2];
-          s[3] = temp[3];
-        } else {
-          return copy(s);
-        }
-      }
-      function next() {
-        const result = uint(rotl(s[0] + s[3], 23) + s[0]);
-        const t = uint(s[1] << BigInt(17));
-        s[2] = uint(s[2] ^ s[0]);
-        s[3] = uint(s[3] ^ s[1]);
-        s[1] = uint(s[1] ^ s[2]);
-        s[0] = uint(s[0] ^ s[3]);
-        s[2] = uint(s[2] ^ t);
-        s[3] = rotl(s[3], 45);
-        return parseInt(result) / MAX;
-      }
-      function random(shape) {
-        if (isUndefined(shape))
-          return next();
-        if (!isArray(shape))
-          shape = [shape];
-        return reshape(ndarray(product(shape)).map(next), shape);
-      }
-      module.exports = { random, seed };
-    }
-  });
-
   // node_modules/@jrc03c/js-math-tools/src/shuffle.js
   var require_shuffle = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/shuffle.js"(exports, module) {
@@ -2200,7 +2459,7 @@
         const out = [];
         const temp = arr.slice();
         for (let i = 0; i < arr.length; i++) {
-          const index = parseInt(random() * temp.length);
+          const index = Math.floor(random() * temp.length);
           out.push(temp.splice(index, 1)[0]);
         }
         return out;
@@ -2246,13 +2505,13 @@
     "node_modules/@jrc03c/js-math-tools/src/dataframe/df-sort.js"(exports, module) {
       var { random } = require_random();
       var assert = require_assert();
-      var flatten = require_flatten();
       var isArray = require_is_array();
       var isBoolean = require_is_boolean();
       var isFunction = require_is_function();
       var isNumber = require_is_number();
       var isString = require_is_string();
       var isUndefined = require_is_undefined();
+      var isWholeNumber = require_is_whole_number();
       var range = require_range();
       var shape = require_shape();
       var sort = require_sort();
@@ -2331,8 +2590,7 @@
             return index;
           }
           if (isNumber(col)) {
-            assert(parseInt(col) === col, "Column indices must be whole numbers!");
-            assert(col >= 0, `The column index ${col} is out of bounds!`);
+            assert(isWholeNumber(col), "Column indices must be whole numbers!");
             assert(col < out.columns.length, `The index ${col} is out of bounds!`);
             return col;
           }
@@ -2367,7 +2625,8 @@
           if (a[cols[counter]] > b[cols[counter]])
             return isAscending ? 1 : -1;
         });
-        out.index = flatten(out.get(null, indexID).values);
+        const indexNumber = out.columns.indexOf(indexID);
+        out.index = out.values.map((row) => row[indexNumber]);
         out = out.dropColumns(indexID);
         return out;
       }
@@ -2530,7 +2789,6 @@
     "node_modules/@jrc03c/js-math-tools/src/series/series-append.js"(exports, module) {
       var assert = require_assert();
       var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
       var isNested = require_is_nested();
       var isSeries = require_is_series();
       var shape = require_shape();
@@ -2551,7 +2809,6 @@
           });
           return out;
         }
-        assert(!isDataFrame(x), "DataFrames cannot be appended to Series!");
         return seriesAppend(series, [x]);
       }
       module.exports = seriesAppend;
@@ -2661,6 +2918,11 @@
       function seriesGet(series, indices) {
         if (isString(indices) || isNumber(indices))
           indices = [indices];
+        for (const i in indices) {
+          if (typeof indices[i] === "bigint") {
+            indices[i] = Number(indices[i]);
+          }
+        }
         const types = set((indices || []).map((v) => typeof v));
         assert(
           types.length <= 2,
@@ -2690,7 +2952,7 @@
             }
             if (typeof i === "number") {
               assert(i >= 0, `Index ${i} is out of bounds!`);
-              assert(parseInt(i) === i, `Indices must be integers!`);
+              assert(Math.floor(i) === i, `Indices must be integers!`);
               assert(i < series.index.length, `Index ${i} is out of bounds!`);
               return series.index[i];
             }
@@ -2803,7 +3065,7 @@
             )
           );
           const tempIndex = copy(temp.index);
-          tempIndex.splice(parseInt(tempIndex.length / 2), 0, "...");
+          tempIndex.splice(Math.floor(tempIndex.length / 2), 0, "...");
           temp.values.push("...");
           temp.index.push("...");
           temp = temp.get(tempIndex);
@@ -3156,6 +3418,7 @@
   var require_dataframe = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/dataframe/index.js"(exports, module) {
       var { copy } = require_copy();
+      var { random } = require_random();
       var assert = require_assert();
       var count = require_count();
       var dfAppend = require_df_append();
@@ -3178,14 +3441,13 @@
       var dfToJSON = require_df_to_json();
       var dfToJSONString = require_df_to_json_string();
       var dfToObject = require_df_to_object();
-      var flatten = require_flatten();
       var isArray = require_is_array();
+      var isJagged = require_is_jagged();
       var isObject = require_is_object();
       var isUndefined = require_is_undefined();
       var leftPad = require_left_pad();
       var ndarray = require_ndarray();
       var range = require_range();
-      var set = require_set();
       var shape = require_shape();
       var transpose = require_transpose();
       var DATAFRAME_SYMBOL = Symbol.for("@jrc03c/js-math-tools/dataframe");
@@ -3193,7 +3455,7 @@
         const alpha = "abcdefghijklmnopqrstuvwxyz1234567890";
         let out = "";
         for (let i = 0; i < n; i++)
-          out += alpha[parseInt(Math.random() * alpha.length)];
+          out += alpha[Math.floor(random() * alpha.length)];
         return out;
       }
       var DataFrame = class {
@@ -3291,8 +3553,8 @@
               const counts = (() => {
                 const temp = count(x);
                 const out = {};
-                temp.forEach((obj) => {
-                  out[obj.value] = obj.count;
+                temp.values.forEach((v) => {
+                  out[v] = temp.get(v);
                 });
                 return out;
               })();
@@ -3342,8 +3604,8 @@
               const counts = (() => {
                 const temp = count(x);
                 const out = {};
-                temp.forEach((obj) => {
-                  out[obj.value] = obj.count;
+                temp.values.forEach((v) => {
+                  out[v] = temp.get(v);
                 });
                 return out;
               })();
@@ -3372,7 +3634,7 @@
                 "The `data` array passed into the constructor of a DataFrame must be 2-dimensional!"
               );
               assert(
-                set(data.map((row) => row.length)).length === 1,
+                !isJagged(data),
                 "The 2-dimensional array passed into the constructor of a DataFrame must not contain sub-arrays (i.e., rows) of different lengths!"
               );
               this.values = data;
@@ -3418,7 +3680,7 @@
           this.index = rows;
         }
         get isEmpty() {
-          return flatten(this.values).length === 0;
+          return this.values.length === 0 || this.values.every((row) => row.length === 0);
         }
         clear() {
           const out = new DataFrame(ndarray(this.shape));
@@ -3535,31 +3797,9 @@
   // node_modules/@jrc03c/js-math-tools/src/max.js
   var require_max = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/max.js"(exports, module) {
-      var assert = require_assert();
-      var flatten = require_flatten();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isSeries = require_is_series();
-      function max(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return max(arr.values);
-        }
-        assert(
-          isArray(arr),
-          "The `max` function only works on arrays, Series, and DataFrames!"
-        );
-        try {
-          arr = flatten(arr);
-          let highest = -Infinity;
-          for (const v of arr) {
-            if (v > highest) {
-              highest = v;
-            }
-          }
-          return highest;
-        } catch (e) {
-          return NaN;
-        }
+      var stats = require_stats();
+      function max(arr, shouldDropNaNs) {
+        return stats(arr, { shouldDropNaNs }).max;
       }
       module.exports = max;
     }
@@ -3578,9 +3818,6 @@
       var max = require_max();
       var range = require_range();
       var shape = require_shape();
-      function isArraySeriesOrDataFrame(x) {
-        return isArray(x) || isSeries(x) || isDataFrame(x);
-      }
       function vectorize(fn) {
         assert(
           isFunction(fn),
@@ -3621,14 +3858,12 @@
             );
             const out = range(0, maxLength).map((i) => {
               const args = Object.keys(arguments).map((key) => {
-                if (isArraySeriesOrDataFrame(arguments[key])) {
-                  if (isArray(arguments[key])) {
-                    return arguments[key][i];
-                  } else if (isSeries(arguments[key])) {
-                    return arguments[key].values[i];
-                  } else if (isDataFrame(arguments[key])) {
-                    return arguments[key].values[i];
-                  }
+                if (isArray(arguments[key])) {
+                  return arguments[key][i];
+                } else if (isSeries(arguments[key])) {
+                  return arguments[key].values[i];
+                } else if (isDataFrame(arguments[key])) {
+                  return arguments[key].values[i];
                 } else {
                   return arguments[key];
                 }
@@ -3682,7 +3917,11 @@
         try {
           if (!isNumber(x))
             return NaN;
-          return Math.abs(x);
+          if (typeof x === "bigint") {
+            return x < 0 ? -x : x;
+          } else {
+            return Math.abs(x);
+          }
         } catch (e) {
           return NaN;
         }
@@ -3699,11 +3938,22 @@
       function add() {
         try {
           let out = 0;
+          let resultShouldBeABigInt = false;
           const x = Object.values(arguments);
-          for (let i = 0; i < x.length; i++) {
-            if (!isNumber(x[i]))
+          for (let v of x) {
+            if (!isNumber(v))
               return NaN;
-            out += x[i];
+            if (typeof v === "bigint") {
+              resultShouldBeABigInt = true;
+              v = Number(v);
+            }
+            out += v;
+          }
+          if (resultShouldBeABigInt) {
+            try {
+              return BigInt(out);
+            } catch (e) {
+            }
           }
           return out;
         } catch (e) {
@@ -3738,6 +3988,9 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint") {
+            x = Number(x);
+          }
           return Math.acos(x);
         } catch (e) {
           return NaN;
@@ -3756,6 +4009,9 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint") {
+            x = Number(x);
+          }
           return Math.asin(x);
         } catch (e) {
           return NaN;
@@ -3774,6 +4030,9 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint") {
+            x = Number(x);
+          }
           return Math.atan(x);
         } catch (e) {
           return NaN;
@@ -3792,21 +4051,21 @@
       var isDataFrame = require_is_dataframe();
       var isSeries = require_is_series();
       var max = require_max();
-      function argmax(x) {
+      function argmax(x, shouldDropNaNs) {
         if (isDataFrame(x)) {
-          const index = argmax(x.values);
+          const index = argmax(x.values, shouldDropNaNs);
           return [x.index[index[0]], x.columns[index[1]]];
         }
         if (isSeries(x)) {
-          const index = argmax(x.values);
-          return [x.index[index]];
+          const index = argmax(x.values, shouldDropNaNs);
+          return x.index[index];
         }
         assert(
           isArray(x),
           "The `argmax` function only works on arrays, Series, and DataFrames!"
         );
         try {
-          const out = indexOf(x, max(x));
+          const out = indexOf(x, max(x, shouldDropNaNs));
           if (out) {
             if (out.length === 0) {
               return void 0;
@@ -3819,6 +4078,7 @@
             return void 0;
           }
         } catch (e) {
+          console.log(e);
           return void 0;
         }
       }
@@ -3829,31 +4089,9 @@
   // node_modules/@jrc03c/js-math-tools/src/min.js
   var require_min = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/min.js"(exports, module) {
-      var assert = require_assert();
-      var flatten = require_flatten();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isSeries = require_is_series();
-      function min(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return min(arr.values);
-        }
-        assert(
-          isArray(arr),
-          "The `min` function only works on arrays, Series, and DataFrames!"
-        );
-        try {
-          arr = flatten(arr);
-          let lowest = Infinity;
-          for (const v of arr) {
-            if (v < lowest) {
-              lowest = v;
-            }
-          }
-          return lowest;
-        } catch (e) {
-          return NaN;
-        }
+      var stats = require_stats();
+      function min(arr, shouldDropNaNs) {
+        return stats(arr, { shouldDropNaNs }).min;
       }
       module.exports = min;
     }
@@ -3868,21 +4106,21 @@
       var isDataFrame = require_is_dataframe();
       var isSeries = require_is_series();
       var min = require_min();
-      function argmin(x) {
+      function argmin(x, shouldDropNaNs) {
         if (isDataFrame(x)) {
-          const index = argmin(x.values);
+          const index = argmin(x.values, shouldDropNaNs);
           return [x.index[index[0]], x.columns[index[1]]];
         }
         if (isSeries(x)) {
-          const index = argmin(x.values);
-          return [x.index[index]];
+          const index = argmin(x.values, shouldDropNaNs);
+          return x.index[index];
         }
         assert(
           isArray(x),
           "The `argmin` function only works on arrays, Series, and DataFrames!"
         );
         try {
-          const out = indexOf(x, min(x));
+          const out = indexOf(x, min(x, shouldDropNaNs));
           if (out) {
             if (out.length === 0) {
               return void 0;
@@ -3944,6 +4182,19 @@
           if (isNaN(out))
             return NaN;
           return out;
+        }
+        if (type === "int") {
+          const out = cast(value, "number");
+          return out >= 0 ? Math.floor(out) : Math.ceil(out);
+        }
+        if (type === "float") {
+          return cast(value, "number");
+        }
+        if (type === "bigint") {
+          if (typeof value === "bigint") {
+            return value;
+          }
+          return BigInt(cast(value, "int"));
         }
         if (type === "boolean") {
           if (isBoolean(value)) {
@@ -4059,6 +4310,8 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint")
+            return x;
           return Math.ceil(x);
         } catch (e) {
           return NaN;
@@ -4079,6 +4332,8 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint")
+            return x;
           if (isUndefined(threshold)) {
             threshold = 1e-10;
           } else if (!isNumber(threshold)) {
@@ -4093,9 +4348,42 @@
     }
   });
 
+  // node_modules/@jrc03c/js-math-tools/src/int.js
+  var require_int = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/int.js"(exports, module) {
+      var isArray = require_is_array();
+      var isDataFrame = require_is_dataframe();
+      var isNumber = require_is_number();
+      var isSeries = require_is_series();
+      var vectorize = require_vectorize();
+      function int(x) {
+        if (isDataFrame(x) || isSeries(x)) {
+          const out = x.copy();
+          out.values = int(out.values);
+          return out;
+        }
+        if (isArray(x)) {
+          return x.map((v) => int(v));
+        } else {
+          try {
+            const out = JSON.parse(x);
+            if (isNumber(out)) {
+              return typeof out === "bigint" ? Number(out) : out >= 0 ? Math.floor(out) : Math.ceil(out);
+            }
+            return NaN;
+          } catch (e) {
+            return NaN;
+          }
+        }
+      }
+      module.exports = vectorize(int);
+    }
+  });
+
   // node_modules/@jrc03c/js-math-tools/src/clamp.js
   var require_clamp = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/clamp.js"(exports, module) {
+      var int = require_int();
       var isNumber = require_is_number();
       var vectorize = require_vectorize();
       function clamp(x, a, b) {
@@ -4106,6 +4394,9 @@
             return NaN;
           if (!isNumber(b))
             return NaN;
+          if (typeof x === "bigint") {
+            return BigInt(clamp(int(x), a, b));
+          }
           if (x < a)
             return a;
           if (x > b)
@@ -4124,73 +4415,169 @@
     "node_modules/@jrc03c/js-math-tools/src/combinations.js"(exports, module) {
       var assert = require_assert();
       var flatten = require_flatten();
+      var int = require_int();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isNumber = require_is_number();
       var isSeries = require_is_series();
-      function combinations(arr, r) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return combinations(arr.values, r);
+      function combinationsIterator(x, r) {
+        function* helper(x2, r2) {
+          if (r2 > x2.length) {
+            yield x2;
+          } else if (r2 <= 0) {
+            yield [];
+          } else if (x2.length < 2) {
+            yield x2;
+          } else {
+            for (let i = 0; i < x2.length; i++) {
+              const item = x2[i];
+              const after = x2.slice(i + 1);
+              if (after.length < r2 - 1) {
+                continue;
+              }
+              if (r2 - 1 >= 0) {
+                for (const child of combinationsIterator(after, r2 - 1)) {
+                  yield [item].concat(child);
+                }
+              }
+            }
+          }
+        }
+        if (isDataFrame(x) || isSeries(x)) {
+          return combinationsIterator(x.values, r);
         }
         assert(
-          isArray(arr),
+          isArray(x),
           "The `combinations` function only works on arrays, Series, and DataFrames!"
         );
-        assert(isNumber(r), "`r` must be a whole number!");
-        arr = flatten(arr);
-        if (r > arr.length) {
-          return [arr];
-        }
-        if (r <= 0) {
-          return [[]];
-        }
-        assert(r === parseInt(r), "`r` must be a whole number!");
-        if (arr.length < 2)
-          return arr;
+        assert(
+          isNumber(r) && int(r) === r && r >= 0,
+          "`r` must be a non-negative integer!"
+        );
+        return helper(flatten(x), r);
+      }
+      function combinations(x, r) {
         const out = [];
-        arr.forEach((item, i) => {
-          const after = arr.slice(i + 1);
-          if (after.length < r - 1)
-            return;
-          const children = combinations(after, r - 1);
-          children.forEach((child) => {
-            out.push([item].concat(child));
-          });
-        });
+        for (const combo of combinationsIterator(x, r)) {
+          out.push(combo.slice());
+        }
         return out;
       }
-      module.exports = combinations;
+      module.exports = { combinations, combinationsIterator };
     }
   });
 
-  // node_modules/@jrc03c/js-math-tools/src/mean.js
-  var require_mean = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/mean.js"(exports, module) {
+  // node_modules/@jrc03c/js-math-tools/src/intersect.js
+  var require_intersect = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/intersect.js"(exports, module) {
       var assert = require_assert();
-      var flatten = require_flatten();
+      var isArray = require_is_array();
+      var isDataFrame = require_is_dataframe();
+      var isEqual = require_is_equal();
+      var isSeries = require_is_series();
+      var set = require_set();
+      function intersect() {
+        const arrays = Object.values(arguments).map((x) => {
+          if (isDataFrame(x) || isSeries(x)) {
+            return set(x.values);
+          }
+          assert(
+            isArray(x),
+            "The `intersect` function only works on arrays, Series, and DataFrames!"
+          );
+          return set(x);
+        });
+        const all = set(arrays);
+        return all.filter((v) => {
+          return arrays.every((arr) => arr.findIndex((other) => isEqual(other, v)) > -1);
+        });
+      }
+      module.exports = intersect;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/index-matcher.js
+  var require_index_matcher = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/index-matcher.js"(exports, module) {
+      var { DataFrame, Series } = require_dataframe();
+      var assert = require_assert();
+      var intersect = require_intersect();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isSeries = require_is_series();
-      function mean(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return mean(arr.values);
+      var isUndefined = require_is_undefined();
+      var shape = require_shape();
+      var _IndexMatcher = class {
+        constructor(mode) {
+          assert(
+            isUndefined(mode) || mode === _IndexMatcher.DROP_NAN_MODE || mode === _IndexMatcher.DROP_MISSING_MODE,
+            "The `mode` value passed into the `IndexMatcher` constructor must be undefined or one of [IndexMatcher.DROP_NAN_MODE, IndexMatcher.DROP_MISSING_MODE]! (By default, the mode is `Indexer.DROP_MISSING_MODE`.)"
+          );
+          this.mode = !isUndefined(mode) ? mode : _IndexMatcher.DROP_NAN_MODE;
+          this.index = null;
         }
-        assert(
-          isArray(arr),
-          "The `mean` function only works on arrays, Series, and DataFrames!"
-        );
-        try {
-          const temp = flatten(arr);
-          let out = 0;
-          temp.forEach((v) => {
-            out += v;
+        fit() {
+          const indices = [];
+          Object.values(arguments).forEach((x) => {
+            if (isArray(x)) {
+              const xshape = shape(x);
+              if (xshape.length === 1) {
+                x = new Series(x);
+              } else if (xshape.length === 2) {
+                x = new DataFrame(x);
+              } else {
+                throw new Error(
+                  "The `IndexMatcher.fit` method only works on arrays, Series, and DataFrames!"
+                );
+              }
+            }
+            assert(
+              isDataFrame(x) || isSeries(x),
+              "The `IndexMatcher.fit` method only works on arrays, Series, and DataFrames!"
+            );
+            if (this.mode === _IndexMatcher.DROP_MISSING_MODE) {
+              indices.push(x.dropMissing().index);
+            } else {
+              indices.push(x.dropNaN().index);
+            }
           });
-          return out / temp.length;
-        } catch (e) {
-          return NaN;
+          this.index = intersect(...indices);
+          return this;
         }
-      }
-      module.exports = mean;
+        transform() {
+          assert(
+            !!this.index,
+            "The IndexMatcher hasn't been fitted yet! Please call the `fit` method before calling the `transform` method."
+          );
+          const out = Object.values(arguments).map((x) => {
+            if (isArray(x)) {
+              const xshape = shape(x);
+              if (xshape.length === 1) {
+                return new Series(x).get(this.index).values;
+              } else if (xshape.length === 2) {
+                return new DataFrame(x).get(this.index, null).values;
+              } else {
+                throw new Error(
+                  "The `IndexMatcher.fit` method only works on arrays, Series, and DataFrames!"
+                );
+              }
+            }
+            assert(
+              isDataFrame(x) || isSeries(x),
+              "The `IndexMatcher.fit` method only works on arrays, Series, and DataFrames!"
+            );
+            return x.get(this.index, null);
+          });
+          return out.length === 1 ? out[0] : out;
+        }
+        fitAndTransform() {
+          return this.fit(...arguments).transform(...arguments);
+        }
+      };
+      var IndexMatcher = _IndexMatcher;
+      __publicField(IndexMatcher, "DROP_NAN_MODE", "DROP_NAN_MODE");
+      __publicField(IndexMatcher, "DROP_MISSING_MODE", "DROP_MISSING_MODE");
+      module.exports = IndexMatcher;
     }
   });
 
@@ -4198,17 +4585,18 @@
   var require_covariance = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/covariance.js"(exports, module) {
       var assert = require_assert();
+      var IndexMatcher = require_index_matcher();
       var isArray = require_is_array();
       var isNumber = require_is_number();
       var isSeries = require_is_series();
-      var mean = require_mean();
       var shape = require_shape();
-      function covariance(x, y) {
+      var stats = require_stats();
+      function covariance(x, y, shouldDropNaNs, shouldAlsoReturnStatsObjects) {
         if (isSeries(x)) {
-          return covariance(x.values, y);
+          return covariance(x.values, y, shouldDropNaNs, shouldAlsoReturnStatsObjects);
         }
         if (isSeries(y)) {
-          return covariance(x, y.values);
+          return covariance(x, y.values, shouldDropNaNs, shouldAlsoReturnStatsObjects);
         }
         assert(
           isArray(x) && isArray(y) && shape(x).length === 1 && shape(y).length === 1,
@@ -4218,108 +4606,48 @@
           x.length === y.length,
           "The two arrays or Series passed into the `covariance` function must have the same length!"
         );
+        if (shouldDropNaNs) {
+          return covariance(
+            ...new IndexMatcher().fitAndTransform(x, y),
+            false,
+            shouldAlsoReturnStatsObjects
+          );
+        }
         try {
-          const mx = mean(x);
-          const my = mean(y);
+          const xstats = stats(x, { stdev: shouldAlsoReturnStatsObjects });
+          const ystats = stats(y, { stdev: shouldAlsoReturnStatsObjects });
+          const mx = Number(xstats.mean);
+          const my = Number(ystats.mean);
           if (!isNumber(mx) || !isNumber(my)) {
             return NaN;
           }
           const n = Math.max(x.length, y.length);
           let out = 0;
           for (let i = 0; i < n; i++) {
-            if (!isNumber(x[i]))
+            let vx = x[i];
+            let vy = y[i];
+            if (!isNumber(vx))
               return NaN;
-            if (!isNumber(y[i]))
+            if (!isNumber(vy))
               return NaN;
-            out += (x[i] - mx) * (y[i] - my);
+            if (typeof vx === "bigint") {
+              vx = Number(vx);
+            }
+            if (typeof vy === "bigint") {
+              vy = Number(vy);
+            }
+            out += (vx - mx) * (vy - my);
           }
-          return out / x.length;
+          if (shouldAlsoReturnStatsObjects) {
+            return [out / x.length, xstats, ystats];
+          } else {
+            return out / x.length;
+          }
         } catch (e) {
           return NaN;
         }
       }
       module.exports = covariance;
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/sqrt.js
-  var require_sqrt = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/sqrt.js"(exports, module) {
-      var isNumber = require_is_number();
-      var vectorize = require_vectorize();
-      function sqrt(x) {
-        try {
-          if (!isNumber(x))
-            return NaN;
-          return Math.sqrt(x);
-        } catch (e) {
-          return NaN;
-        }
-      }
-      module.exports = vectorize(sqrt);
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/variance.js
-  var require_variance = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/variance.js"(exports, module) {
-      var assert = require_assert();
-      var flatten = require_flatten();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isNumber = require_is_number();
-      var isSeries = require_is_series();
-      var mean = require_mean();
-      function variance(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return variance(arr.values);
-        }
-        assert(
-          isArray(arr),
-          "The `variance` function only works on arrays, Series, and DataFrames!"
-        );
-        try {
-          const temp = flatten(arr);
-          const m = mean(temp);
-          let out = 0;
-          for (let i = 0; i < temp.length; i++) {
-            if (!isNumber(temp[i]))
-              return NaN;
-            out += (temp[i] - m) * (temp[i] - m);
-          }
-          return out / temp.length;
-        } catch (e) {
-          return NaN;
-        }
-      }
-      module.exports = variance;
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/std.js
-  var require_std = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/std.js"(exports, module) {
-      var assert = require_assert();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isSeries = require_is_series();
-      var sqrt = require_sqrt();
-      var variance = require_variance();
-      function std(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return std(arr.values);
-        }
-        assert(
-          isArray(arr),
-          "The `std` function only works on arrays, Series, and DataFrames!"
-        );
-        try {
-          return sqrt(variance(arr));
-        } catch (e) {
-          return NaN;
-        }
-      }
-      module.exports = std;
     }
   });
 
@@ -4331,13 +4659,12 @@
       var isArray = require_is_array();
       var isSeries = require_is_series();
       var shape = require_shape();
-      var std = require_std();
-      function correl(x, y) {
+      function correl(x, y, shouldDropNaNs) {
         if (isSeries(x)) {
-          return correl(x.values, y);
+          return correl(x.values, y, shouldDropNaNs);
         }
         if (isSeries(y)) {
-          return correl(x, y.values);
+          return correl(x, y.values, shouldDropNaNs);
         }
         assert(
           isArray(x) && isArray(y) && shape(x).length === 1 && shape(y).length === 1,
@@ -4348,7 +4675,15 @@
           "The two arrays or Series passed into the `correl` function must have the same length!"
         );
         try {
-          return covariance(x, y) / (std(x) * std(y));
+          const shouldAlsoReturnStatsObjects = true;
+          const [num, xstats, ystats] = covariance(
+            x,
+            y,
+            shouldDropNaNs,
+            shouldAlsoReturnStatsObjects
+          );
+          const den = xstats.stdev * ystats.stdev;
+          return num / den;
         } catch (e) {
           return NaN;
         }
@@ -4366,6 +4701,9 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint") {
+            x = Number(x);
+          }
           return Math.cos(x);
         } catch (e) {
           return NaN;
@@ -4434,12 +4772,46 @@
             return NaN;
           if (!isNumber(p))
             return NaN;
+          if (typeof x === "bigint" || typeof p === "bigint") {
+            const out = pow(Number(x), Number(p));
+            try {
+              return BigInt(out);
+            } catch (e) {
+              return out;
+            }
+          }
           return Math.pow(x, p);
         } catch (e) {
           return NaN;
         }
       }
       module.exports = vectorize(pow);
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/sqrt.js
+  var require_sqrt = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/sqrt.js"(exports, module) {
+      var isNumber = require_is_number();
+      var vectorize = require_vectorize();
+      function sqrt(x) {
+        try {
+          if (!isNumber(x))
+            return NaN;
+          if (typeof x === "bigint") {
+            const out = sqrt(Number(x));
+            try {
+              return BigInt(out);
+            } catch (e) {
+              return out;
+            }
+          }
+          return Math.sqrt(x);
+        } catch (e) {
+          return NaN;
+        }
+      }
+      module.exports = vectorize(sqrt);
     }
   });
 
@@ -4450,14 +4822,25 @@
       var vectorize = require_vectorize();
       function multiply() {
         try {
-          const values = Object.values(arguments);
-          if (values.length === 0)
+          const x = Object.values(arguments);
+          if (x.length === 0)
             return NaN;
+          let resultShouldBeABigInt = false;
           let out = 1;
-          for (let i = 0; i < values.length; i++) {
-            if (!isNumber(values[i]))
+          for (let v of x) {
+            if (!isNumber(v))
               return NaN;
-            out *= values[i];
+            if (typeof v === "bigint") {
+              resultShouldBeABigInt = true;
+              v = Number(v);
+            }
+            out *= v;
+          }
+          if (resultShouldBeABigInt) {
+            try {
+              return BigInt(out);
+            } catch (e) {
+            }
           }
           return out;
         } catch (e) {
@@ -4494,26 +4877,9 @@
   // node_modules/@jrc03c/js-math-tools/src/sum.js
   var require_sum = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/sum.js"(exports, module) {
-      var assert = require_assert();
-      var flatten = require_flatten();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isSeries = require_is_series();
-      function sum(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return sum(arr.values);
-        }
-        assert(
-          isArray(arr),
-          "The `sum` function only works on arrays, Series, and DataFrames!"
-        );
-        try {
-          if (arr.length === 0)
-            return NaN;
-          return flatten(arr).reduce((a, b) => a + b, 0);
-        } catch (e) {
-          return NaN;
-        }
+      var stats = require_stats();
+      function sum(arr, shouldDropNaNs) {
+        return stats(arr, { shouldDropNaNs }).sum;
       }
       module.exports = sum;
     }
@@ -4577,10 +4943,8 @@
     "node_modules/@jrc03c/js-math-tools/src/dot.js"(exports, module) {
       var { DataFrame, Series } = require_dataframe();
       var assert = require_assert();
-      var flatten = require_flatten();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
-      var isNumber = require_is_number();
       var isSeries = require_is_series();
       var scale = require_scale();
       var shape = require_shape();
@@ -4626,12 +4990,6 @@
           isArray(a) && isArray(b),
           "The `dot` function only works on arrays, Series, and DataFrames!"
         );
-        flatten(a).concat(flatten(b)).forEach((v) => {
-          assert(
-            isNumber(v),
-            "One of the arrays you passed into the `dot` function contains non-numerical values!"
-          );
-        });
         const aShape = shape(a);
         const bShape = shape(b);
         assert(
@@ -4798,6 +5156,43 @@
     }
   });
 
+  // node_modules/@jrc03c/js-math-tools/src/every.js
+  var require_every = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/every.js"(exports, module) {
+      var assert = require_assert();
+      var isArray = require_is_array();
+      var isDataFrame = require_is_dataframe();
+      var isFunction = require_is_function();
+      var isSeries = require_is_series();
+      function every(x, fn) {
+        if (isDataFrame(x) || isSeries(x)) {
+          return every(x.values, fn);
+        }
+        assert(
+          isArray(x),
+          "The first argument passed into the `every` function must be an array, Series, or DataFrame!"
+        );
+        assert(
+          isFunction(fn),
+          "The second argument passed into the `every` function must be a function!"
+        );
+        for (const v of x) {
+          if (isArray(v)) {
+            if (!every(v, fn)) {
+              return false;
+            }
+          } else {
+            if (!fn(v)) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+      module.exports = every;
+    }
+  });
+
   // node_modules/@jrc03c/js-math-tools/src/exp.js
   var require_exp = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/exp.js"(exports, module) {
@@ -4807,6 +5202,13 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint") {
+            if (x === 0n) {
+              return 1n;
+            } else {
+              x = Number(x);
+            }
+          }
           return Math.exp(x);
         } catch (e) {
           return NaN;
@@ -4819,10 +5221,14 @@
   // node_modules/@jrc03c/js-math-tools/src/factorial.js
   var require_factorial = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/factorial.js"(exports, module) {
+      var int = require_int();
       var vectorize = require_vectorize();
       function factorial(n) {
         try {
-          if (n !== parseInt(n))
+          if (typeof n === "bigint") {
+            return BigInt(factorial(int(n)));
+          }
+          if (n !== int(n))
             return NaN;
           if (n <= 1)
             return 1;
@@ -4839,7 +5245,6 @@
   var require_find = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/find.js"(exports, module) {
       var assert = require_assert();
-      var flatten = require_flatten();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isFunction = require_is_function();
@@ -4847,7 +5252,7 @@
       var isSeries = require_is_series();
       function find(x, fn) {
         if (isDataFrame(x)) {
-          return find(flatten(x.values), fn);
+          return find(x.values, fn);
         }
         if (isSeries(x)) {
           return find(x.values, fn);
@@ -4915,7 +5320,6 @@
   var require_find_all = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/find-all.js"(exports, module) {
       var assert = require_assert();
-      var flatten = require_flatten();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isFunction = require_is_function();
@@ -4923,7 +5327,7 @@
       var isSeries = require_is_series();
       function findAll(x, fn) {
         if (isDataFrame(x)) {
-          return findAll(flatten(x.values), fn);
+          return findAll(x.values, fn);
         }
         if (isSeries(x)) {
           return findAll(x.values, fn);
@@ -5034,6 +5438,9 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint") {
+            return x;
+          }
           return Math.floor(x);
         } catch (e) {
           return NaN;
@@ -5066,10 +5473,14 @@
   var require_identity = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/identity.js"(exports, module) {
       var assert = require_assert();
+      var int = require_int();
       var isNumber = require_is_number();
       var isUndefined = require_is_undefined();
       var zeros = require_zeros();
       function identity(size) {
+        if (typeof size === "bigint") {
+          size = int(size);
+        }
         assert(
           !isUndefined(size),
           "You must pass an integer greater than 0 (representing the size) into the `identity` function!"
@@ -5079,7 +5490,7 @@
           "You must pass an integer greater than 0 (representing the size) into the `identity` function!"
         );
         assert(
-          parseInt(size) === size,
+          int(size) === size,
           "You must pass an integer greater than 0 (representing the size) into the `identity` function!"
         );
         assert(
@@ -5117,7 +5528,9 @@
       var booleanValues = require_boolean_values();
       var cast = require_cast();
       var count = require_count();
+      var every = require_every();
       var flatten = require_flatten();
+      var int = require_int();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isDate = require_is_date();
@@ -5128,10 +5541,11 @@
       function checkIfInteger(results) {
         if (results.type === "number") {
           if (typeof results.value !== "undefined") {
-            results.isInteger = parseInt(results.value) === results.value;
+            results.isInteger = int(results.value) === results.value;
           } else {
-            results.isInteger = flatten(results.values).every(
-              (v) => isNumber(v) ? parseInt(v) === v : true
+            results.isInteger = every(
+              results.values,
+              (v) => isNumber(v) ? int(v) === v : true
             );
           }
         }
@@ -5173,7 +5587,11 @@
           } catch (e) {
           }
           if (!isString(v)) {
-            v = JSON.stringify(v);
+            if (typeof v === "bigint") {
+              v = v.toString() + "n";
+            } else {
+              v = JSON.stringify(v);
+            }
           }
           const vLower = v.toLowerCase();
           const vLowerTrimmed = vLower.trim();
@@ -5184,6 +5602,9 @@
             return "boolean";
           }
           try {
+            if (v.match(/^-?\d+n$/g)) {
+              return "bigint";
+            }
             const vParsed = JSON.parse(v);
             if (isNumber(vParsed)) {
               return "number";
@@ -5202,8 +5623,11 @@
             return "string";
           }
         });
-        const counts = count(types).sort((a, b) => b.count - a.count);
-        const primaryType = counts[0].value;
+        const counts = count(types);
+        const sortedValues = counts.values.toSorted(
+          (a, b) => counts.get(b) - counts.get(a)
+        );
+        const primaryType = sortedValues[0];
         return checkIfInteger({
           type: primaryType,
           values: apply(arr, (v) => cast(v, primaryType))
@@ -5213,61 +5637,12 @@
     }
   });
 
-  // node_modules/@jrc03c/js-math-tools/src/int.js
-  var require_int = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/int.js"(exports, module) {
-      var isNumber = require_is_number();
-      var vectorize = require_vectorize();
-      function int(x) {
-        try {
-          const out = JSON.parse(x);
-          if (isNumber(out))
-            return parseInt(out);
-          return NaN;
-        } catch (e) {
-          return NaN;
-        }
-      }
-      module.exports = vectorize(int);
-    }
-  });
-
-  // node_modules/@jrc03c/js-math-tools/src/intersect.js
-  var require_intersect = __commonJS({
-    "node_modules/@jrc03c/js-math-tools/src/intersect.js"(exports, module) {
-      var assert = require_assert();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isEqual = require_is_equal();
-      var isSeries = require_is_series();
-      var set = require_set();
-      function intersect() {
-        const arrays = Object.values(arguments).map((x) => {
-          if (isDataFrame(x) || isSeries(x)) {
-            return set(x.values);
-          }
-          assert(
-            isArray(x),
-            "The `intersect` function only works on arrays, Series, and DataFrames!"
-          );
-          return set(x);
-        });
-        const all = set(arrays);
-        return all.filter((v) => {
-          return arrays.every((arr) => arr.findIndex((other) => isEqual(other, v)) > -1);
-        });
-      }
-      module.exports = intersect;
-    }
-  });
-
   // node_modules/@jrc03c/js-math-tools/src/inverse.js
   var require_inverse = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/inverse.js"(exports, module) {
       var add = require_add();
       var assert = require_assert();
       var dot = require_dot();
-      var flatten = require_flatten();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isNumber = require_is_number();
@@ -5282,12 +5657,6 @@
         assert(
           isArray(x),
           "The `inverse` function only works on square 2-dimensional arrays or DataFrames!"
-        );
-        flatten(x).forEach(
-          (v) => assert(
-            isNumber(v),
-            "The array passed into the `inverse` function must contain only numbers!"
-          )
         );
         const xShape = shape(x);
         assert(
@@ -5306,12 +5675,23 @@
           return x;
         } else if (xShape[0] === 1) {
           assert(x[0][0] !== 0, "This matrix cannot be inverted!");
-          return 1 / x[0][0];
+          let v = x[0][0];
+          if (typeof v === "bigint")
+            v = Number(v);
+          return 1 / v;
         } else if (xShape[0] === 2) {
-          const a = x[0][0];
-          const b = x[0][1];
-          const c = x[1][0];
-          const d = x[1][1];
+          let a = x[0][0];
+          let b = x[0][1];
+          let c = x[1][0];
+          let d = x[1][1];
+          if (typeof a === "bigint")
+            a = Number(a);
+          if (typeof b === "bigint")
+            b = Number(b);
+          if (typeof c === "bigint")
+            c = Number(c);
+          if (typeof d === "bigint")
+            d = Number(d);
           const det = a * d - b * c;
           assert(det !== 0, "This matrix cannot be inverted!");
           const out = [
@@ -5381,6 +5761,14 @@
             return NaN;
           if (!isNumber(f))
             return NaN;
+          if (typeof a === "bigint" || typeof b === "bigint") {
+            const out = lerp(Number(a), Number(b), f);
+            try {
+              return BigInt(out);
+            } catch (e) {
+              return out;
+            }
+          }
           return f * (b - a) + a;
         } catch (e) {
           return NaN;
@@ -5403,6 +5791,14 @@
             return NaN;
           if (!isNumber(base))
             return NaN;
+          if (typeof x === "bigint" || typeof base === "bigint") {
+            const out = log(Number(x), Number(base));
+            try {
+              return BigInt(out);
+            } catch (e) {
+              return out;
+            }
+          }
           return Math.log(x) / Math.log(base);
         } catch (e) {
           return NaN;
@@ -5412,35 +5808,23 @@
     }
   });
 
+  // node_modules/@jrc03c/js-math-tools/src/mean.js
+  var require_mean = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/mean.js"(exports, module) {
+      var stats = require_stats();
+      function mean(arr, shouldDropNaNs) {
+        return stats(arr, { shouldDropNaNs }).mean;
+      }
+      module.exports = mean;
+    }
+  });
+
   // node_modules/@jrc03c/js-math-tools/src/median.js
   var require_median = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/median.js"(exports, module) {
-      var assert = require_assert();
-      var flatten = require_flatten();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isSeries = require_is_series();
-      var sort = require_sort();
-      function median(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return median(arr.values);
-        }
-        assert(
-          isArray(arr),
-          "The `median` function only works on arrays, Series, and DataFrames!"
-        );
-        try {
-          const temp = sort(flatten(arr));
-          if (temp.length === 0) {
-            return NaN;
-          } else if (temp.length % 2 === 0) {
-            return (temp[temp.length / 2 - 1] + temp[temp.length / 2]) / 2;
-          } else {
-            return temp[parseInt(temp.length / 2)];
-          }
-        } catch (e) {
-          return NaN;
-        }
+      var stats = require_stats();
+      function median(arr, shouldDropNaNs) {
+        return stats(arr, { shouldDropNaNs, median: true }).median;
       }
       module.exports = median;
     }
@@ -5457,6 +5841,14 @@
             return NaN;
           if (!isNumber(b))
             return NaN;
+          if (typeof a === "bigint" || typeof b === "bigint") {
+            const out = mod(Number(a), Number(b));
+            try {
+              return BigInt(out);
+            } catch (e) {
+              return out;
+            }
+          }
           return a % b;
         } catch (e) {
           return NaN;
@@ -5469,42 +5861,9 @@
   // node_modules/@jrc03c/js-math-tools/src/mode.js
   var require_mode = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/mode.js"(exports, module) {
-      var assert = require_assert();
-      var count = require_count();
-      var flatten = require_flatten();
-      var isArray = require_is_array();
-      var isDataFrame = require_is_dataframe();
-      var isSeries = require_is_series();
-      var set = require_set();
-      var sort = require_sort();
-      function mode(arr) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return mode(arr.values);
-        }
-        assert(
-          isArray(arr),
-          "The `mode` function only works on arrays, Series, and DataFrames!"
-        );
-        try {
-          if (arr.length === 0)
-            return NaN;
-          const temp = flatten(arr);
-          if (temp.length === 0)
-            return NaN;
-          const counts = {};
-          const tempSet = set(temp);
-          tempSet.forEach((value) => {
-            counts[value] = count(temp, value);
-          });
-          const sortedTempSet = sort(tempSet, (a, b) => counts[b] - counts[a]);
-          const mostCountedValue = sortedTempSet[0];
-          const out = sort(
-            sortedTempSet.filter((value) => counts[value] === counts[mostCountedValue])
-          );
-          return out;
-        } catch (e) {
-          return NaN;
-        }
+      var stats = require_stats();
+      function mode(arr, shouldDropNaNs) {
+        return stats(arr, { shouldDropNaNs, mode: true }).mode;
       }
       module.exports = mode;
     }
@@ -5546,47 +5905,74 @@
   // node_modules/@jrc03c/js-math-tools/src/permutations.js
   var require_permutations = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/permutations.js"(exports, module) {
+      var { combinations } = require_combinations();
       var assert = require_assert();
       var flatten = require_flatten();
+      var int = require_int();
       var isArray = require_is_array();
       var isDataFrame = require_is_dataframe();
       var isNumber = require_is_number();
       var isSeries = require_is_series();
       var isUndefined = require_is_undefined();
-      function permutations(arr, r) {
-        if (isDataFrame(arr) || isSeries(arr)) {
-          return permutations(arr.values, r);
+      var zeros = require_zeros();
+      function permutationsIterator(x, r) {
+        function* helper(x2, r2) {
+          r2 = r2 || x2.length;
+          if (x2.length === 1) {
+            yield [x2];
+            return;
+          }
+          for (const c of combinations(x2, r2)) {
+            if (!c.slice)
+              continue;
+            const state = zeros(c.length);
+            yield c;
+            let i = 1;
+            while (i < c.length) {
+              if (state[i] < i) {
+                if (i % 2 === 0) {
+                  const buf = c[0];
+                  c[0] = c[i];
+                  c[i] = buf;
+                } else {
+                  const buf = c[state[i]];
+                  c[state[i]] = c[i];
+                  c[i] = buf;
+                }
+                yield c;
+                state[i] += 1;
+                i = 1;
+              } else {
+                state[i] = 0;
+                i += 1;
+              }
+            }
+          }
+        }
+        if (isDataFrame(x) || isSeries(x)) {
+          return permutationsIterator(x.values, r);
         }
         assert(
-          isArray(arr),
+          isArray(x),
           "The `permutations` function only works on arrays, Series, and DataFrames!"
         );
-        if (isUndefined(r))
-          r = arr.length;
-        assert(isNumber(r), "`r` must be a whole number!");
-        arr = flatten(arr);
-        if (r > arr.length) {
-          return permutations(arr);
+        if (isUndefined(r)) {
+          r = x.length;
         }
-        if (r <= 0) {
-          return [[]];
-        }
-        assert(r === parseInt(r), "`r` must be a whole number!");
-        if (arr.length < 2)
-          return arr;
+        assert(
+          isNumber(r) && int(r) === r && r >= 0,
+          "`r` must be a non-negative integer!"
+        );
+        return helper(flatten(x), r);
+      }
+      function permutations(x, r) {
         const out = [];
-        arr.forEach((item, i) => {
-          const before = arr.slice(0, i);
-          const after = arr.slice(i + 1);
-          const others = before.concat(after);
-          const children = permutations(others, r - 1);
-          children.forEach((child) => {
-            out.push([item].concat(child));
-          });
-        });
+        for (const perm of permutationsIterator(x, r)) {
+          out.push(perm.slice());
+        }
         return out;
       }
-      module.exports = permutations;
+      module.exports = { permutations, permutationsIterator };
     }
   });
 
@@ -5632,17 +6018,38 @@
       var isArray = require_is_array();
       var isNumber = require_is_number();
       var isUndefined = require_is_undefined();
-      var max = require_max();
-      var min = require_min();
+      var stats = require_stats();
       var vectorize = require_vectorize();
-      var helper = vectorize(function(x, a, b, c, d) {
+      var helper = vectorize((x, a, b, c, d) => {
         try {
-          if (![x, a, b, c, d].every((v) => isNumber(v))) {
-            return NaN;
+          let resultShouldBeABigInt = false;
+          for (const v of [x, a, b, c, d]) {
+            if (!isNumber(v)) {
+              return NaN;
+            }
+            if (typeof v === "bigint") {
+              resultShouldBeABigInt = true;
+            }
           }
-          if (b - a === 0)
+          if (resultShouldBeABigInt) {
+            x = Number(x);
+            a = Number(a);
+            b = Number(b);
+            c = Number(c);
+            d = Number(d);
+          }
+          const num = (d - c) * (x - a);
+          const den = b - a;
+          if (den === 0)
             return NaN;
-          return (d - c) * (x - a) / (b - a) + c;
+          const out = num / den + c;
+          if (resultShouldBeABigInt) {
+            try {
+              return BigInt(out);
+            } catch (e) {
+            }
+          }
+          return out;
         } catch (e) {
           return NaN;
         }
@@ -5651,8 +6058,9 @@
         if (isArray(x) && isUndefined(c) && isUndefined(d)) {
           c = a;
           d = b;
-          a = min(x);
-          b = max(x);
+          const results = stats(x);
+          a = results.min;
+          b = results.max;
         }
         return helper(x, a, b, c, d);
       }
@@ -5669,6 +6077,8 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint")
+            return x;
           return Math.round(x);
         } catch (e) {
           return NaN;
@@ -5687,6 +6097,8 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint")
+            return BigInt(sign(Number(x)));
           if (x < 0)
             return -1;
           if (x > 0)
@@ -5709,12 +6121,63 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint") {
+            x = Number(x);
+          }
           return Math.sin(x);
         } catch (e) {
           return NaN;
         }
       }
       module.exports = vectorize(sin);
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/some.js
+  var require_some = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/some.js"(exports, module) {
+      var assert = require_assert();
+      var isArray = require_is_array();
+      var isDataFrame = require_is_dataframe();
+      var isFunction = require_is_function();
+      var isSeries = require_is_series();
+      function some(x, fn) {
+        if (isDataFrame(x) || isSeries(x)) {
+          return some(x.values, fn);
+        }
+        assert(
+          isArray(x),
+          "The first argument passed into the `some` function must be an array, Series, or DataFrame!"
+        );
+        assert(
+          isFunction(fn),
+          "The second argument passed into the `some` function must be a function!"
+        );
+        for (const v of x) {
+          if (isArray(v)) {
+            if (some(v, fn)) {
+              return true;
+            }
+          } else {
+            if (fn(v)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+      module.exports = some;
+    }
+  });
+
+  // node_modules/@jrc03c/js-math-tools/src/std.js
+  var require_std = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/std.js"(exports, module) {
+      var stats = require_stats();
+      function std(arr, shouldDropNaNs) {
+        return stats(arr, { shouldDropNaNs, stdev: true }).stdev;
+      }
+      module.exports = std;
     }
   });
 
@@ -5738,6 +6201,9 @@
         try {
           if (!isNumber(x))
             return NaN;
+          if (typeof x === "bigint") {
+            x = Number(x);
+          }
           return Math.tan(x);
         } catch (e) {
           return NaN;
@@ -5800,6 +6266,17 @@
     }
   });
 
+  // node_modules/@jrc03c/js-math-tools/src/variance.js
+  var require_variance = __commonJS({
+    "node_modules/@jrc03c/js-math-tools/src/variance.js"(exports, module) {
+      var stats = require_stats();
+      function variance(arr, shouldDropNaNs) {
+        return stats(arr, { shouldDropNaNs, variance: true }).variance;
+      }
+      module.exports = variance;
+    }
+  });
+
   // node_modules/@jrc03c/js-math-tools/src/zip.js
   var require_zip = __commonJS({
     "node_modules/@jrc03c/js-math-tools/src/zip.js"(exports, module) {
@@ -5855,7 +6332,8 @@
         ceil: require_ceil(),
         chop: require_chop(),
         clamp: require_clamp(),
-        combinations: require_combinations(),
+        combinations: require_combinations().combinations,
+        combinationsIterator: require_combinations().combinationsIterator,
         copy,
         correl: require_correl(),
         cos: require_cos(),
@@ -5873,6 +6351,7 @@
         dropNaN: require_drop_nan(),
         dropNaNPairwise: require_drop_nan_pairwise(),
         dropUndefined: require_drop_undefined(),
+        every: require_every(),
         exp: require_exp(),
         factorial: require_factorial(),
         find: require_find(),
@@ -5881,6 +6360,7 @@
         float: require_float(),
         floor: require_floor(),
         identity: require_identity(),
+        IndexMatcher: require_index_matcher(),
         indexOf: require_index_of(),
         inferType: require_infer_type(),
         int: require_int(),
@@ -5913,7 +6393,8 @@
         ndarray: require_ndarray(),
         normal: require_normal(),
         ones: require_ones(),
-        permutations: require_permutations(),
+        permutations: require_permutations().permutations,
+        permutationsIterator: require_permutations().permutationsIterator,
         pow: require_pow(),
         print: require_print(),
         product: require_product(),
@@ -5931,8 +6412,10 @@
         shuffle: require_shuffle(),
         sign: require_sign(),
         sin: require_sin(),
+        some: require_some(),
         sort: require_sort(),
         sqrt: require_sqrt(),
+        stats: require_stats(),
         std: require_std(),
         stdev: require_stdev(),
         subtract: require_subtract(),
@@ -6008,145 +6491,6 @@
     }
   });
 
-  // node_modules/@jrc03c/js-text-tools/src/parse.js
-  var require_parse = __commonJS({
-    "node_modules/@jrc03c/js-text-tools/src/parse.js"(exports, module) {
-      var convertObjectToTypedArray = require_convert_object_to_typed_array();
-      var specials = {
-        "@Infinity": Infinity,
-        "@NegativeInfinity": -Infinity,
-        "@NaN": NaN,
-        "@undefined": void 0
-      };
-      function parse(x) {
-        function helper(x2) {
-          if (typeof x2 === "string") {
-            if (x2.trim().match(/^("|')?Symbol\(@String\).*?("|')?$/g)) {
-              return x2.trim().replace(/^("|')?Symbol\(@String\):/g, "").replace(/("|')?$/g, "");
-            }
-            if (x2.match(/^'?"?Symbol\(.*?\)"?'?$/g)) {
-              const xTemp = x2.replace(/^.*?Symbol\(/g, "").replace(/\).*?$/g, "");
-              if (xTemp in specials) {
-                return specials[xTemp];
-              }
-              return Symbol.for(xTemp);
-            }
-            const xTrimmed = x2.trim();
-            if (xTrimmed.match(/^\/.*?\/(d|g|i|m|s|u|v|y)*?$/g)) {
-              try {
-                const pattern = xTrimmed.replace(/^\//g, "").replace(/\/(d|g|i|m|s|u|v|y)*?$/g, "");
-                const flags = xTrimmed.match(/\/(d|g|i|m|s|u|v|y)*?$/g).at(-1).split("/").at(-1);
-                return new RegExp(pattern, flags);
-              } catch (e) {
-              }
-            }
-            if (x2.trim().match(/^".*?"$/g)) {
-              try {
-                return JSON.parse(x2);
-              } catch (e) {
-              }
-            }
-            try {
-              const f = parseFloat(x2);
-              if (!isNaN(f) && f.toString() === x2) {
-                return f;
-              }
-            } catch (e) {
-            }
-            try {
-              const d = new Date(Date.parse(x2));
-              if (d.toString() !== "Invalid Date") {
-                return d;
-              }
-            } catch (e) {
-            }
-            try {
-              return JSON.parse(x2, function(key, value) {
-                try {
-                  const out = helper(value);
-                  if (typeof out === "string") {
-                    if (typeof helper(out) !== "string") {
-                      return JSON.stringify(out);
-                    } else {
-                      return out;
-                    }
-                  }
-                  return out;
-                } catch (e) {
-                  return value;
-                }
-              });
-            } catch (e) {
-              return x2;
-            }
-          }
-          if (typeof x2 === "object") {
-            if (x2 === null) {
-              return null;
-            }
-            try {
-              return convertObjectToTypedArray(x2);
-            } catch (e) {
-              Object.keys(x2).concat(Object.getOwnPropertySymbols(x2)).forEach((key) => {
-                try {
-                  let origKey = key;
-                  try {
-                    key = helper(key);
-                  } catch (e2) {
-                  }
-                  x2[key] = helper(x2[origKey]);
-                  if (key !== origKey) {
-                    delete x2[origKey];
-                  }
-                } catch (e2) {
-                }
-              });
-              try {
-                return convertObjectToTypedArray(x2);
-              } catch (e2) {
-                return x2;
-              }
-            }
-          }
-          return x2;
-        }
-        return helper(x);
-      }
-      module.exports = parse;
-    }
-  });
-
-  // node_modules/@jrc03c/js-text-tools/src/pascalify.js
-  var require_pascalify = __commonJS({
-    "node_modules/@jrc03c/js-text-tools/src/pascalify.js"(exports, module) {
-      var camelify = require_camelify();
-      function pascalify(text) {
-        const out = camelify(text);
-        return out[0].toUpperCase() + out.slice(1);
-      }
-      module.exports = pascalify;
-    }
-  });
-
-  // node_modules/@jrc03c/js-text-tools/src/snakeify.js
-  var require_snakeify = __commonJS({
-    "node_modules/@jrc03c/js-text-tools/src/snakeify.js"(exports, module) {
-      var strip = require_strip();
-      function snakeify(text) {
-        if (typeof text !== "string") {
-          throw new Error("`text` must be a string!");
-        }
-        const words = strip(text).split(" ");
-        if (words.length === 0)
-          return "";
-        if (words.length === 1)
-          return words[0];
-        return words.join("_");
-      }
-      module.exports = snakeify;
-    }
-  });
-
   // node_modules/@jrc03c/js-text-tools/src/helpers/convert-typed-array-to-object.js
   var require_convert_typed_array_to_object = __commonJS({
     "node_modules/@jrc03c/js-text-tools/src/helpers/convert-typed-array-to-object.js"(exports, module) {
@@ -6189,6 +6533,311 @@
     }
   });
 
+  // node_modules/@jrc03c/js-text-tools/src/helpers/is-a-number-string.js
+  var require_is_a_number_string = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/helpers/is-a-number-string.js"(exports, module) {
+      function isANumberString(x) {
+        x = x.trim();
+        return !!(x.match(/^-?\d+(\.\d+)?$/g) || x.match(/^-?\d+(\.\d+)?e-?\d+(\.\d+)?$/g) || x.match(/^-?\.\d+$/g) || x === "NaN");
+      }
+      module.exports = isANumberString;
+    }
+  });
+
+  // node_modules/@jrc03c/js-text-tools/src/helpers/index.js
+  var require_helpers = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/helpers/index.js"(exports, module) {
+      module.exports = {
+        convertObjectToTypedArray: require_convert_object_to_typed_array(),
+        convertTypedArrayToObject: require_convert_typed_array_to_object(),
+        isANumberString: require_is_a_number_string(),
+        punctuation: require_punctuation(),
+        replaceAll: require_replace_all(),
+        strip: require_strip()
+      };
+    }
+  });
+
+  // node_modules/@jrc03c/js-text-tools/src/parse.js
+  var require_parse = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/parse.js"(exports, module) {
+      var { isArray } = require_src();
+      var { convertObjectToTypedArray, isANumberString } = require_helpers();
+      var specials = {
+        "@Infinity": Infinity,
+        "@NegativeInfinity": -Infinity,
+        "@NaN": NaN,
+        "@undefined": void 0
+      };
+      function fixUndefineds(x) {
+        if (typeof x === "object") {
+          if (x === null) {
+            return x;
+          }
+          if (isArray(x)) {
+            for (let i = 0; i < x.length; i++) {
+              x[i] = fixUndefineds(x[i]);
+            }
+          } else {
+            Object.keys(x).concat(Object.getOwnPropertySymbols(x)).forEach((key) => {
+              x[key] = fixUndefineds(x[key]);
+            });
+          }
+          return x;
+        } else {
+          if (typeof x === "undefined") {
+            return void 0;
+          }
+          if (x === "Symbol(@undefined)") {
+            return void 0;
+          }
+          return x;
+        }
+      }
+      function parseAsBigInt(x) {
+        if (typeof x === "bigint") {
+          return x;
+        } else if (typeof x === "string") {
+          if (x.match(/^\s*?-?\d+n\s*?$/g)) {
+            try {
+              return BigInt(x.split("n")[0]);
+            } catch (e) {
+              return NaN;
+            }
+          } else {
+            return NaN;
+          }
+        } else {
+          return NaN;
+        }
+      }
+      function parseAsNumber(x) {
+        if (typeof x !== "string") {
+          if (typeof x === "number") {
+            return x;
+          } else {
+            return;
+          }
+        }
+        if (isANumberString(x)) {
+          return parseFloat(x);
+        }
+      }
+      function parseAsString(x) {
+        if (typeof x !== "string") {
+          return;
+        }
+        const replacement = "@jrc03c/js-text-tools/newline-replacer";
+        x = x.replaceAll("\n", replacement);
+        if (x.trim().match(/^("|')?Symbol\(@String\):.*?("|')?$/g)) {
+          let out = x.replace("Symbol(@String):", "");
+          if (out.match(/^".*?"$/g)) {
+            try {
+              return JSON.parse(out);
+            } catch (e) {
+              out = out.substring(1, out.length - 1);
+            }
+          }
+          out = out.replaceAll(replacement, "\n");
+          return out;
+        }
+      }
+      function parseAsSymbol(x) {
+        if (typeof x !== "string") {
+          if (typeof x === "symbol") {
+            return { out: x, isASymbol: true };
+          } else {
+            return;
+          }
+        }
+        if (x.trim().match(/^'?"?Symbol\(.*?\)"?'?$/g)) {
+          const xTemp = x.replace(/^.*?Symbol\(/g, "").replace(/\).*?$/g, "");
+          if (xTemp in specials) {
+            return { out: specials[xTemp], isASymbol: true };
+          }
+          return { out: Symbol.for(xTemp), isASymbol: true };
+        }
+      }
+      function parseAsRegex(x) {
+        if (typeof x !== "string") {
+          if (x instanceof RegExp) {
+            return x;
+          } else {
+            return;
+          }
+        }
+        const xTrimmed = x.trim();
+        if (xTrimmed.match(/^\/.*?\/(d|g|i|m|s|u|v|y)*?$/g)) {
+          try {
+            const pattern = xTrimmed.replace(/^\//g, "").replace(/\/(d|g|i|m|s|u|v|y)*?$/g, "");
+            const flags = xTrimmed.match(/\/(d|g|i|m|s|u|v|y)*?$/g).at(-1).split("/").at(-1);
+            return new RegExp(pattern, flags);
+          } catch (e) {
+          }
+        }
+      }
+      function parseWithJSONParse(x) {
+        if (typeof x !== "string") {
+          if (typeof x === "object") {
+            return x;
+          } else {
+            return "Symbol(@undefined)";
+          }
+        }
+        try {
+          let out = JSON.parse(x, (key, value) => {
+            try {
+              const out2 = parse(value);
+              return typeof out2 === "undefined" ? "Symbol(@undefined)" : out2;
+            } catch (e) {
+              return typeof value === "undefined" ? "Symbol(@undefined)" : value;
+            }
+          });
+          if (isArray(out)) {
+            out = fixUndefineds(out);
+          }
+          return out;
+        } catch (e) {
+          return x;
+        }
+      }
+      function parseAsDate(x) {
+        if (typeof x !== "string") {
+          if (x instanceof Date && x.toString() !== "Invalid Date") {
+            return x;
+          } else {
+            return;
+          }
+        }
+        try {
+          const d = new Date(Date.parse(x));
+          if (d.toString() !== "Invalid Date") {
+            return d;
+          }
+        } catch (e) {
+        }
+      }
+      function parseObjectKeysAndValues(x) {
+        if (typeof x === "object") {
+          if (x !== null) {
+            return fixUndefineds(x);
+          }
+          return;
+        }
+        Object.keys(x).concat(Object.getOwnPropertySymbols(x)).forEach((key) => {
+          try {
+            let origKey = key;
+            try {
+              key = parse(key);
+            } catch (e) {
+            }
+            x[key] = parse(x[origKey]);
+            if (key !== origKey) {
+              delete x[origKey];
+            }
+          } catch (e) {
+          }
+        });
+        return fixUndefineds(x);
+      }
+      function parse(x) {
+        function helper(x2) {
+          if (typeof x2 === "string") {
+            let out = parseAsString(x2);
+            if (typeof out === "string") {
+              return out;
+            }
+            const results = parseAsSymbol(x2);
+            out = results ? results.out : void 0;
+            if (results && results.isASymbol) {
+              return out;
+            }
+            out = parseAsRegex(x2);
+            if (out instanceof RegExp) {
+              return out;
+            }
+            out = parseAsBigInt(x2);
+            if (typeof out === "bigint") {
+              return out;
+            }
+            out = parseAsNumber(x2);
+            if (typeof out === "number") {
+              return out;
+            }
+            out = parseAsDate(x2);
+            if (out instanceof Date) {
+              return out;
+            }
+            out = parseWithJSONParse(x2);
+            if (typeof out !== "undefined") {
+              if (out === "Symbol(@undefined)") {
+                return void 0;
+              } else {
+                return out;
+              }
+            }
+            return x2;
+          }
+          if (typeof x2 === "object") {
+            if (x2 === null) {
+              return null;
+            }
+            let out;
+            try {
+              out = convertObjectToTypedArray(x2);
+              if (isArray(out))
+                return out;
+            } catch (e) {
+            }
+            out = parseObjectKeysAndValues(x2);
+            if (out) {
+              try {
+                return convertObjectToTypedArray(out);
+              } catch (e) {
+                return out;
+              }
+            }
+            return x2;
+          }
+          return x2;
+        }
+        return helper(x);
+      }
+      module.exports = parse;
+    }
+  });
+
+  // node_modules/@jrc03c/js-text-tools/src/pascalify.js
+  var require_pascalify = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/pascalify.js"(exports, module) {
+      var camelify = require_camelify();
+      function pascalify(text) {
+        const out = camelify(text);
+        return out[0].toUpperCase() + out.slice(1);
+      }
+      module.exports = pascalify;
+    }
+  });
+
+  // node_modules/@jrc03c/js-text-tools/src/snakeify.js
+  var require_snakeify = __commonJS({
+    "node_modules/@jrc03c/js-text-tools/src/snakeify.js"(exports, module) {
+      var strip = require_strip();
+      function snakeify(text) {
+        if (typeof text !== "string") {
+          throw new Error("`text` must be a string!");
+        }
+        const words = strip(text).split(" ");
+        if (words.length === 0)
+          return "";
+        if (words.length === 1)
+          return words[0];
+        return words.join("_");
+      }
+      module.exports = snakeify;
+    }
+  });
+
   // node_modules/@jrc03c/js-text-tools/src/stringify.js
   var require_stringify = __commonJS({
     "node_modules/@jrc03c/js-text-tools/src/stringify.js"(exports, module) {
@@ -6215,7 +6864,10 @@
         const newline = indent ? "\n" : "";
         function helper(x2, indent2, depth) {
           depth = depth || 0;
-          if (typeof x2 === "number" || typeof x2 === "bigint") {
+          if (typeof x2 === "bigint") {
+            return JSON.stringify(x2.toString() + "n");
+          }
+          if (typeof x2 === "number") {
             if (x2 === Infinity) {
               return '"Symbol(@Infinity)"';
             }
@@ -6494,42 +7146,23 @@
             `The \`hasBeenDestroyed\` property of this SubscriptionService instance is read-only! To destroy this SubscriptionService instance, invoke its \`destroy\` method.`
           );
         }
-        on(signal, callback) {
+        destroy(error) {
           if (this.hasBeenDestroyed) {
             throw new Error(
               `This SubscriptionService instance has already been destroyed!`
             );
           }
-          const inner = (event) => {
-            if (event.data.signal === signal) {
-              const cbid = event.data.cbid;
-              let payload = event.data.payload;
-              try {
-                payload = parse(payload);
-              } catch (e) {
-              }
-              const request = { data: payload };
-              const response = {
-                send: (result) => {
-                  try {
-                    result = stringify(result);
-                  } catch (e) {
-                  }
-                  if (!this.hasBeenDestroyed) {
-                    this.context.postMessage({
-                      signal: cbid,
-                      payload: result
-                    });
-                  }
-                }
-              };
-              callback(request, response);
-            }
-          };
-          this.context.addEventListener("message", inner);
-          const unsub = () => this.context.removeEventListener("message", inner);
-          this.unsubs.push(unsub);
-          return unsub;
+          delete alive[this.id];
+          this.unsubs.forEach((unsub) => unsub());
+          if (error) {
+            this.rejects.forEach((reject) => reject(error));
+          } else {
+            this.resolves.forEach((resolve) => resolve());
+          }
+          delete this.context;
+          delete this.rejects;
+          delete this.resolves;
+          delete this.unsubs;
         }
         emit(signal, payload) {
           if (this.hasBeenDestroyed) {
@@ -6572,23 +7205,45 @@
             }
           });
         }
-        destroy(error) {
+        on(signal, callback) {
           if (this.hasBeenDestroyed) {
             throw new Error(
               `This SubscriptionService instance has already been destroyed!`
             );
           }
-          delete alive[this.id];
-          this.unsubs.forEach((unsub) => unsub());
-          if (error) {
-            this.rejects.forEach((reject) => reject(error));
-          } else {
-            this.resolves.forEach((resolve) => resolve());
-          }
-          delete this.context;
-          delete this.rejects;
-          delete this.resolves;
-          delete this.unsubs;
+          const inner = (event) => {
+            if (event.data.signal === signal) {
+              const cbid = event.data.cbid;
+              let payload = event.data.payload;
+              try {
+                payload = parse(payload);
+              } catch (e) {
+              }
+              const request = { data: payload };
+              const response = {
+                send: (result) => {
+                  try {
+                    result = stringify(result);
+                  } catch (e) {
+                  }
+                  if (!this.hasBeenDestroyed) {
+                    this.context.postMessage({
+                      signal: cbid,
+                      payload: result
+                    });
+                  }
+                }
+              };
+              callback(request, response);
+            }
+          };
+          const unsub = () => {
+            this.context.removeEventListener("message", inner);
+            this.unsubs.remove(unsub);
+          };
+          this.unsubs.push(unsub);
+          this.context.addEventListener("message", inner);
+          return unsub;
         }
       };
       module.exports = SubscriptionService;
@@ -6663,14 +7318,16 @@
           if (this.isDead) {
             throw new Error("The queen is dead!");
           }
-          this.hive.push(new Drone(path));
-          return this;
+          const drone = new Drone(path);
+          this.hive.push(drone);
+          return drone;
         }
         addDrones(path, n) {
+          const out = [];
           for (let i = 0; i < n; i++) {
-            this.addDrone(path);
+            out.push(this.addDrone(path));
           }
-          return this;
+          return out;
         }
         removeDrone(drone) {
           if (this.isDead) {
@@ -6684,27 +7341,34 @@
           drones.forEach((drone) => this.removeDrone(drone));
           return this;
         }
-        on(signal, callback) {
-          const unsubs = this.hive.map((drone) => {
+        on(signal, callback, specificDrones) {
+          if (typeof specificDrones !== "undefined" && specificDrones instanceof Drone) {
+            specificDrones = [specificDrones];
+          }
+          const unsubs = (specificDrones || this.hive).map((drone) => {
             return drone.on(signal, callback);
           });
           const unsub = () => unsubs.forEach((unsub2) => unsub2());
           this.unsubs.push(unsub);
           return unsub;
         }
-        emit(signal, payload) {
+        emit(signal, payload, specificDrones) {
           if (this.isDead) {
             throw new Error("The queen is dead!");
           }
-          if (this.hive.length === 0) {
+          if (typeof specificDrones !== "undefined" && specificDrones instanceof Drone) {
+            specificDrones = [specificDrones];
+          }
+          const drones = specificDrones || this.hive;
+          if (drones.length === 0) {
             throw new Error(
               `The queen issued a "${signal}" command, but there are no drones in the hive!`
             );
           }
           return new Promise((resolve, reject) => {
             try {
-              const results = new Array(this.hive.length);
-              const promises = this.hive.map((drone, i) => {
+              const results = new Array(drones.length);
+              const promises = drones.map((drone, i) => {
                 return new Promise((resolve2, reject2) => {
                   try {
                     this.resolves.push(resolve2);
@@ -6744,8 +7408,8 @@
             }
           });
         }
-        command(signal, payload) {
-          return this.emit(signal, payload);
+        command() {
+          return this.emit(...arguments);
         }
         destroy(error) {
           if (this.isDead) {
