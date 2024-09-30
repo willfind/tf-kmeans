@@ -13,7 +13,8 @@
   "scripts": {
     "build": "node build.js",
     "watch": "node build.js --watch",
-    "test": "jest --testTimeout=300000"
+    "test": "jest --testTimeout=300000",
+    "pub": "npm version patch --force && npm publish --access=public"
   },
   "dependencies": {
     "@jrc03c/js-data-science-helpers": "^0.0.78",
