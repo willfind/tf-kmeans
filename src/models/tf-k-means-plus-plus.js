@@ -1,10 +1,14 @@
-const { assert, int, random } = require("@jrc03c/js-math-tools")
-const { isMatrix } = require("../helpers")
+const { assert, float, int, random } = require("@jrc03c/js-math-tools")
+const { isMatrix, isTFTensor } = require("../helpers")
 const tf = require("@tensorflow/tfjs")
-const TFKMeansNaive = require("./tf-kmeans-naive")
+const TFKMeansNaive = require("./tf-k-means-naive")
 
 class TFKMeansPlusPlus extends TFKMeansNaive {
   initializeCentroids(x) {
+    if (!isTFTensor(x)) {
+      x = float(x)
+    }
+
     assert(isMatrix(x), "`x` must be a matrix!")
 
     // initialize centroids using the kmeans++ algorithm

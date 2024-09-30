@@ -41,3 +41,22 @@ test("tests that the`TFKMeansMeta` model works correctly", async () => {
   expect(tf.memory().numTensors).toBe(0)
   expect(Object.keys(tf.engine().state.registeredVariables).length).toBe(0)
 })
+
+test("tests that the`TFKMeansMeta` model can handle BigIints", async () => {
+  const centroids = normal([5, 3]).map(row =>
+    row.map(v => BigInt(Math.round(v)))
+  )
+
+  const labels = []
+
+  const x = range(0, 20).map(() => {
+    const i = Math.floor(Math.random() * centroids.length)
+    labels.push(i)
+    const c = centroids[i]
+    return c.map(v => BigInt(Math.round(Number(v) + 0.1 * normal())))
+  })
+
+  const model = new TFKMeansMeta({ ks: [centroids.length] })
+  await model.fit(x)
+  expect(model.score(x)).not.toBeNaN()
+})

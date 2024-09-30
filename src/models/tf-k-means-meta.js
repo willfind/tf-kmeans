@@ -1,5 +1,6 @@
 const {
   assert,
+  float,
   isDataFrame,
   isEqual,
   isFunction,
@@ -9,7 +10,7 @@ const {
 
 const { KMeansMeta } = require("@jrc03c/js-data-science-helpers").KMeans
 const { isMatrix, isTFTensor } = require("../helpers")
-const TFKMeansPlusPlus = require("./tf-kmeans-plus-plus")
+const TFKMeansPlusPlus = require("./tf-k-means-plus-plus")
 
 class TFKMeansMeta extends KMeansMeta {
   constructor(config) {
@@ -68,6 +69,8 @@ class TFKMeansMeta extends KMeansMeta {
   getFitStepFunction(x, progress) {
     // currently, this method uses the "elbow" method of determining when to
     // stop; but we should probably consider the "silhouette" method as well!
+
+    x = float(x)
 
     assert(isMatrix(x), "`x` must be a matrix!")
 

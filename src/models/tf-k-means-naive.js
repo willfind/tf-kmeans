@@ -1,6 +1,7 @@
 const {
   add,
   assert,
+  float,
   isDataFrame,
   isFunction,
   isUndefined,
@@ -26,7 +27,7 @@ class TFKMeansNaive extends KMeansNaive {
       x = x.arraySync()
     }
 
-    return tf.tensor(super.initializeCentroids(x))
+    return tf.tensor(super.initializeCentroids(float(x)))
   }
 
   getFitStepFunction(x, progress) {
@@ -37,6 +38,8 @@ class TFKMeansNaive extends KMeansNaive {
     if (isTFTensor(x)) {
       x = x.arraySync()
     }
+
+    x = float(x)
 
     assert(isMatrix(x), "`x` must be a matrix!")
 
@@ -251,6 +254,8 @@ class TFKMeansNaive extends KMeansNaive {
         x = x.values
       }
 
+      x = float(x)
+
       assert(isMatrix(x), "`x` must be a matrix!")
 
       centroids = centroids || this.centroids
@@ -287,6 +292,8 @@ class TFKMeansNaive extends KMeansNaive {
       if (isDataFrame(x)) {
         x = x.values
       }
+
+      x = float(x)
 
       assert(isMatrix(x), "`x` must be a matrix!")
 
