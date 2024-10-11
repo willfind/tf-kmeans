@@ -16,6 +16,10 @@ function rebuild() {
       `${baseCommand} --format=esm --outfile=dist/tf-k-means.import.min.mjs --minify`,
       `${baseCommand} --outfile=dist/tf-k-means.standalone.cjs`,
       `${baseCommand} --outfile=dist/tf-k-means.standalone.min.cjs --minify`,
+
+      // build test bundles
+      `npx esbuild tests/browser/src/tests-worker.mjs --bundle --outfile=tests/browser/tests-worker-bundle.js`,
+      `npx esbuild tests/browser/src/tests.mjs --bundle --outfile=tests/browser/tests-bundle.js`,
     ]
 
     commands.forEach(command => {
