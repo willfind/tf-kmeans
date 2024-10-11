@@ -13576,7 +13576,7 @@
     window.Bee = Bee;
   }
 
-  // dist/tf-k-means.import.min.mjs
+  // dist/tf-kmeans.import.min.mjs
   var kB = Object.create;
   var hv = Object.defineProperty;
   var EB = Object.getOwnPropertyDescriptor;

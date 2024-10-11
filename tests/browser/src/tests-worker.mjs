@@ -14,7 +14,7 @@ import {
   helpers,
   metrics,
   models,
-} from "../../../dist/tf-k-means.import.min.mjs"
+} from "../../../dist/tf-kmeans.import.min.mjs"
 
 import { rScore, trainTestSplit } from "@jrc03c/js-data-science-helpers"
 

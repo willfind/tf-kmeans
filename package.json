@@ -21,13 +21,13 @@
     "prettier": "^3.3.3"
   },
   "exports": {
-    "import": "./dist/tf-k-means.import.mjs",
-    "require": "./dist/tf-k-means.require.cjs"
+    "import": "./dist/tf-kmeans.import.mjs",
+    "require": "./dist/tf-kmeans.require.cjs"
   },
   "homepage": "https://github.com/jrc03c/tf-kmeans#readme",
   "license": "ISC",
-  "main": "./dist/tf-k-means.require.cjs",
-  "name": "@willfind/tf-k-means",
+  "main": "./dist/tf-kmeans.require.cjs",
+  "name": "@willfind/tf-kmeans",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jrc03c/tf-kmeans.git"
