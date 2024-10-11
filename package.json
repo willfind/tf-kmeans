@@ -4,8 +4,8 @@
     "@jrc03c/js-data-science-helpers": "^0.0.80",
     "@jrc03c/js-math-tools": "^0.0.86",
     "@jrc03c/pause": "^0.0.6",
-    "@tensorflow/tfjs": "^4.1.0",
-    "@tensorflow/tfjs-node": "^4.2.0"
+    "@tensorflow/tfjs": "^4.21.0",
+    "@tensorflow/tfjs-node": "^4.21.0"
   },
   "description": "my silly attempt to implement k-means in tensorflow.js",
   "devDependencies": {

@@ -8,8 +8,8 @@ import {
   shape,
 } from "@jrc03c/js-math-tools"
 
-import { engine, memory, models } from "@tensorflow/tfjs"
-import { helpers, metrics } from "../dist/tf-k-means.import.min.mjs"
+import { engine, memory } from "@tensorflow/tfjs"
+import { helpers, metrics, models } from "../src/index.mjs"
 import { trainTestSplit } from "@jrc03c/js-data-science-helpers"
 
 const { accuracy } = metrics
