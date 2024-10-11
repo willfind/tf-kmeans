@@ -23467,7 +23467,7 @@ function convertTsToPythonic(tsConfig, key) {
 }
 
 // node_modules/@tensorflow/tfjs-layers/dist/version.js
-var version = "4.20.0";
+var version = "4.21.0";
 
 // node_modules/@tensorflow/tfjs-layers/dist/engine/container.js
 var isKerasSavedModelFormat = (weights) => {

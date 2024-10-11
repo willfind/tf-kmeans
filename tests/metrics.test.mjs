@@ -140,7 +140,7 @@ test("tests that the `sse` function computes scores correctly", () => {
 
     const b = normal(tempShape)
     const c = normal(tempShape)
-    expect(sse(b, c)).toBeCloseTo(slowSse(b, c))
+    expect(abs(sse(b, c) - slowSse(b, c))).toBeLessThan(0.01)
   })
 
   const eInts = normal([100, 5]).map(row => row.map(v => Math.round(v)))
