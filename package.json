@@ -27,7 +27,7 @@
   "homepage": "https://github.com/jrc03c/tf-kmeans#readme",
   "license": "ISC",
   "main": "./dist/tf-k-means.require.cjs",
-  "name": "@willfind/tf-kmeans",
+  "name": "@willfind/tf-k-means",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jrc03c/tf-kmeans.git"
