@@ -10,6 +10,8 @@ function rebuild() {
     const baseCommand = "npx esbuild src/index.mjs --bundle"
 
     const commands = [
+      "mkdir -p dist",
+      "rm -rf dist/*",
       `${baseCommand} --platform=node --outfile=dist/tf-kmeans.require.cjs`,
       `${baseCommand} --platform=node --outfile=dist/tf-kmeans.require.min.cjs --minify`,
       `${baseCommand} --format=esm --outfile=dist/tf-kmeans.import.mjs`,
